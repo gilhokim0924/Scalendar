@@ -58,3 +58,6 @@ out/
 
 # Course materials (private)
 *[Pacemaker]*.pdf
+
+# Internal planning documents (not for public portfolio)
+docs/proposal.md
