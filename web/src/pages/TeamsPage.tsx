@@ -33,13 +33,8 @@ export default function TeamsPage() {
       <header className="page-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="page-title">My Teams</h1>
-            <p className="page-subtitle">
-              {selectedTeams.length === 0
-                ? 'Select teams to follow and see their events on your calendar'
-                : `Following ${selectedTeams.length} ${selectedTeams.length === 1 ? 'team' : 'teams'}`
-              }
-            </p>
+            <h1 className="page-title">Scalendar</h1>
+            <p className="page-subtitle">Your Sports Calendar</p>
           </div>
           <Navigation />
         </div>

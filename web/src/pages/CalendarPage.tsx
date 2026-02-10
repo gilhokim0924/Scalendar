@@ -47,15 +47,27 @@ export default function CalendarPage() {
     );
   };
 
-  const goToPreviousMonth = () => {
+  const goToPrevious = () => {
     const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() - 1);
+    if (viewMode === 'day') {
+      newDate.setDate(newDate.getDate() - 1);
+    } else if (viewMode === 'week') {
+      newDate.setDate(newDate.getDate() - 7);
+    } else {
+      newDate.setMonth(newDate.getMonth() - 1);
+    }
     setCurrentDate(newDate);
   };
 
-  const goToNextMonth = () => {
+  const goToNext = () => {
     const newDate = new Date(currentDate);
-    newDate.setMonth(newDate.getMonth() + 1);
+    if (viewMode === 'day') {
+      newDate.setDate(newDate.getDate() + 1);
+    } else if (viewMode === 'week') {
+      newDate.setDate(newDate.getDate() + 7);
+    } else {
+      newDate.setMonth(newDate.getMonth() + 1);
+    }
     setCurrentDate(newDate);
   };
 
@@ -91,52 +103,37 @@ export default function CalendarPage() {
 
       {/* Main Content */}
       <main className="main-content">
+        {/* Calendar Controls */}
+        <div className="calendar-controls-wrapper">
+          <div className="calendar-controls">
+            <h2 className="current-date">
+              {viewMode === 'day' && format(currentDate, 'EEEE, MMMM d, yyyy')}
+              {viewMode === 'week' && `Week of ${format(startOfWeek(currentDate), 'MMM d, yyyy')}`}
+              {viewMode === 'month' && format(currentDate, 'MMMM yyyy')}
+            </h2>
 
-        {/* View Mode Switcher */}
-        <div className="view-switcher">
-          <button
-            className={`view-btn ${viewMode === 'day' ? 'active' : ''}`}
-            onClick={() => setViewMode('day')}
-          >
-            Day
-          </button>
-          <button
-            className={`view-btn ${viewMode === 'week' ? 'active' : ''}`}
-            onClick={() => setViewMode('week')}
-          >
-            Week
-          </button>
-          <button
-            className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}
-            onClick={() => setViewMode('month')}
-          >
-            Month
-          </button>
-        </div>
-
-        {/* Calendar Header */}
-        <div className="calendar-header">
-          <h2 className="calendar-month">
-            {viewMode === 'day' && format(currentDate, 'EEEE, MMMM d, yyyy')}
-            {viewMode === 'week' && `Week of ${format(startOfWeek(currentDate), 'MMM d, yyyy')}`}
-            {viewMode === 'month' && format(currentDate, 'MMMM yyyy')}
-          </h2>
-          <div className="calendar-nav">
-            <button className="nav-btn" onClick={goToPreviousMonth}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
-            <button className="nav-btn" onClick={() => setCurrentDate(new Date())}>
-              Today
-            </button>
-            <button className="nav-btn" onClick={goToNextMonth}>
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            </button>
+            {/* Navigation Buttons */}
+            <div className="calendar-nav">
+              <button className="nav-btn" onClick={goToPrevious}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+              <button className="nav-btn-today" onClick={() => setCurrentDate(new Date())}>
+                Today
+              </button>
+              <button className="nav-btn" onClick={goToNext}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                  <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
+
+        <div className="calendar-layout">
+          {/* Calendar Content */}
+          <div className="calendar-content">
 
         {/* Day View */}
         {viewMode === 'day' && (
@@ -251,6 +248,30 @@ export default function CalendarPage() {
             </div>
           </div>
         )}
+          </div>
+
+          {/* View Mode Sidebar - Right */}
+          <aside className="view-sidebar">
+            <button
+              className={`view-mode-btn ${viewMode === 'day' ? 'active' : ''}`}
+              onClick={() => setViewMode('day')}
+            >
+              Day
+            </button>
+            <button
+              className={`view-mode-btn ${viewMode === 'week' ? 'active' : ''}`}
+              onClick={() => setViewMode('week')}
+            >
+              Week
+            </button>
+            <button
+              className={`view-mode-btn ${viewMode === 'month' ? 'active' : ''}`}
+              onClick={() => setViewMode('month')}
+            >
+              Month
+            </button>
+          </aside>
+        </div>
       </main>
 
       {/* Event Modal */}

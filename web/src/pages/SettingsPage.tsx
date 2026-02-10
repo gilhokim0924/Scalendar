@@ -33,8 +33,8 @@ export default function SettingsPage() {
       <header className="page-header">
         <div className="header-content">
           <div className="header-left">
-            <h1 className="page-title">Settings</h1>
-            <p className="page-subtitle">Manage your calendar preferences</p>
+            <h1 className="page-title">Scalendar</h1>
+            <p className="page-subtitle">Your Sports Calendar</p>
           </div>
           <Navigation />
         </div>
