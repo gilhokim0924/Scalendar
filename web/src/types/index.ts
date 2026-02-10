@@ -12,7 +12,7 @@ export interface Team {
   external_api_id: string;
 }
 
-export interface Event {
+export interface SportsEvent {
   id: string;
   sport_id: string;
   home_team_id?: string;

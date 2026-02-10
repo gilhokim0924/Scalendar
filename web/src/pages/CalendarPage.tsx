@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO } from 'date-fns';
 import { mockEvents } from '../utils/mockData';
-import { Event } from '../types';
+import type { SportsEvent } from '../types';
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(currentDate);
@@ -27,13 +27,21 @@ export default function CalendarPage() {
       <div style={{ marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <h2>{format(currentDate, 'MMMM yyyy')}</h2>
         <div>
-          <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() - 1)))}>
+          <button onClick={() => {
+            const newDate = new Date(currentDate);
+            newDate.setMonth(newDate.getMonth() - 1);
+            setCurrentDate(newDate);
+          }}>
             Previous
           </button>
           <button onClick={() => setCurrentDate(new Date())} style={{ margin: '0 10px' }}>
             Today
           </button>
-          <button onClick={() => setCurrentDate(new Date(currentDate.setMonth(currentDate.getMonth() + 1)))}>
+          <button onClick={() => {
+            const newDate = new Date(currentDate);
+            newDate.setMonth(newDate.getMonth() + 1);
+            setCurrentDate(newDate);
+          }}>
             Next
           </button>
         </div>

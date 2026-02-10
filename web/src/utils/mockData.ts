@@ -1,4 +1,4 @@
-import { Event, Sport, Team } from '../types';
+import type { SportsEvent, Sport, Team } from '../types';
 
 export const mockSports: Sport[] = [
   { id: '1', name: 'Premier League' },
@@ -13,7 +13,7 @@ export const mockTeams: Team[] = [
   { id: '5', sport_id: '2', name: 'Red Bull Racing', external_api_id: 'red_bull' },
 ];
 
-export const mockEvents: Event[] = [
+export const mockEvents: SportsEvent[] = [
   {
     id: '1',
     sport_id: '1',
