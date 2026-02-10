@@ -1,9 +1,15 @@
-import { ReactNode } from 'react';
+import type { ReactNode } from 'react';
+import Navigation from './Navigation';
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 export default function Layout({ children }: LayoutProps) {
-  return <>{children}</>;
+  return (
+    <>
+      <div style={{ paddingBottom: '80px' }}>{children}</div>
+      <Navigation />
+    </>
+  );
 }
