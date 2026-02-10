@@ -1,12 +1,16 @@
 import { useState } from 'react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, startOfWeek, endOfWeek, addDays } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, parseISO, startOfWeek, endOfWeek, addDays, addWeeks, startOfDay } from 'date-fns';
 import { mockEvents, mockTeams } from '../utils/mockData';
 import type { SportsEvent } from '../types';
+import Navigation from '../components/Navigation';
 import './CalendarPage.css';
+
+type ViewMode = 'day' | 'week' | 'month';
 
 export default function CalendarPage() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [selectedTeams, setSelectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
     return saved ? JSON.parse(saved) : [];
@@ -59,22 +63,64 @@ export default function CalendarPage() {
     return day.getMonth() === currentDate.getMonth();
   };
 
+  // Get events for day view
+  const getDayEvents = () => {
+    return filteredEvents.filter(event =>
+      isSameDay(parseISO(event.datetime_utc), currentDate)
+    ).sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
+  };
+
+  // Get events for week view
+  const getWeekDays = () => {
+    const start = startOfWeek(currentDate);
+    return Array.from({ length: 7 }, (_, i) => addDays(start, i));
+  };
+
   return (
     <div className="app-container">
       {/* Header */}
       <header className="header">
         <div className="header-content">
-          <h1 className="app-title">Scalendar</h1>
-          <p className="app-subtitle">Your Sports Calendar</p>
+          <div className="header-left">
+            <h1 className="app-title">Scalendar</h1>
+            <p className="app-subtitle">Your Sports Calendar</p>
+          </div>
+          <Navigation />
         </div>
       </header>
 
       {/* Main Content */}
       <main className="main-content">
 
+        {/* View Mode Switcher */}
+        <div className="view-switcher">
+          <button
+            className={`view-btn ${viewMode === 'day' ? 'active' : ''}`}
+            onClick={() => setViewMode('day')}
+          >
+            Day
+          </button>
+          <button
+            className={`view-btn ${viewMode === 'week' ? 'active' : ''}`}
+            onClick={() => setViewMode('week')}
+          >
+            Week
+          </button>
+          <button
+            className={`view-btn ${viewMode === 'month' ? 'active' : ''}`}
+            onClick={() => setViewMode('month')}
+          >
+            Month
+          </button>
+        </div>
+
         {/* Calendar Header */}
         <div className="calendar-header">
-          <h2 className="calendar-month">{format(currentDate, 'MMMM yyyy')}</h2>
+          <h2 className="calendar-month">
+            {viewMode === 'day' && format(currentDate, 'EEEE, MMMM d, yyyy')}
+            {viewMode === 'week' && `Week of ${format(startOfWeek(currentDate), 'MMM d, yyyy')}`}
+            {viewMode === 'month' && format(currentDate, 'MMMM yyyy')}
+          </h2>
           <div className="calendar-nav">
             <button className="nav-btn" onClick={goToPreviousMonth}>
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -92,39 +138,69 @@ export default function CalendarPage() {
           </div>
         </div>
 
-        {/* Calendar Grid */}
-        <div className="calendar-container">
-          {/* Day Names */}
-          <div className="calendar-grid">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
-              <div key={day} className="day-name">
-                {day}
-              </div>
-            ))}
+        {/* Day View */}
+        {viewMode === 'day' && (
+          <div className="day-view">
+            {getDayEvents().length === 0 ? (
+              <div className="no-events">No events scheduled for this day</div>
+            ) : (
+              getDayEvents().map((event) => (
+                <div key={event.id} className="day-event-card" onClick={() => setSelectedEvent(event)}>
+                  <div className={`event-sport-badge ${event.sport_id === '1' ? 'premier-league' : 'formula-one'}`}>
+                    {event.sport_id === '1' ? 'Premier League' : 'Formula 1'}
+                  </div>
+                  <h3 className="day-event-title">{event.title}</h3>
+                  <div className="day-event-details">
+                    <div className="detail-item">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 4v4l2.667 1.333M14 8A6 6 0 112 8a6 6 0 0112 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{format(parseISO(event.datetime_utc), 'h:mm a')}</span>
+                    </div>
+                    <div className="detail-item">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 8.667a2 2 0 100-4 2 2 0 000 4z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M13 6.667C13 11 8 14.333 8 14.333S3 11 3 6.667a5 5 0 0110 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{event.venue}</span>
+                    </div>
+                    <div className="detail-item">
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13.333 14v-1.333A2.667 2.667 0 0010.666 10H5.333a2.667 2.667 0 00-2.666 2.667V14M8 7.333A2.667 2.667 0 108 2a2.667 2.667 0 000 5.333z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                      <span>{event.competition}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
 
-            {/* Calendar Days */}
-            {calendarDays.map((day) => {
-              const events = getEventsForDay(day);
+        {/* Week View */}
+        {viewMode === 'week' && (
+          <div className="week-view">
+            {getWeekDays().map((day) => {
+              const dayEvents = filteredEvents.filter(event =>
+                isSameDay(parseISO(event.datetime_utc), day)
+              );
               const isToday = isSameDay(day, new Date());
-              const inCurrentMonth = isCurrentMonth(day);
 
               return (
-                <div
-                  key={day.toISOString()}
-                  className={`calendar-day ${!inCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
-                >
-                  <div className="day-number">
-                    {format(day, 'd')}
+                <div key={day.toISOString()} className={`week-day ${isToday ? 'today' : ''}`}>
+                  <div className="week-day-header">
+                    <div className="week-day-name">{format(day, 'EEE')}</div>
+                    <div className="week-day-number">{format(day, 'd')}</div>
                   </div>
-                  <div className="events-container">
-                    {events.map((event) => (
+                  <div className="week-events">
+                    {dayEvents.map((event) => (
                       <div
                         key={event.id}
                         onClick={() => setSelectedEvent(event)}
-                        className={`event-badge ${event.sport_id === '1' ? 'premier-league' : 'formula-one'}`}
+                        className={`week-event ${event.sport_id === '1' ? 'premier-league' : 'formula-one'}`}
                       >
-                        <span className="event-time">{format(parseISO(event.datetime_utc), 'HH:mm')}</span>
-                        <span className="event-title">{event.title}</span>
+                        <div className="week-event-time">{format(parseISO(event.datetime_utc), 'HH:mm')}</div>
+                        <div className="week-event-title">{event.title}</div>
                       </div>
                     ))}
                   </div>
@@ -132,7 +208,49 @@ export default function CalendarPage() {
               );
             })}
           </div>
-        </div>
+        )}
+
+        {/* Month View */}
+        {viewMode === 'month' && (
+          <div className="calendar-container">
+            <div className="calendar-grid">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                <div key={day} className="day-name">
+                  {day}
+                </div>
+              ))}
+
+              {calendarDays.map((day) => {
+                const events = getEventsForDay(day);
+                const isToday = isSameDay(day, new Date());
+                const inCurrentMonth = isCurrentMonth(day);
+
+                return (
+                  <div
+                    key={day.toISOString()}
+                    className={`calendar-day ${!inCurrentMonth ? 'other-month' : ''} ${isToday ? 'today' : ''}`}
+                  >
+                    <div className="day-number">
+                      {format(day, 'd')}
+                    </div>
+                    <div className="events-container">
+                      {events.map((event) => (
+                        <div
+                          key={event.id}
+                          onClick={() => setSelectedEvent(event)}
+                          className={`event-badge ${event.sport_id === '1' ? 'premier-league' : 'formula-one'}`}
+                        >
+                          <span className="event-time">{format(parseISO(event.datetime_utc), 'HH:mm')}</span>
+                          <span className="event-title">{event.title}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* Event Modal */}

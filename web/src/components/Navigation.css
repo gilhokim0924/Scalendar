@@ -1,61 +1,37 @@
-.navigation {
+.top-navigation {
   display: flex;
   gap: 8px;
-  background: #ffffff;
-  padding: 8px;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  align-items: center;
 }
 
-.nav-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 12px 16px;
+.nav-link {
+  padding: 8px 16px;
   border-radius: 8px;
   text-decoration: none;
   color: #86868b;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
   transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-.nav-item:hover {
+.nav-link:hover {
   background: #f5f5f7;
   color: #1d1d1f;
 }
 
-.nav-item.active {
+.nav-link.active {
   background: #1d1d1f;
   color: #ffffff;
 }
 
-.nav-item svg {
-  width: 24px;
-  height: 24px;
-}
-
 @media (max-width: 768px) {
-  .navigation {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    border-radius: 0;
-    border-top: 1px solid #e5e5e7;
-    padding: 12px 8px;
-    z-index: 100;
+  .top-navigation {
+    gap: 4px;
   }
 
-  .nav-item {
-    padding: 8px;
-    font-size: 11px;
-  }
-
-  .nav-item svg {
-    width: 20px;
-    height: 20px;
+  .nav-link {
+    padding: 6px 12px;
+    font-size: 13px;
   }
 }

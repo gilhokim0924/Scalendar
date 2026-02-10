@@ -17,6 +17,13 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left {
+  flex: 1;
 }
 
 .app-title {
@@ -39,6 +46,39 @@
   max-width: 1200px;
   margin: 0 auto;
   padding: 32px 24px;
+}
+
+/* View Switcher */
+.view-switcher {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  padding: 4px;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  width: fit-content;
+}
+
+.view-btn {
+  padding: 8px 20px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #86868b;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-btn:hover {
+  color: #1d1d1f;
+}
+
+.view-btn.active {
+  background: #1d1d1f;
+  color: #ffffff;
 }
 
 /* Sport Filter */
@@ -371,10 +411,186 @@
   font-weight: 400;
 }
 
+/* Day View */
+.day-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.no-events {
+  background: #ffffff;
+  padding: 60px 24px;
+  border-radius: 16px;
+  text-align: center;
+  color: #86868b;
+  font-size: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.day-event-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day-event-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+}
+
+.event-sport-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 12px;
+}
+
+.event-sport-badge.premier-league {
+  background: #38003c;
+}
+
+.event-sport-badge.formula-one {
+  background: #e10600;
+}
+
+.day-event-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.3px;
+}
+
+.day-event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1d1d1f;
+  font-size: 14px;
+}
+
+.detail-item svg {
+  color: #86868b;
+  flex-shrink: 0;
+}
+
+/* Week View */
+.week-view {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: #e5e5e7;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.week-day {
+  background: #ffffff;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+
+.week-day.today {
+  background: #f0f9ff;
+}
+
+.week-day-header {
+  padding: 16px;
+  border-bottom: 1px solid #f5f5f7;
+  text-align: center;
+}
+
+.week-day-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #86868b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.week-day-number {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.week-day.today .week-day-number {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  background: #007aff;
+  color: #ffffff;
+  border-radius: 50%;
+}
+
+.week-events {
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.week-event {
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.week-event:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.week-event.premier-league {
+  background: #38003c;
+  color: #ffffff;
+}
+
+.week-event.formula-one {
+  background: #e10600;
+  color: #ffffff;
+}
+
+.week-event-time {
+  font-size: 11px;
+  font-weight: 600;
+  opacity: 0.9;
+  margin-bottom: 4px;
+}
+
+.week-event-title {
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .app-title {
     font-size: 24px;
+  }
+
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 
   .main-content {
@@ -418,12 +634,15 @@
     align-items: flex-start;
   }
 
-  .filter-section {
-    flex-direction: column;
+  .week-view {
+    grid-template-columns: 1fr;
   }
 
-  .filter-btn {
-    width: 100%;
-    justify-content: center;
+  .week-day {
+    min-height: auto;
+  }
+
+  .day-event-title {
+    font-size: 20px;
   }
 }

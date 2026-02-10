@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { mockSports, mockTeams } from '../utils/mockData';
+import Navigation from '../components/Navigation';
 import './TeamsPage.css';
 
 export default function TeamsPage() {
@@ -30,13 +31,18 @@ export default function TeamsPage() {
   return (
     <div className="teams-page">
       <header className="page-header">
-        <h1 className="page-title">My Teams</h1>
-        <p className="page-subtitle">
-          {selectedTeams.length === 0
-            ? 'Select teams to follow and see their events on your calendar'
-            : `Following ${selectedTeams.length} ${selectedTeams.length === 1 ? 'team' : 'teams'}`
-          }
-        </p>
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="page-title">My Teams</h1>
+            <p className="page-subtitle">
+              {selectedTeams.length === 0
+                ? 'Select teams to follow and see their events on your calendar'
+                : `Following ${selectedTeams.length} ${selectedTeams.length === 1 ? 'team' : 'teams'}`
+              }
+            </p>
+          </div>
+          <Navigation />
+        </div>
       </header>
 
       <main className="page-content">

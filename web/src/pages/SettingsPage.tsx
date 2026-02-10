@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Navigation from '../components/Navigation';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
@@ -30,8 +31,13 @@ export default function SettingsPage() {
   return (
     <div className="settings-page">
       <header className="page-header">
-        <h1 className="page-title">Settings</h1>
-        <p className="page-subtitle">Manage your calendar preferences</p>
+        <div className="header-content">
+          <div className="header-left">
+            <h1 className="page-title">Settings</h1>
+            <p className="page-subtitle">Manage your calendar preferences</p>
+          </div>
+          <Navigation />
+        </div>
       </header>
 
       <main className="page-content">
