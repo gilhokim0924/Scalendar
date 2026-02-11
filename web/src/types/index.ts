@@ -11,6 +11,7 @@ export interface Team {
   name: string;
   logo_url?: string;
   external_api_id: string;
+  league?: string;
 }
 
 export interface SportsEvent {

@@ -7,16 +7,21 @@
   color: #ffffff;
 }
 
-/* Header */
-.teams-header {
-  background: rgba(26, 29, 46, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 20px 0;
+/* Sticky Header Container */
+.teams-sticky-header {
   position: sticky;
   top: 0;
   z-index: 100;
+  background: linear-gradient(180deg, #1a1d2e 0%, #1a1d2e 85%, rgba(26, 29, 46, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+
+/* Header */
+.teams-header {
+  padding: 20px 0;
 }
 
 .teams-title {
@@ -32,7 +37,7 @@
 /* Search */
 .teams-search-wrapper {
   max-width: 600px;
-  margin: 20px auto 0;
+  margin: 0 auto;
   padding: 0 20px;
 }
 
@@ -74,7 +79,7 @@
 /* Filters */
 .teams-filters {
   max-width: 600px;
-  margin: 16px auto;
+  margin: 16px auto 0;
   padding: 0 20px;
   display: flex;
   gap: 12px;
@@ -118,11 +123,32 @@
   font-size: 18px;
 }
 
+/* League Filters */
+.teams-league-filters {
+  max-width: 600px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.teams-league-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.teams-league-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 /* Team List */
 .teams-list {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 20px 120px;
+  padding: 8px 20px 120px;
 }
 
 .teams-list-row {
@@ -308,7 +334,11 @@
     padding: 0 16px;
   }
 
+  .teams-league-filters {
+    padding: 0 16px;
+  }
+
   .teams-list {
-    padding: 0 16px 120px;
+    padding: 8px 16px 120px;
   }
 }
