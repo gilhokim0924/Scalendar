@@ -1,15 +1,12 @@
-import { useState } from 'react';
-import { format, parseISO, isToday, isFuture, isPast } from 'date-fns';
+import { useState, useEffect, useRef } from 'react';
+import { format, parseISO } from 'date-fns';
 import { mockEvents, mockTeams, getTeamInitials } from '../utils/mockData';
 import type { SportsEvent } from '../types';
 import { Link } from 'react-router-dom';
 import './CalendarPage.css';
 
-type ViewMode = 'next' | 'past' | 'all';
-
 export default function CalendarPage() {
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
-  const [viewMode, setViewMode] = useState<ViewMode>('next');
   const [selectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
     return saved ? JSON.parse(saved) : [];
@@ -35,25 +32,15 @@ export default function CalendarPage() {
       })
     : mockEvents;
 
-  // Filter by time
-  if (viewMode === 'next') {
-    filteredEvents = filteredEvents.filter(event => {
-      const eventDate = parseISO(event.datetime_utc);
-      return isFuture(eventDate) || isToday(eventDate);
-    });
-  } else if (viewMode === 'past') {
-    filteredEvents = filteredEvents.filter(event => {
-      const eventDate = parseISO(event.datetime_utc);
-      return isPast(eventDate) && !isToday(eventDate);
-    });
-  }
-
-  // Sort events
+  // Sort all events ascending
   filteredEvents = [...filteredEvents].sort((a, b) => {
     const dateA = parseISO(a.datetime_utc).getTime();
     const dateB = parseISO(b.datetime_utc).getTime();
-    return viewMode === 'past' ? dateB - dateA : dateA - dateB;
+    return dateA - dateB;
   });
+
+  // Find the today marker insertion point
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
 
   // Group events by date
   const groupedEvents: { [key: string]: SportsEvent[] } = {};
@@ -70,6 +57,16 @@ export default function CalendarPage() {
     return mockTeams.find(team => team.id === teamId);
   };
 
+  // Find the first date key to scroll to (today, or first future date)
+  const dateKeys = Object.keys(groupedEvents);
+  const scrollToDateKey = dateKeys.find(dk => dk >= todayStr) || dateKeys[dateKeys.length - 1];
+
+  const todayRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    todayRef.current?.scrollIntoView({ block: 'start' });
+  }, []);
+
   // Track months for separators
   let lastMonth = '';
 
@@ -79,10 +76,9 @@ export default function CalendarPage() {
         <div className="header-content">
           <h1 className="app-title">Scalendar</h1>
         </div>
-      </header>
 
-      {/* Team Avatar Chips — shows which teams are filtering the calendar */}
-      <div className="team-chips-row">
+        {/* Team Avatar Chips — shows which teams are filtering the calendar */}
+        <div className="team-chips-row">
         {selectedTeamObjects.length > 0
           ? selectedTeamObjects.map(team => (
               <div key={team.id} className="team-chip" title={team.name}>
@@ -96,14 +92,8 @@ export default function CalendarPage() {
         <Link to="/teams" className="team-chip add-chip">
           <span>+</span>
         </Link>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="tab-navigation">
-        <button className={`tab-btn ${viewMode === 'next' ? 'active' : ''}`} onClick={() => setViewMode('next')}>Next</button>
-        <button className={`tab-btn ${viewMode === 'past' ? 'active' : ''}`} onClick={() => setViewMode('past')}>Past</button>
-        <button className={`tab-btn ${viewMode === 'all' ? 'active' : ''}`} onClick={() => setViewMode('all')}>All</button>
-      </div>
+        </div>
+      </header>
 
       {/* Events List */}
       <main className="events-list">
@@ -121,16 +111,18 @@ export default function CalendarPage() {
             const currentMonth = format(date, 'MMMM');
             const showMonthSeparator = currentMonth !== lastMonth;
             lastMonth = currentMonth;
+            const isDateToday = dateKey === todayStr;
 
             return (
-              <div key={dateKey}>
+              <div key={dateKey} ref={dateKey === scrollToDateKey ? todayRef : undefined}>
                 {showMonthSeparator && (
                   <div className="month-separator">{currentMonth}</div>
                 )}
                 <div className="date-group">
-                  <div className="date-badge">
+                  <div className={`date-badge ${isDateToday ? 'date-badge-today' : ''}`}>
                     <div className="date-day">{dayOfWeek}</div>
                     <div className="date-number">{dayNumber}</div>
+                    {isDateToday && <div className="date-today-label">Today</div>}
                   </div>
 
                   <div className="events-for-date">

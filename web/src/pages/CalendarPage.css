@@ -39,8 +39,8 @@
 /* Team Avatar Chips */
 .team-chips-row {
   max-width: 600px;
-  margin: 16px auto 0;
-  padding: 0 20px;
+  margin: 0 auto;
+  padding: 12px 20px 0;
   display: flex;
   gap: 10px;
   justify-content: center;
@@ -149,46 +149,28 @@
   font-size: 18px;
 }
 
-/* Tab Navigation */
-.tab-navigation {
-  max-width: 600px;
-  margin: 0 auto 24px;
-  padding: 0 20px;
-  display: flex;
-  gap: 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+/* Today Badge */
+.date-badge-today {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
 }
 
-.tab-btn {
-  flex: 1;
-  padding: 14px 0;
-  border: none;
-  background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+.date-badge-today .date-day {
+  color: rgba(255, 255, 255, 0.85);
 }
 
-.tab-btn:hover {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.tab-btn.active {
+.date-badge-today .date-number {
   color: #ffffff;
 }
 
-.tab-btn.active::after {
-  content: '';
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-  border-radius: 3px 3px 0 0;
+.date-today-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 2px;
+  line-height: 1;
 }
 
 /* Month Separator */
@@ -262,6 +244,12 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.date-badge-today {
+  height: auto;
+  border-radius: 24px 24px 14px 14px;
+  padding: 8px 0 5px;
 }
 
 .date-day {
