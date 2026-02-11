@@ -36,6 +36,8 @@ export const mockEvents: SportsEvent[] = [
     venue: 'Anfield',
     competition: 'Premier League',
     external_event_id: 'pl_past_001',
+    home_score: 2,
+    away_score: 1,
   },
   {
     id: '102',
@@ -47,6 +49,18 @@ export const mockEvents: SportsEvent[] = [
     venue: 'Etihad Stadium',
     competition: 'Premier League',
     external_event_id: 'pl_past_002',
+    home_score: 1,
+    away_score: 1,
+  },
+  {
+    id: '100',
+    sport_id: '2',
+    title: 'Japanese Grand Prix',
+    datetime_utc: '2026-01-26T06:00:00Z',
+    venue: 'Suzuka International Racing Course',
+    competition: 'Formula 1',
+    external_event_id: 'f1_past_001',
+    result: '1. Verstappen  2. Leclerc  3. Norris',
   },
   {
     id: '103',
@@ -58,6 +72,8 @@ export const mockEvents: SportsEvent[] = [
     venue: 'Tottenham Hotspur Stadium',
     competition: 'Premier League',
     external_event_id: 'pl_past_003',
+    home_score: 0,
+    away_score: 3,
   },
   {
     id: '104',
@@ -69,6 +85,8 @@ export const mockEvents: SportsEvent[] = [
     venue: "St James' Park",
     competition: 'Premier League',
     external_event_id: 'pl_past_004',
+    home_score: 3,
+    away_score: 2,
   },
   {
     id: '105',
@@ -80,6 +98,8 @@ export const mockEvents: SportsEvent[] = [
     venue: 'Amex Stadium',
     competition: 'Premier League',
     external_event_id: 'pl_past_005',
+    home_score: 2,
+    away_score: 0,
   },
   {
     id: '106',
@@ -91,6 +111,8 @@ export const mockEvents: SportsEvent[] = [
     venue: 'Stamford Bridge',
     competition: 'Premier League',
     external_event_id: 'pl_past_006',
+    home_score: 1,
+    away_score: 2,
   },
   {
     id: '1',

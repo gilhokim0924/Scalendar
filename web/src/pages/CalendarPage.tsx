@@ -131,11 +131,12 @@ export default function CalendarPage() {
                       const awayTeam = getTeamInfo(event.away_team_id);
                       const eventDate = parseISO(event.datetime_utc);
                       const time = format(eventDate, 'HH:mm');
+                      const isPast = dateKey < todayStr;
 
                       return (
                         <div
                           key={event.id}
-                          className={`event-card ${event.sport_id === '1' ? 'premier-league' : 'formula-one'}`}
+                          className={`event-card ${event.sport_id === '1' ? 'premier-league' : 'formula-one'} ${isPast ? 'past-event' : ''}`}
                           onClick={() => setSelectedEvent(event)}
                         >
                           {eventsForDate.length > 1 && (
@@ -143,18 +144,24 @@ export default function CalendarPage() {
                           )}
 
                           <div className="event-card-content">
-                            <div className="event-time">{time}</div>
+                            <div className="event-time">{isPast ? 'FT' : time}</div>
                             <div className="event-teams">
                               {homeTeam && (
                                 <div className="team-info">
                                   <span className="team-initials-badge">{getTeamInitials(homeTeam.name)}</span>
                                   <span className="team-name">{homeTeam.name}</span>
+                                  {isPast && event.home_score != null && (
+                                    <span className="team-score">{event.home_score}</span>
+                                  )}
                                 </div>
                               )}
                               {awayTeam && (
                                 <div className="team-info">
                                   <span className="team-initials-badge">{getTeamInitials(awayTeam.name)}</span>
                                   <span className="team-name">{awayTeam.name}</span>
+                                  {isPast && event.away_score != null && (
+                                    <span className="team-score">{event.away_score}</span>
+                                  )}
                                 </div>
                               )}
                               {!homeTeam && !awayTeam && (
@@ -163,6 +170,17 @@ export default function CalendarPage() {
                             </div>
                             <div className="event-competition">{event.competition}</div>
                           </div>
+
+                          {isPast && event.result && (
+                            <div className="event-result">
+                              {event.result.split('  ').map((line, i) => (
+                                <div key={i} className="result-line">
+                                  <span className="result-position">{line.split('. ')[0]}.</span>
+                                  <span className="result-name">{line.split('. ')[1]}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
 
                           <div className="event-card-pattern"></div>
                         </div>
@@ -177,7 +195,11 @@ export default function CalendarPage() {
       </main>
 
       {/* Event Modal */}
-      {selectedEvent && (
+      {selectedEvent && (() => {
+        const isEventPast = format(parseISO(selectedEvent.datetime_utc), 'yyyy-MM-dd') < todayStr;
+        const homeTeam = getTeamInfo(selectedEvent.home_team_id);
+        const awayTeam = getTeamInfo(selectedEvent.away_team_id);
+        return (
         <>
           <div className="modal-overlay" onClick={() => setSelectedEvent(null)} />
           <div className="modal">
@@ -192,6 +214,33 @@ export default function CalendarPage() {
               </button>
             </div>
             <h2 className="modal-title">{selectedEvent.title}</h2>
+
+            {isEventPast && selectedEvent.home_score != null && homeTeam && awayTeam && (
+              <div className="modal-score">
+                <div className="modal-score-team">
+                  <span className="modal-score-initials">{getTeamInitials(homeTeam.name)}</span>
+                  <span className="modal-score-name">{homeTeam.name}</span>
+                  <span className="modal-score-value">{selectedEvent.home_score}</span>
+                </div>
+                <div className="modal-score-team">
+                  <span className="modal-score-initials">{getTeamInitials(awayTeam.name)}</span>
+                  <span className="modal-score-name">{awayTeam.name}</span>
+                  <span className="modal-score-value">{selectedEvent.away_score}</span>
+                </div>
+              </div>
+            )}
+
+            {isEventPast && selectedEvent.result && (
+              <div className="modal-standings">
+                {selectedEvent.result.split('  ').map((line, i) => (
+                  <div key={i} className="modal-standing-row">
+                    <span className="modal-standing-pos">{line.split('. ')[0]}.</span>
+                    <span className="modal-standing-name">{line.split('. ')[1]}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <div className="modal-details">
               <div className="detail-row">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -203,7 +252,7 @@ export default function CalendarPage() {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M10 5v5l3.333 1.667M17.5 10a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>{format(parseISO(selectedEvent.datetime_utc), 'h:mm a')}</span>
+                <span>{isEventPast ? 'Full Time' : format(parseISO(selectedEvent.datetime_utc), 'h:mm a')}</span>
               </div>
               <div className="detail-row">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -221,7 +270,8 @@ export default function CalendarPage() {
             </div>
           </div>
         </>
-      )}
+        );
+      })()}
     </div>
   );
 }

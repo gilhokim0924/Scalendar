@@ -23,6 +23,9 @@ export interface SportsEvent {
   venue: string;
   competition: string;
   external_event_id: string;
+  home_score?: number;
+  away_score?: number;
+  result?: string; // F1 podium/standings summary
 }
 
 export interface UserSubscription {

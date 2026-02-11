@@ -287,6 +287,9 @@
   position: relative;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  min-height: 156px;
+  display: flex;
+  align-items: stretch;
 }
 
 .event-card:hover {
@@ -301,6 +304,25 @@
 
 .event-card.formula-one:hover {
   box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+}
+
+/* Past Event Card */
+.event-card.past-event.premier-league {
+  background: linear-gradient(135deg, #4a3366 0%, #352450 100%);
+  box-shadow: 0 4px 16px rgba(74, 51, 102, 0.3);
+}
+
+.event-card.past-event.premier-league:hover {
+  box-shadow: 0 8px 24px rgba(74, 51, 102, 0.4);
+}
+
+.event-card.past-event.formula-one {
+  background: linear-gradient(135deg, #7a2020 0%, #551515 100%);
+  box-shadow: 0 4px 16px rgba(122, 32, 32, 0.3);
+}
+
+.event-card.past-event.formula-one:hover {
+  box-shadow: 0 8px 24px rgba(122, 32, 32, 0.4);
 }
 
 /* Event Card Pattern */
@@ -349,6 +371,10 @@
 .event-card-content {
   position: relative;
   z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .event-time {
@@ -399,6 +425,44 @@
   font-weight: 700;
   color: #ffffff;
   line-height: 1.4;
+}
+
+.team-score {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-left: auto;
+}
+
+.event-result {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 4px;
+  margin-left: auto;
+  padding-left: 16px;
+}
+
+.result-line {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.result-position {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.result-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .event-competition {
@@ -520,6 +584,80 @@
   margin: 0 0 24px 0;
   letter-spacing: -0.3px;
   line-height: 1.3;
+}
+
+/* Modal Score */
+.modal-score {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.modal-score-team {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-score-initials {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.modal-score-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  flex: 1;
+}
+
+.modal-score-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+}
+
+/* Modal Standings */
+.modal-standings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+}
+
+.modal-standing-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-standing-pos {
+  font-size: 14px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  width: 24px;
+}
+
+.modal-standing-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
 }
 
 .modal-details {
