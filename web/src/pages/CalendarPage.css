@@ -43,9 +43,10 @@
   padding: 0 20px;
   display: flex;
   gap: 10px;
+  justify-content: center;
+  align-items: center;
   overflow-x: auto;
   scrollbar-width: none;
-  align-items: center;
 }
 
 .team-chips-row::-webkit-scrollbar {
@@ -72,6 +73,18 @@
   letter-spacing: -0.3px;
 }
 
+.team-chip.empty-chip {
+  background: transparent;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 0.2s ease;
+}
+
+.team-chip.empty-chip:hover {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
 .team-chip.add-chip {
   background: rgba(255, 255, 255, 0.06);
   border: 2px dashed rgba(255, 255, 255, 0.25);
@@ -87,6 +100,7 @@
   border-color: rgba(255, 255, 255, 0.4);
   color: rgba(255, 255, 255, 0.8);
 }
+
 
 /* Sport Filters */
 .sport-filters {

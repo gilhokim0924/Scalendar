@@ -154,12 +154,14 @@ export const mockEvents: SportsEvent[] = [
   },
 ];
 
-/** Get initials from a team name (e.g. "Manchester City" -> "MC") */
+/** Get a short abbreviation from a team name (e.g. "Manchester City" -> "MC", "Arsenal" -> "ARS") */
 export function getTeamInitials(name: string): string {
-  return name
-    .split(' ')
-    .map(w => w[0])
-    .join('')
-    .toUpperCase()
-    .slice(0, 3);
+  const words = name.split(' ');
+  if (words.length >= 3) {
+    return words.map(w => w[0]).join('').toUpperCase().slice(0, 3);
+  }
+  if (words.length === 2) {
+    return (words[0][0] + words[1].slice(0, 2)).toUpperCase();
+  }
+  return name.slice(0, 3).toUpperCase();
 }

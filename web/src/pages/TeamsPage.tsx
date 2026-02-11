@@ -31,6 +31,11 @@ export default function TeamsPage() {
     navigate('/');
   };
 
+  const clearAllTeams = () => {
+    setSelectedTeams([]);
+    localStorage.removeItem('selectedTeams');
+  };
+
   let filteredTeams = mockTeams;
 
   if (sportFilter !== 'all') {
@@ -127,7 +132,10 @@ export default function TeamsPage() {
               <div className="teams-selected-more">+{selectedTeamObjects.length - 6}</div>
             )}
           </div>
-          <button className="teams-done-btn" onClick={handleDone}>Done</button>
+          <div className="teams-selected-actions">
+            <button className="teams-clear-btn" onClick={clearAllTeams}>Clear All</button>
+            <button className="teams-done-btn" onClick={handleDone}>Done</button>
+          </div>
         </div>
       )}
     </div>

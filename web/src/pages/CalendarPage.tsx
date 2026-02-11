@@ -83,11 +83,16 @@ export default function CalendarPage() {
 
       {/* Team Avatar Chips — shows which teams are filtering the calendar */}
       <div className="team-chips-row">
-        {selectedTeamObjects.map(team => (
-          <div key={team.id} className="team-chip" title={team.name}>
-            <span className="team-chip-initials">{getTeamInitials(team.name)}</span>
-          </div>
-        ))}
+        {selectedTeamObjects.length > 0
+          ? selectedTeamObjects.map(team => (
+              <div key={team.id} className="team-chip" title={team.name}>
+                <span className="team-chip-initials">{getTeamInitials(team.name)}</span>
+              </div>
+            ))
+          : Array.from({ length: 4 }).map((_, i) => (
+              <Link key={i} to="/teams" className="team-chip empty-chip" />
+            ))
+        }
         <Link to="/teams" className="team-chip add-chip">
           <span>+</span>
         </Link>
