@@ -57,18 +57,17 @@ export default function CalendarPage() {
     return mockTeams.find(team => team.id === teamId);
   };
 
-  // Find the first date key to scroll to (today, or first future date)
-  const dateKeys = Object.keys(groupedEvents);
-  const scrollToDateKey = dateKeys.find(dk => dk >= todayStr) || dateKeys[dateKeys.length - 1];
+  const hasTodayEvents = !!groupedEvents[todayStr];
 
   const todayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    todayRef.current?.scrollIntoView({ block: 'start' });
+    todayRef.current?.scrollIntoView({ block: 'center' });
   }, []);
 
-  // Track months for separators
+  // Track months for separators and today marker insertion
   let lastMonth = '';
+  let todayMarkerInserted = false;
 
   return (
     <div className="app-container">
@@ -113,16 +112,34 @@ export default function CalendarPage() {
             lastMonth = currentMonth;
             const isDateToday = dateKey === todayStr;
 
+            // Insert today marker before the first future date if no events today
+            const insertTodayMarkerBefore = !todayMarkerInserted && !hasTodayEvents && dateKey > todayStr;
+            if (insertTodayMarkerBefore) todayMarkerInserted = true;
+
             return (
-              <div key={dateKey} ref={dateKey === scrollToDateKey ? todayRef : undefined}>
+              <div key={dateKey}>
+                {insertTodayMarkerBefore && (
+                  <div ref={todayRef} className="today-marker">
+                    <div className="today-marker-line" />
+                    <span className="today-marker-label">Today</span>
+                    <div className="today-marker-line" />
+                    <div className="today-no-games">No games today</div>
+                  </div>
+                )}
                 {showMonthSeparator && (
                   <div className="month-separator">{currentMonth}</div>
                 )}
+                {isDateToday && (
+                  <div ref={todayRef} className="today-marker">
+                    <div className="today-marker-line" />
+                    <span className="today-marker-label">Today</span>
+                    <div className="today-marker-line" />
+                  </div>
+                )}
                 <div className="date-group">
-                  <div className={`date-badge ${isDateToday ? 'date-badge-today' : ''}`}>
+                  <div className="date-badge">
                     <div className="date-day">{dayOfWeek}</div>
                     <div className="date-number">{dayNumber}</div>
-                    {isDateToday && <div className="date-today-label">Today</div>}
                   </div>
 
                   <div className="events-for-date">

@@ -149,28 +149,39 @@
   font-size: 18px;
 }
 
-/* Today Badge */
-.date-badge-today {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+/* Today Marker */
+.today-marker {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.date-badge-today .date-day {
-  color: rgba(255, 255, 255, 0.85);
+.today-marker-line {
+  flex: 1;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 1px;
 }
 
-.date-badge-today .date-number {
-  color: #ffffff;
-}
-
-.date-today-label {
-  font-size: 9px;
+.today-marker-label {
+  font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 0.9);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 2px;
-  line-height: 1;
+  letter-spacing: 1px;
+  flex-shrink: 0;
+}
+
+.today-no-games {
+  width: 100%;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.4);
+  padding: 8px 0 4px;
 }
 
 /* Month Separator */
@@ -244,12 +255,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.date-badge-today {
-  height: auto;
-  border-radius: 24px 24px 14px 14px;
-  padding: 8px 0 5px;
 }
 
 .date-day {
