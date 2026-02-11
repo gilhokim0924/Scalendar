@@ -242,14 +242,30 @@ export const mockEvents: SportsEvent[] = [
   },
 ];
 
-/** Get a short abbreviation from a team name (e.g. "Manchester City" -> "MC", "Arsenal" -> "ARS") */
+const teamInitialsMap: Record<string, string> = {
+  'Arsenal': 'ARS',
+  'Chelsea': 'CHE',
+  'Liverpool': 'LIV',
+  'Manchester City': 'MCI',
+  'Manchester United': 'MUN',
+  'Tottenham Hotspur': 'TOT',
+  'Newcastle United': 'NEW',
+  'Aston Villa': 'AVL',
+  'Brighton': 'BHA',
+  'West Ham United': 'WHU',
+  'Ferrari': 'FER',
+  'Red Bull Racing': 'RBR',
+  'Mercedes': 'MER',
+  'McLaren': 'MCL',
+  'Aston Martin F1': 'AMR',
+};
+
+/** Get a short abbreviation from a team name (e.g. "Manchester City" -> "MCI", "Arsenal" -> "ARS") */
 export function getTeamInitials(name: string): string {
+  if (teamInitialsMap[name]) return teamInitialsMap[name];
   const words = name.split(' ');
-  if (words.length >= 3) {
+  if (words.length >= 2) {
     return words.map(w => w[0]).join('').toUpperCase().slice(0, 3);
-  }
-  if (words.length === 2) {
-    return (words[0][0] + words[1].slice(0, 2)).toUpperCase();
   }
   return name.slice(0, 3).toUpperCase();
 }
