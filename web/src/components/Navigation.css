@@ -9,12 +9,17 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
   padding: 8px 0 max(8px, env(safe-area-inset-bottom));
   z-index: 200;
   box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.bottom-navigation-inner {
+  max-width: 600px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
 }
 
 .nav-tab {
@@ -52,11 +57,23 @@
   top: 2px;
   left: 50%;
   transform: translateX(-50%);
-  width: 48px;
-  height: 32px;
-  background: rgba(99, 102, 241, 0.2);
-  border-radius: 16px;
+  width: 76px;
+  height: 54px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
   z-index: -1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.05);
 }
 
 @media (max-width: 768px) {
