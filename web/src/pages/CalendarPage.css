@@ -36,11 +36,19 @@
   text-align: center;
 }
 
-/* Team Avatar Chips */
+/* Team Avatar Chips Bar */
+.team-chips-bar {
+  position: sticky;
+  top: 69px;
+  z-index: 99;
+  padding: 12px 0;
+  background: linear-gradient(180deg, #1a1d2e 0%, #181b2a 100%);
+}
+
 .team-chips-row {
   max-width: 600px;
   margin: 0 auto;
-  padding: 12px 20px 0;
+  padding: 0 20px;
   display: flex;
   gap: 10px;
   justify-content: center;
