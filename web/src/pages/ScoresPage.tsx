@@ -66,7 +66,7 @@ export default function ScoresPage() {
     <div className="scores-page">
       <div className="scores-sticky-header">
         <header className="scores-header">
-          <h1 className="scores-title">Scores</h1>
+          <h1 className="scores-title">Tables</h1>
         </header>
 
         <div className="scores-filters">
@@ -118,82 +118,94 @@ export default function ScoresPage() {
 
       <div className="scores-content">
         {showPremierLeague && (
-          <div className="standings-section">
+          <div className="standings-section standings-football">
             <h2 className="standings-league-name">Premier League</h2>
-            <div className="standings-table">
-              <div className="standings-header-row">
-                <span className="standings-col-pos">#</span>
-                <span className="standings-col-team">Team</span>
-                <span className="standings-col-stat">W</span>
-                <span className="standings-col-stat">D</span>
-                <span className="standings-col-stat">L</span>
-                <span className="standings-col-pts">Pts</span>
-              </div>
-              {premierLeague.map((row, i) => (
-                <div key={row.team} className={`standings-row ${i % 2 === 1 ? 'standings-row-alt' : ''}`}>
-                  <span className="standings-col-pos">{i + 1}</span>
-                  <span className="standings-col-team">
-                    <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                    {row.team}
-                  </span>
-                  <span className="standings-col-stat">{row.w}</span>
-                  <span className="standings-col-stat">{row.d}</span>
-                  <span className="standings-col-stat">{row.l}</span>
-                  <span className="standings-col-pts">{row.pts}</span>
-                </div>
-              ))}
-            </div>
+            <table className="standings-table">
+              <thead>
+                <tr>
+                  <th className="standings-col-pos">#</th>
+                  <th className="standings-col-team">Team</th>
+                  <th className="standings-col-stat">W</th>
+                  <th className="standings-col-stat">D</th>
+                  <th className="standings-col-stat">L</th>
+                  <th className="standings-col-pts">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {premierLeague.map((row, i) => (
+                  <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                    <td className="standings-col-pos">{i + 1}</td>
+                    <td className="standings-col-team">
+                      <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
+                      {row.team}
+                    </td>
+                    <td className="standings-col-stat">{row.w}</td>
+                    <td className="standings-col-stat">{row.d}</td>
+                    <td className="standings-col-stat">{row.l}</td>
+                    <td className="standings-col-pts">{row.pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
         {showChampionsLeague && (
-          <div className="standings-section">
+          <div className="standings-section standings-ucl">
             <h2 className="standings-league-name">Champions League</h2>
-            <div className="standings-table">
-              <div className="standings-header-row">
-                <span className="standings-col-pos">#</span>
-                <span className="standings-col-team">Team</span>
-                <span className="standings-col-stat">W</span>
-                <span className="standings-col-stat">D</span>
-                <span className="standings-col-stat">L</span>
-                <span className="standings-col-pts">Pts</span>
-              </div>
-              {championsLeague.map((row, i) => (
-                <div key={row.team} className={`standings-row ${i % 2 === 1 ? 'standings-row-alt' : ''}`}>
-                  <span className="standings-col-pos">{i + 1}</span>
-                  <span className="standings-col-team">
-                    <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                    {row.team}
-                  </span>
-                  <span className="standings-col-stat">{row.w}</span>
-                  <span className="standings-col-stat">{row.d}</span>
-                  <span className="standings-col-stat">{row.l}</span>
-                  <span className="standings-col-pts">{row.pts}</span>
-                </div>
-              ))}
-            </div>
+            <table className="standings-table">
+              <thead>
+                <tr>
+                  <th className="standings-col-pos">#</th>
+                  <th className="standings-col-team">Team</th>
+                  <th className="standings-col-stat">W</th>
+                  <th className="standings-col-stat">D</th>
+                  <th className="standings-col-stat">L</th>
+                  <th className="standings-col-pts">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {championsLeague.map((row, i) => (
+                  <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                    <td className="standings-col-pos">{i + 1}</td>
+                    <td className="standings-col-team">
+                      <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
+                      {row.team}
+                    </td>
+                    <td className="standings-col-stat">{row.w}</td>
+                    <td className="standings-col-stat">{row.d}</td>
+                    <td className="standings-col-stat">{row.l}</td>
+                    <td className="standings-col-pts">{row.pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
 
         {showMotorsport && (
-          <div className="standings-section">
+          <div className="standings-section standings-f1">
             <h2 className="standings-league-name">F1 Driver Standings</h2>
-            <div className="standings-table">
-              <div className="standings-header-row">
-                <span className="standings-col-pos">#</span>
-                <span className="standings-col-team">Driver</span>
-                <span className="standings-col-f1-team">Team</span>
-                <span className="standings-col-pts">Pts</span>
-              </div>
-              {f1Standings.map((row, i) => (
-                <div key={row.driver} className={`standings-row ${i % 2 === 1 ? 'standings-row-alt' : ''}`}>
-                  <span className="standings-col-pos">{i + 1}</span>
-                  <span className="standings-col-team">{row.driver}</span>
-                  <span className="standings-col-f1-team">{row.team}</span>
-                  <span className="standings-col-pts">{row.pts}</span>
-                </div>
-              ))}
-            </div>
+            <table className="standings-table">
+              <thead>
+                <tr>
+                  <th className="standings-col-pos">#</th>
+                  <th className="standings-col-team">Driver</th>
+                  <th className="standings-col-f1-team">Team</th>
+                  <th className="standings-col-pts">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                {f1Standings.map((row, i) => (
+                  <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                    <td className="standings-col-pos">{i + 1}</td>
+                    <td className="standings-col-team">{row.driver}</td>
+                    <td className="standings-col-f1-team">{row.team}</td>
+                    <td className="standings-col-pts">{row.pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         )}
       </div>

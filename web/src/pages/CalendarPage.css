@@ -11,9 +11,7 @@
 
 /* Header */
 .header {
-  background: rgba(26, 29, 46, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: #1a1d2e;
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
   padding: 20px 0;
   position: sticky;

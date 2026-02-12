@@ -25,14 +25,12 @@ export default function Navigation() {
       </Link>
       <Link to="/scores" className={`nav-tab ${location.pathname === '/scores' ? 'active' : ''}`}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5C7 4 6 9 6 9Z" />
-          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5C17 4 18 9 18 9Z" />
-          <path d="M4 22h16" />
-          <path d="M10 22V16a2 2 0 0 0-2-2H6" />
-          <path d="M14 22V16a2 2 0 0 1 2-2h2" />
-          <path d="M6 9a6 6 0 0 0 12 0V4H6Z" />
+          <rect x="3" y="3" width="18" height="18" rx="2" />
+          <line x1="3" y1="9" x2="21" y2="9" />
+          <line x1="3" y1="15" x2="21" y2="15" />
+          <line x1="9" y1="3" x2="9" y2="21" />
         </svg>
-        <span>Scores</span>
+        <span>Tables</span>
       </Link>
       <Link to="/settings" className={`nav-tab ${location.pathname === '/settings' ? 'active' : ''}`}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">

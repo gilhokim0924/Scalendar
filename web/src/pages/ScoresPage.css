@@ -16,7 +16,7 @@
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 4px;
+  padding-bottom: 16px;
 }
 
 /* Header */
@@ -50,12 +50,15 @@
 }
 
 .scores-filter-btn {
-  padding: 10px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 24px;
-  background: rgba(255, 255, 255, 0.08);
+  padding: 7px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   color: #ffffff;
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -67,14 +70,16 @@
 }
 
 .scores-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .scores-filter-btn.active {
-  background: #ffffff;
-  color: #1a1d2e;
-  border-color: #ffffff;
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 12px rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .scores-filter-btn .filter-icon {
@@ -97,8 +102,8 @@
 }
 
 .scores-league-btn {
-  padding: 8px 16px;
-  font-size: 13px;
+  padding: 6px 12px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -123,60 +128,66 @@
 
 /* Standings Table */
 .standings-table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
   border-radius: 14px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.standings-header-row {
-  display: flex;
-  align-items: center;
-  padding: 10px 14px;
+.standings-table thead tr {
   background: rgba(255, 255, 255, 0.06);
+}
+
+.standings-table thead th {
+  padding: 10px 14px;
   font-size: 12px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.45);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: left;
 }
 
-.standings-row {
-  display: flex;
-  align-items: center;
-  padding: 12px 14px;
+.standings-table tbody tr {
   transition: background 0.15s ease;
 }
 
-.standings-row:hover {
+.standings-table tbody tr:hover {
   background: rgba(255, 255, 255, 0.04);
 }
 
-.standings-row-alt {
+.standings-table tbody tr.standings-row-alt {
   background: rgba(255, 255, 255, 0.02);
+}
+
+.standings-table td {
+  padding: 12px 14px;
 }
 
 .standings-col-pos {
   width: 32px;
-  flex-shrink: 0;
   font-size: 14px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.5);
 }
 
 .standings-col-team {
-  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+td.standings-col-team {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  min-width: 0;
 }
 
 .standings-col-f1-team {
   width: 100px;
-  flex-shrink: 0;
   font-size: 13px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.6);
@@ -184,7 +195,6 @@
 
 .standings-col-stat {
   width: 36px;
-  flex-shrink: 0;
   text-align: center;
   font-size: 14px;
   font-weight: 500;
@@ -193,7 +203,6 @@
 
 .standings-col-pts {
   width: 42px;
-  flex-shrink: 0;
   text-align: right;
   font-size: 15px;
   font-weight: 700;
@@ -205,7 +214,7 @@
   height: 32px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.08);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
@@ -213,6 +222,57 @@
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: -0.3px;
   flex-shrink: 0;
+}
+
+/* Sport-specific colors — Football (purple) */
+.standings-football .standings-table {
+  border-left: 3px solid #7c3aed;
+}
+
+.standings-football .standings-league-name {
+  color: #a78bfa;
+}
+
+.standings-football .standings-table thead tr {
+  background: rgba(124, 58, 237, 0.15);
+}
+
+.standings-football .standings-table tbody tr.standings-row-alt {
+  background: rgba(124, 58, 237, 0.05);
+}
+
+/* Sport-specific colors — F1 (red) */
+.standings-f1 .standings-table {
+  border-left: 3px solid #dc2626;
+}
+
+.standings-f1 .standings-league-name {
+  color: #f87171;
+}
+
+.standings-f1 .standings-table thead tr {
+  background: rgba(220, 38, 38, 0.15);
+}
+
+.standings-f1 .standings-table tbody tr.standings-row-alt {
+  background: rgba(220, 38, 38, 0.05);
+}
+
+/* Sport-specific colors — Champions League (blue) */
+.standings-ucl .standings-table {
+  border-left: 3px solid #1e40af;
+}
+
+.standings-ucl .standings-league-name {
+  color: #93c5fd;
+}
+
+.standings-ucl .standings-table thead tr {
+  background: rgba(30, 64, 175, 0.15);
+}
+
+.standings-ucl .standings-table tbody tr.standings-row-alt {
+  background: rgba(30, 64, 175, 0.05);
 }
 
 /* Responsive */
