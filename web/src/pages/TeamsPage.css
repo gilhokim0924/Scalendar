@@ -2,9 +2,9 @@
 
 .teams-page {
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1d2e 0%, #0f1116 100%);
+  background: var(--bg-gradient);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 /* Sticky Header Container */
@@ -12,10 +12,10 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: linear-gradient(180deg, #1a1d2e 0%, #1a1d2e 85%, rgba(26, 29, 46, 0.95) 100%);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-gradient);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 16px;
 }
 
@@ -45,19 +45,19 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: var(--search-bg);
+  border: 1px solid var(--search-border);
   border-radius: 14px;
   padding: 12px 16px;
   transition: border-color 0.2s ease;
 }
 
 .teams-search-bar:focus-within {
-  border-color: rgba(255, 255, 255, 0.25);
+  border-color: var(--border-hover);
 }
 
 .search-icon {
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-faint);
   flex-shrink: 0;
 }
 
@@ -66,14 +66,14 @@
   background: none;
   border: none;
   outline: none;
-  color: #ffffff;
+  color: var(--text-primary);
   font-size: 15px;
   font-weight: 500;
   font-family: inherit;
 }
 
 .teams-search-input::placeholder {
-  color: rgba(255, 255, 255, 0.35);
+  color: var(--text-faint);
 }
 
 /* Filters */
@@ -93,13 +93,13 @@
 
 .teams-filter-btn {
   padding: 7px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border-light);
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--chip-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  color: #ffffff;
+  box-shadow: 0 2px 8px var(--shadow-light);
+  color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -112,16 +112,16 @@
 }
 
 .teams-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: var(--chip-bg-hover);
+  border-color: var(--border-active);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .teams-filter-btn.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.25);
-  box-shadow: 0 0 12px rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.2);
+  background: var(--chip-bg-active);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
+  box-shadow: 0 0 12px var(--chip-bg), 0 4px 12px var(--shadow-color);
 }
 
 .teams-filter-btn .filter-icon {
@@ -161,26 +161,26 @@
   align-items: center;
   gap: 14px;
   padding: 14px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--border-medium);
   cursor: pointer;
   transition: background 0.15s ease;
 }
 
 .teams-list-row:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--bg-card-subtle);
 }
 
 .teams-list-logo {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--chip-bg-strong);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-stat);
   letter-spacing: -0.3px;
   flex-shrink: 0;
 }
@@ -195,9 +195,9 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid var(--border-active);
   background: transparent;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   font-size: 20px;
   display: flex;
   align-items: center;
@@ -218,7 +218,7 @@
 .teams-empty {
   text-align: center;
   padding: 48px 0;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   font-size: 15px;
 }
 
@@ -228,13 +228,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  background: rgba(26, 29, 46, 0.98);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-top: 1px solid var(--border-color);
   padding: 8px 0 max(8px, env(safe-area-inset-bottom));
   z-index: 200;
-  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 -4px 16px var(--shadow-color);
 }
 
 .teams-selected-bar-inner {
@@ -260,30 +260,30 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--chip-bg-hover);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-stat);
   letter-spacing: -0.3px;
   margin-right: -6px;
-  border: 2px solid rgba(26, 29, 46, 0.98);
+  border: 2px solid var(--avatar-border);
 }
 
 .teams-selected-more {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--toggle-off);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.7);
-  border: 2px solid rgba(26, 29, 46, 0.98);
+  color: var(--text-stat);
+  border: 2px solid var(--avatar-border);
 }
 
 .teams-bar-tab {
@@ -296,7 +296,7 @@
   border: none;
   background: transparent;
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.45);
+  color: var(--text-nav);
   font-size: 11px;
   font-weight: 600;
   line-height: 1;
@@ -313,7 +313,7 @@
 }
 
 .teams-bar-tab:hover {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .teams-bar-tab:hover::before {
@@ -323,25 +323,20 @@
   bottom: 4px;
   left: 4px;
   right: 4px;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.06) 50%,
-    rgba(255, 255, 255, 0.12) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-active-bg);
+  border: 1px solid var(--glass-active-border);
   border-radius: 18px;
   z-index: -1;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.05);
+    0 2px 8px var(--shadow-light),
+    inset 0 1px 1px var(--glass-inset-top),
+    inset 0 -1px 1px var(--glass-inset-bottom);
 }
 
 .teams-bar-tab:active {
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 /* Responsive */

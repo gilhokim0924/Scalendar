@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { format, parseISO } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { mockEvents, mockTeams, getTeamInitials } from '../utils/mockData';
 import type { SportsEvent } from '../types';
 import { Link } from 'react-router-dom';
 import './CalendarPage.css';
 
 export default function CalendarPage() {
+  const { t } = useTranslation();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [selectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
@@ -73,7 +75,7 @@ export default function CalendarPage() {
     <div className="app-container">
       <header className="header">
         <div className="header-content">
-          <h1 className="app-title">Scalendar</h1>
+          <h1 className="app-title">{t('calendar.title')}</h1>
         </div>
       </header>
 
@@ -100,8 +102,8 @@ export default function CalendarPage() {
       <main className="events-list">
         {Object.keys(groupedEvents).length === 0 ? (
           <div className="no-events-message">
-            <p>No events to display</p>
-            <span>Try adding teams or check back later</span>
+            <p>{t('calendar.noEvents')}</p>
+            <span>{t('calendar.noEventsSub')}</span>
           </div>
         ) : (
           Object.keys(groupedEvents).map((dateKey) => {
@@ -123,9 +125,9 @@ export default function CalendarPage() {
                 {insertTodayMarkerBefore && (
                   <div ref={todayRef} className="today-marker">
                     <div className="today-marker-line" />
-                    <span className="today-marker-label">Today</span>
+                    <span className="today-marker-label">{t('calendar.today')}</span>
                     <div className="today-marker-line" />
-                    <div className="today-no-games">No games today</div>
+                    <div className="today-no-games">{t('calendar.noGamesToday')}</div>
                   </div>
                 )}
                 {showMonthSeparator && (
@@ -134,7 +136,7 @@ export default function CalendarPage() {
                 {isDateToday && (
                   <div ref={todayRef} className="today-marker">
                     <div className="today-marker-line" />
-                    <span className="today-marker-label">Today</span>
+                    <span className="today-marker-label">{t('calendar.today')}</span>
                     <div className="today-marker-line" />
                   </div>
                 )}
@@ -159,11 +161,11 @@ export default function CalendarPage() {
                           onClick={() => setSelectedEvent(event)}
                         >
                           {eventsForDate.length > 1 && (
-                            <div className="event-counter">{index + 1} of {eventsForDate.length}</div>
+                            <div className="event-counter">{index + 1} {t('calendar.of')} {eventsForDate.length}</div>
                           )}
 
                           <div className="event-card-content">
-                            <div className="event-time">{isPast ? 'FT' : time}</div>
+                            <div className="event-time">{isPast ? t('calendar.ft') : time}</div>
                             <div className="event-teams">
                               {homeTeam && (
                                 <div className="team-info">
@@ -271,7 +273,7 @@ export default function CalendarPage() {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M10 5v5l3.333 1.667M17.5 10a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>{isEventPast ? 'Full Time' : format(parseISO(selectedEvent.datetime_utc), 'h:mm a')}</span>
+                <span>{isEventPast ? t('calendar.fullTime') : format(parseISO(selectedEvent.datetime_utc), 'h:mm a')}</span>
               </div>
               <div className="detail-row">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

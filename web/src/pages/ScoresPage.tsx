@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
 import './ScoresPage.css';
 
@@ -49,6 +50,8 @@ const f1Standings: F1Standing[] = [
 ];
 
 export default function ScoresPage() {
+  const { t } = useTranslation();
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
 
@@ -66,69 +69,69 @@ export default function ScoresPage() {
     <div className="scores-page">
       <div className="scores-sticky-header">
         <header className="scores-header">
-          <h1 className="scores-title">Tables</h1>
+          <h1 className="scores-title">{t('scores.title')}</h1>
         </header>
+      </div>
 
-        <div className="scores-filters">
+      <div className="scores-filters">
+        <button
+          className={`scores-filter-btn ${sportFilter === 'all' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('all')}
+        >
+          {t('filters.all')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'football' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('football')}
+        >
+          <span className="filter-icon">⚽</span>
+          {t('filters.football')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'motorsport' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('motorsport')}
+        >
+          <span className="filter-icon">🏎️</span>
+          {t('filters.motorsport')}
+        </button>
+      </div>
+
+      {sportFilter === 'football' && (
+        <div className="scores-league-filters">
           <button
-            className={`scores-filter-btn ${sportFilter === 'all' ? 'active' : ''}`}
-            onClick={() => handleSportFilter('all')}
+            className={`scores-filter-btn scores-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('all')}
           >
-            All
+            {t('filters.allLeagues')}
           </button>
           <button
-            className={`scores-filter-btn ${sportFilter === 'football' ? 'active' : ''}`}
-            onClick={() => handleSportFilter('football')}
+            className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Premier League' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('Premier League')}
           >
-            <span className="filter-icon">⚽</span>
-            Football
+            {t('filters.premierLeague')}
           </button>
           <button
-            className={`scores-filter-btn ${sportFilter === 'motorsport' ? 'active' : ''}`}
-            onClick={() => handleSportFilter('motorsport')}
+            className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Champions League' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('Champions League')}
           >
-            <span className="filter-icon">🏎️</span>
-            Motorsport
+            {t('filters.championsLeague')}
           </button>
         </div>
-
-        {sportFilter === 'football' && (
-          <div className="scores-league-filters">
-            <button
-              className={`scores-filter-btn scores-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('all')}
-            >
-              All Leagues
-            </button>
-            <button
-              className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Premier League' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Premier League')}
-            >
-              Premier League
-            </button>
-            <button
-              className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Champions League' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Champions League')}
-            >
-              Champions League
-            </button>
-          </div>
-        )}
-      </div>
+      )}
 
       <div className="scores-content">
         {showPremierLeague && (
           <div className="standings-section standings-football">
-            <h2 className="standings-league-name">Premier League</h2>
+            <h2 className="standings-league-name">{t('filters.premierLeague')}</h2>
             <table className="standings-table">
               <thead>
                 <tr>
                   <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">Team</th>
+                  <th className="standings-col-team">{t('scores.team')}</th>
                   <th className="standings-col-stat">W</th>
                   <th className="standings-col-stat">D</th>
                   <th className="standings-col-stat">L</th>
-                  <th className="standings-col-pts">Pts</th>
+                  <th className="standings-col-pts">{t('scores.pts')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -152,16 +155,16 @@ export default function ScoresPage() {
 
         {showChampionsLeague && (
           <div className="standings-section standings-ucl">
-            <h2 className="standings-league-name">Champions League</h2>
+            <h2 className="standings-league-name">{t('filters.championsLeague')}</h2>
             <table className="standings-table">
               <thead>
                 <tr>
                   <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">Team</th>
+                  <th className="standings-col-team">{t('scores.team')}</th>
                   <th className="standings-col-stat">W</th>
                   <th className="standings-col-stat">D</th>
                   <th className="standings-col-stat">L</th>
-                  <th className="standings-col-pts">Pts</th>
+                  <th className="standings-col-pts">{t('scores.pts')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -185,14 +188,14 @@ export default function ScoresPage() {
 
         {showMotorsport && (
           <div className="standings-section standings-f1">
-            <h2 className="standings-league-name">F1 Driver Standings</h2>
+            <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
             <table className="standings-table">
               <thead>
                 <tr>
                   <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">Driver</th>
-                  <th className="standings-col-f1-team">Team</th>
-                  <th className="standings-col-pts">Pts</th>
+                  <th className="standings-col-team">{t('scores.driver')}</th>
+                  <th className="standings-col-f1-team">{t('scores.team')}</th>
+                  <th className="standings-col-pts">{t('scores.pts')}</th>
                 </tr>
               </thead>
               <tbody>

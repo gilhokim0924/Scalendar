@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format, parseISO } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { mockEvents, mockSports } from '../utils/mockData';
 import './DiscoverPage.css';
 
 type SportFilter = 'all' | '1' | '2';
 
 export default function DiscoverPage() {
+  const { t } = useTranslation();
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
 
   const upcomingEvents = [...mockEvents]
@@ -16,14 +19,14 @@ export default function DiscoverPage() {
   const competitions = [
     {
       name: 'Premier League',
-      icon: '⚽',
+      icon: '\u26BD',
       sportId: '1',
       accent: 'pl',
       eventCount: mockEvents.filter(e => e.sport_id === '1').length,
     },
     {
       name: 'Formula 1',
-      icon: '🏎️',
+      icon: '\uD83C\uDFCE\uFE0F',
       sportId: '2',
       accent: 'f1',
       eventCount: mockEvents.filter(e => e.sport_id === '2').length,
@@ -38,7 +41,7 @@ export default function DiscoverPage() {
   return (
     <div className="discover-page">
       <header className="discover-header">
-        <h1 className="discover-title">Discover</h1>
+        <h1 className="discover-title">{t('discover.title')}</h1>
       </header>
 
       {/* Sport Filter Pills */}
@@ -47,27 +50,27 @@ export default function DiscoverPage() {
           className={`discover-filter-btn ${sportFilter === 'all' ? 'active' : ''}`}
           onClick={() => setSportFilter('all')}
         >
-          All
+          {t('filters.all')}
         </button>
         <button
           className={`discover-filter-btn ${sportFilter === '1' ? 'active' : ''}`}
           onClick={() => setSportFilter('1')}
         >
           <span className="filter-icon">⚽</span>
-          Football
+          {t('filters.football')}
         </button>
         <button
           className={`discover-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
           onClick={() => setSportFilter('2')}
         >
           <span className="filter-icon">🏎️</span>
-          Motorsport
+          {t('filters.motorsport')}
         </button>
       </div>
 
       {/* Upcoming Events */}
       <section className="discover-section">
-        <h2 className="discover-section-title">Upcoming Events</h2>
+        <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
         <div className="upcoming-scroll">
           {upcomingEvents.map(event => (
             <div
@@ -89,13 +92,13 @@ export default function DiscoverPage() {
 
       {/* What's On This Month */}
       <section className="discover-section">
-        <h2 className="discover-section-title">What's on this month</h2>
+        <h2 className="discover-section-title">{t('discover.whatsOn')}</h2>
         <div className="competition-grid">
           {competitions.map(comp => (
             <div key={comp.sportId} className={`competition-card ${comp.accent}`}>
               <div className="competition-icon">{comp.icon}</div>
               <div className="competition-name">{comp.name}</div>
-              <div className="competition-count">{comp.eventCount} events</div>
+              <div className="competition-count">{t('discover.events', { count: comp.eventCount })}</div>
             </div>
           ))}
         </div>
@@ -103,14 +106,14 @@ export default function DiscoverPage() {
 
       {/* Recently Updated */}
       <section className="discover-section">
-        <h2 className="discover-section-title">Recently Updated</h2>
+        <h2 className="discover-section-title">{t('discover.recentlyUpdated')}</h2>
         <div className="recently-updated-list">
           {recentlyUpdated.map(sport => (
             <div key={sport.id} className="recently-updated-row">
               <div className="recently-updated-icon">{sport.icon}</div>
               <div className="recently-updated-info">
                 <div className="recently-updated-name">{sport.name}</div>
-                <div className="recently-updated-count">{sport.eventCount} upcoming</div>
+                <div className="recently-updated-count">{t('discover.upcoming', { count: sport.eventCount })}</div>
               </div>
               <svg className="recently-updated-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>

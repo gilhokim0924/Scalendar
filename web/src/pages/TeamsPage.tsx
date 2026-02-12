@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { mockTeams, getTeamInitials } from '../utils/mockData';
 import { useNavigate } from 'react-router-dom';
 import './TeamsPage.css';
@@ -7,6 +8,7 @@ type SportFilter = 'all' | '1' | '2';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
 
 export default function TeamsPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -64,7 +66,7 @@ export default function TeamsPage() {
     <div className="teams-page">
       <div className="teams-sticky-header">
         <header className="teams-header">
-          <h1 className="teams-title">Teams</h1>
+          <h1 className="teams-title">{t('teams.title')}</h1>
         </header>
 
         {/* Search Bar */}
@@ -76,7 +78,7 @@ export default function TeamsPage() {
             </svg>
             <input
               type="text"
-              placeholder="Search teams..."
+              placeholder={t('teams.searchPlaceholder')}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="teams-search-input"
@@ -90,21 +92,21 @@ export default function TeamsPage() {
             className={`teams-filter-btn ${sportFilter === 'all' ? 'active' : ''}`}
             onClick={() => handleSportFilter('all')}
           >
-            All
+            {t('filters.all')}
           </button>
           <button
             className={`teams-filter-btn ${sportFilter === '1' ? 'active' : ''}`}
             onClick={() => handleSportFilter('1')}
           >
             <span className="filter-icon">⚽</span>
-            Football
+            {t('filters.football')}
           </button>
           <button
             className={`teams-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
             onClick={() => handleSportFilter('2')}
           >
             <span className="filter-icon">🏎️</span>
-            Motorsport
+            {t('filters.motorsport')}
           </button>
         </div>
 
@@ -115,19 +117,19 @@ export default function TeamsPage() {
               className={`teams-filter-btn teams-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('all')}
             >
-              All Leagues
+              {t('filters.allLeagues')}
             </button>
             <button
               className={`teams-filter-btn teams-league-btn ${leagueFilter === 'Premier League' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('Premier League')}
             >
-              Premier League
+              {t('filters.premierLeague')}
             </button>
             <button
               className={`teams-filter-btn teams-league-btn ${leagueFilter === 'Champions League' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('Champions League')}
             >
-              Champions League
+              {t('filters.championsLeague')}
             </button>
           </div>
         )}
@@ -154,7 +156,7 @@ export default function TeamsPage() {
           );
         })}
         {filteredTeams.length === 0 && (
-          <div className="teams-empty">No teams found</div>
+          <div className="teams-empty">{t('teams.noTeams')}</div>
         )}
       </div>
 
@@ -175,13 +177,13 @@ export default function TeamsPage() {
                 <line x1="18" y1="6" x2="6" y2="18" />
                 <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
-              <span>Clear</span>
+              <span>{t('teams.clear')}</span>
             </button>
             <button className="teams-bar-tab" onClick={handleDone}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
-              <span>Done</span>
+              <span>{t('teams.done')}</span>
             </button>
           </div>
         </div>

@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useTheme } from '../contexts/ThemeContext';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
+  const { t, i18n } = useTranslation();
+  const { theme, setTheme } = useTheme();
+
+  useEffect(() => { window.scrollTo(0, 0); }, []);
   const [timezone, setTimezone] = useState('UTC');
   const [morningDigest, setMorningDigest] = useState(true);
   const [eventReminders, setEventReminders] = useState(true);
@@ -37,8 +43,13 @@ export default function SettingsPage() {
     localStorage.setItem('eventReminders', String(next));
   };
 
+  const handleLanguageChange = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
+
   const clearAllData = () => {
-    if (confirm('Are you sure you want to clear all your data? This will remove all your team selections and preferences.')) {
+    if (confirm(t('settings.clearConfirm'))) {
       localStorage.clear();
       window.location.reload();
     }
@@ -47,7 +58,7 @@ export default function SettingsPage() {
   return (
     <div className="settings-page">
       <header className="settings-header">
-        <h1 className="settings-title">Settings</h1>
+        <h1 className="settings-title">{t('settings.title')}</h1>
       </header>
 
       <div className="settings-content">
@@ -56,7 +67,7 @@ export default function SettingsPage() {
           <div className="settings-profile-avatar">S</div>
           <div className="settings-profile-info">
             <div className="settings-profile-name">Scalendar User</div>
-            <div className="settings-profile-sub">Manage your account</div>
+            <div className="settings-profile-sub">{t('settings.manageAccount')}</div>
           </div>
           <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -65,14 +76,14 @@ export default function SettingsPage() {
 
         {/* Calendar Sync */}
         <div className="settings-section">
-          <h2 className="settings-section-title">Calendar Sync</h2>
+          <h2 className="settings-section-title">{t('settings.calendarSync')}</h2>
           <div className="settings-row">
             <div className="settings-row-icon">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15.833 3.333H4.167C3.247 3.333 2.5 4.08 2.5 5v11.667c0 .92.746 1.666 1.667 1.666h11.666c.92 0 1.667-.746 1.667-1.666V5c0-.92-.746-1.667-1.667-1.667zM13.333 1.667V5M6.667 1.667V5M2.5 8.333h15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
-            <div className="settings-row-label">Export Calendar Feed</div>
+            <div className="settings-row-label">{t('settings.exportCalendar')}</div>
             <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -81,9 +92,9 @@ export default function SettingsPage() {
 
         {/* Notifications */}
         <div className="settings-section">
-          <h2 className="settings-section-title">Notifications</h2>
+          <h2 className="settings-section-title">{t('settings.notifications')}</h2>
           <div className="settings-row">
-            <div className="settings-row-label">Morning Digest</div>
+            <div className="settings-row-label">{t('settings.morningDigest')}</div>
             <button
               className={`settings-toggle ${morningDigest ? 'on' : ''}`}
               onClick={toggleMorningDigest}
@@ -92,7 +103,7 @@ export default function SettingsPage() {
             </button>
           </div>
           <div className="settings-row">
-            <div className="settings-row-label">Event Reminders</div>
+            <div className="settings-row-label">{t('settings.eventReminders')}</div>
             <button
               className={`settings-toggle ${eventReminders ? 'on' : ''}`}
               onClick={toggleEventReminders}
@@ -104,9 +115,34 @@ export default function SettingsPage() {
 
         {/* Preferences */}
         <div className="settings-section">
-          <h2 className="settings-section-title">Preferences</h2>
+          <h2 className="settings-section-title">{t('settings.preferences')}</h2>
           <div className="settings-row">
-            <div className="settings-row-label">Timezone</div>
+            <div className="settings-row-label">{t('settings.appearance')}</div>
+            <div className="settings-theme-picker">
+              {(['system', 'light', 'dark'] as const).map(opt => (
+                <button
+                  key={opt}
+                  className={`settings-theme-option ${theme === opt ? 'active' : ''}`}
+                  onClick={() => setTheme(opt)}
+                >
+                  {t(`settings.${opt}`)}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.language')}</div>
+            <select
+              value={i18n.language}
+              onChange={e => handleLanguageChange(e.target.value)}
+              className="settings-select"
+            >
+              <option value="en">English</option>
+              <option value="ko">한국어</option>
+            </select>
+          </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.timezone')}</div>
             <select
               value={timezone}
               onChange={e => handleTimezoneChange(e.target.value)}
@@ -128,24 +164,24 @@ export default function SettingsPage() {
 
         {/* Data Management */}
         <div className="settings-section">
-          <h2 className="settings-section-title danger">Data Management</h2>
+          <h2 className="settings-section-title danger">{t('settings.dataManagement')}</h2>
           <div className="settings-row">
-            <div className="settings-row-label">Clear All Data</div>
+            <div className="settings-row-label">{t('settings.clearAllData')}</div>
             <button onClick={clearAllData} className="settings-danger-btn">
-              Clear
+              {t('settings.clear')}
             </button>
           </div>
         </div>
 
         {/* About */}
         <div className="settings-section">
-          <h2 className="settings-section-title">About</h2>
+          <h2 className="settings-section-title">{t('settings.about')}</h2>
           <div className="settings-row">
-            <div className="settings-row-label">Version</div>
+            <div className="settings-row-label">{t('settings.version')}</div>
             <div className="settings-row-value">1.0.0 (MVP)</div>
           </div>
           <div className="settings-row">
-            <div className="settings-row-label">Data Sources</div>
+            <div className="settings-row-label">{t('settings.dataSources')}</div>
             <div className="settings-row-value">TheSportsDB & OpenF1</div>
           </div>
         </div>

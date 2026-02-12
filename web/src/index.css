@@ -1,3 +1,144 @@
+/* Theme Variables */
+
+:root {
+  --bg-primary: #0f1116;
+  --bg-secondary: #1a1d2e;
+  --bg-gradient: linear-gradient(180deg, #1a1d2e 0%, #0f1116 100%);
+  --bg-card: rgba(255, 255, 255, 0.06);
+  --bg-card-hover: rgba(255, 255, 255, 0.08);
+  --bg-card-subtle: rgba(255, 255, 255, 0.04);
+  --bg-card-alt: rgba(255, 255, 255, 0.02);
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.5);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-faint: rgba(255, 255, 255, 0.35);
+  --text-nav: rgba(255, 255, 255, 0.45);
+  --text-chevron: rgba(255, 255, 255, 0.3);
+  --text-icon: rgba(255, 255, 255, 0.6);
+  --text-stat: rgba(255, 255, 255, 0.7);
+  --text-bright: rgba(255, 255, 255, 0.9);
+  --text-dim: rgba(255, 255, 255, 0.75);
+  --text-label: rgba(255, 255, 255, 0.85);
+
+  --border-color: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.04);
+  --border-medium: rgba(255, 255, 255, 0.06);
+  --border-light: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --border-hover: rgba(255, 255, 255, 0.25);
+  --border-active: rgba(255, 255, 255, 0.2);
+
+  --glass-bg: rgba(26, 29, 46, 0.95);
+  --glass-bg-solid: rgba(26, 29, 46, 0.98);
+  --glass-blur: blur(20px);
+
+  --chip-bg: rgba(255, 255, 255, 0.06);
+  --chip-bg-hover: rgba(255, 255, 255, 0.1);
+  --chip-bg-active: rgba(255, 255, 255, 0.12);
+  --chip-bg-strong: rgba(255, 255, 255, 0.08);
+
+  --overlay-bg: rgba(0, 0, 0, 0.75);
+  --shadow-color: rgba(0, 0, 0, 0.3);
+  --shadow-light: rgba(0, 0, 0, 0.15);
+  --shadow-heavy: rgba(0, 0, 0, 0.5);
+
+  --toggle-off: rgba(255, 255, 255, 0.15);
+  --select-bg: rgba(255, 255, 255, 0.08);
+  --select-border: rgba(255, 255, 255, 0.12);
+  --select-option-bg: #1a1d2e;
+
+  --modal-bg: linear-gradient(180deg, #2d3143 0%, #1a1d2e 100%);
+  --modal-score-bg: rgba(255, 255, 255, 0.06);
+
+  --search-bg: rgba(255, 255, 255, 0.08);
+  --search-border: rgba(255, 255, 255, 0.1);
+
+  /* Glass morphism for active states */
+  --glass-active-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.06) 50%, rgba(255, 255, 255, 0.12) 100%);
+  --glass-active-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.18) 100%);
+  --glass-active-border: rgba(255, 255, 255, 0.2);
+  --glass-inset-top: rgba(255, 255, 255, 0.25);
+  --glass-inset-bottom: rgba(255, 255, 255, 0.05);
+
+  /* Date badge (stays white circle in dark, adjusts in light) */
+  --date-badge-bg: #ffffff;
+  --date-badge-day: #6b7280;
+  --date-badge-number: #1a1d2e;
+  --date-badge-shadow: rgba(0, 0, 0, 0.3);
+
+  /* Teams bar avatar border matches nav bg */
+  --avatar-border: rgba(26, 29, 46, 0.98);
+}
+
+[data-theme="light"] {
+  --bg-primary: #f5f5f7;
+  --bg-secondary: #ffffff;
+  --bg-gradient: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
+  --bg-card: rgba(0, 0, 0, 0.04);
+  --bg-card-hover: rgba(0, 0, 0, 0.06);
+  --bg-card-subtle: rgba(0, 0, 0, 0.03);
+  --bg-card-alt: rgba(0, 0, 0, 0.02);
+
+  --text-primary: #1a1d2e;
+  --text-secondary: rgba(0, 0, 0, 0.5);
+  --text-muted: rgba(0, 0, 0, 0.4);
+  --text-faint: rgba(0, 0, 0, 0.35);
+  --text-nav: rgba(0, 0, 0, 0.45);
+  --text-chevron: rgba(0, 0, 0, 0.3);
+  --text-icon: rgba(0, 0, 0, 0.5);
+  --text-stat: rgba(0, 0, 0, 0.6);
+  --text-bright: rgba(0, 0, 0, 0.8);
+  --text-dim: rgba(0, 0, 0, 0.6);
+  --text-label: rgba(0, 0, 0, 0.7);
+
+  --border-color: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border-medium: rgba(0, 0, 0, 0.06);
+  --border-light: rgba(0, 0, 0, 0.1);
+  --border-strong: rgba(0, 0, 0, 0.12);
+  --border-hover: rgba(0, 0, 0, 0.2);
+  --border-active: rgba(0, 0, 0, 0.15);
+
+  --glass-bg: rgba(255, 255, 255, 0.95);
+  --glass-bg-solid: rgba(255, 255, 255, 0.98);
+  --glass-blur: blur(20px);
+
+  --chip-bg: rgba(0, 0, 0, 0.04);
+  --chip-bg-hover: rgba(0, 0, 0, 0.07);
+  --chip-bg-active: rgba(0, 0, 0, 0.1);
+  --chip-bg-strong: rgba(0, 0, 0, 0.06);
+
+  --overlay-bg: rgba(0, 0, 0, 0.4);
+  --shadow-color: rgba(0, 0, 0, 0.1);
+  --shadow-light: rgba(0, 0, 0, 0.08);
+  --shadow-heavy: rgba(0, 0, 0, 0.2);
+
+  --toggle-off: rgba(0, 0, 0, 0.12);
+  --select-bg: rgba(0, 0, 0, 0.05);
+  --select-border: rgba(0, 0, 0, 0.12);
+  --select-option-bg: #ffffff;
+
+  --modal-bg: linear-gradient(180deg, #ffffff 0%, #f5f5f7 100%);
+  --modal-score-bg: rgba(0, 0, 0, 0.04);
+
+  --search-bg: rgba(0, 0, 0, 0.05);
+  --search-border: rgba(0, 0, 0, 0.08);
+
+  --glass-active-bg: linear-gradient(135deg, rgba(0, 0, 0, 0.08) 0%, rgba(0, 0, 0, 0.03) 50%, rgba(0, 0, 0, 0.06) 100%);
+  --glass-active-hover: linear-gradient(135deg, rgba(0, 0, 0, 0.12) 0%, rgba(0, 0, 0, 0.05) 50%, rgba(0, 0, 0, 0.08) 100%);
+  --glass-active-border: rgba(0, 0, 0, 0.12);
+  --glass-inset-top: rgba(255, 255, 255, 0.8);
+  --glass-inset-bottom: rgba(0, 0, 0, 0.03);
+
+  --date-badge-bg: #1a1d2e;
+  --date-badge-day: rgba(255, 255, 255, 0.7);
+  --date-badge-number: #ffffff;
+  --date-badge-shadow: rgba(0, 0, 0, 0.15);
+
+  --avatar-border: rgba(255, 255, 255, 0.98);
+}
+
 /* Global Reset & Base Styles */
 
 * {
@@ -12,8 +153,8 @@ html, body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #0f1116;
-  color: #ffffff;
+  background: var(--bg-primary);
+  color: var(--text-primary);
 }
 
 #root {

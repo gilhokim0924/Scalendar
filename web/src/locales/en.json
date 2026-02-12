@@ -1,0 +1,71 @@
+{
+  "nav": {
+    "calendar": "Calendar",
+    "discover": "Discover",
+    "tables": "Tables",
+    "settings": "Settings"
+  },
+  "calendar": {
+    "title": "Scalendar",
+    "today": "Today",
+    "noGamesToday": "No games today",
+    "noEvents": "No events to display",
+    "noEventsSub": "Try adding teams or check back later",
+    "ft": "FT",
+    "of": "of",
+    "fullTime": "Full Time"
+  },
+  "discover": {
+    "title": "Discover",
+    "upcomingEvents": "Upcoming Events",
+    "whatsOn": "What's on this month",
+    "recentlyUpdated": "Recently Updated",
+    "events": "{{count}} events",
+    "upcoming": "{{count}} upcoming"
+  },
+  "scores": {
+    "title": "Tables",
+    "team": "Team",
+    "driver": "Driver",
+    "pts": "Pts",
+    "f1DriverStandings": "F1 Driver Standings"
+  },
+  "teams": {
+    "title": "Teams",
+    "searchPlaceholder": "Search teams...",
+    "noTeams": "No teams found",
+    "clear": "Clear",
+    "done": "Done"
+  },
+  "settings": {
+    "title": "Settings",
+    "manageAccount": "Manage your account",
+    "calendarSync": "Calendar Sync",
+    "exportCalendar": "Export Calendar Feed",
+    "notifications": "Notifications",
+    "morningDigest": "Morning Digest",
+    "eventReminders": "Event Reminders",
+    "preferences": "Preferences",
+    "timezone": "Timezone",
+    "appearance": "Appearance",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark",
+    "language": "Language",
+    "dataManagement": "Data Management",
+    "clearAllData": "Clear All Data",
+    "clear": "Clear",
+    "clearConfirm": "Are you sure you want to clear all your data? This will remove all your team selections and preferences.",
+    "about": "About",
+    "version": "Version",
+    "dataSources": "Data Sources"
+  },
+  "filters": {
+    "all": "All",
+    "football": "Football",
+    "motorsport": "Motorsport",
+    "allLeagues": "All Leagues",
+    "premierLeague": "Premier League",
+    "championsLeague": "Champions League"
+  }
+}

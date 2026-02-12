@@ -4,15 +4,15 @@
 
 .app-container {
   min-height: 100vh;
-  background: linear-gradient(180deg, #1a1d2e 0%, #0f1116 100%);
+  background: var(--bg-gradient);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 /* Header */
 .header {
-  background: #1a1d2e;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
   padding: 20px 0;
   position: sticky;
   top: 0;
@@ -28,7 +28,7 @@
 .app-title {
   font-size: 28px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0;
   letter-spacing: -0.5px;
   text-align: center;
@@ -40,7 +40,7 @@
   top: 69px;
   z-index: 99;
   padding: 12px 0;
-  background: linear-gradient(180deg, #1a1d2e 0%, #181b2a 100%);
+  background: var(--bg-gradient);
 }
 
 .team-chips-row {
@@ -63,8 +63,8 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: var(--chip-bg-strong);
+  border: 2px solid var(--border-strong);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -75,27 +75,27 @@
   font-size: 11px;
   font-weight: 700;
   line-height: 1;
-  color: #ffffff;
+  color: var(--text-primary);
   letter-spacing: -0.3px;
 }
 
 .team-chip.empty-chip {
   background: transparent;
-  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border: 2px dashed var(--border-strong);
   cursor: pointer;
   text-decoration: none;
   transition: border-color 0.2s ease;
 }
 
 .team-chip.empty-chip:hover {
-  border-color: rgba(255, 255, 255, 0.3);
+  border-color: var(--text-chevron);
 }
 
 .team-chip.add-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 2px dashed rgba(255, 255, 255, 0.25);
+  background: var(--chip-bg);
+  border: 2px dashed var(--border-hover);
   text-decoration: none;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   font-size: 20px;
   font-weight: 300;
   cursor: pointer;
@@ -103,8 +103,8 @@
 }
 
 .team-chip.add-chip:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  color: rgba(255, 255, 255, 0.8);
+  border-color: var(--text-muted);
+  color: var(--text-bright);
 }
 
 
@@ -125,10 +125,10 @@
 
 .sport-filter-btn {
   padding: 10px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid var(--border-strong);
   border-radius: 24px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
+  background: var(--chip-bg-strong);
+  color: var(--text-primary);
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
@@ -141,14 +141,14 @@
 }
 
 .sport-filter-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--chip-bg-active);
+  border-color: var(--border-hover);
 }
 
 .sport-filter-btn.active {
-  background: #ffffff;
-  color: #1a1d2e;
-  border-color: #ffffff;
+  background: var(--text-primary);
+  color: var(--bg-secondary);
+  border-color: var(--text-primary);
 }
 
 .filter-icon {
@@ -168,14 +168,14 @@
 .today-marker-line {
   flex: 1;
   height: 2px;
-  background: rgba(255, 255, 255, 0.5);
+  background: var(--text-secondary);
   border-radius: 1px;
 }
 
 .today-marker-label {
   font-size: 13px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-bright);
   text-transform: uppercase;
   letter-spacing: 1px;
   flex-shrink: 0;
@@ -186,7 +186,7 @@
   text-align: center;
   font-size: 14px;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   padding: 8px 0 4px;
 }
 
@@ -195,7 +195,7 @@
   text-align: center;
   font-size: 14px;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.4);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1.5px;
   padding: 16px 0 12px;
@@ -209,7 +209,7 @@
   top: 50%;
   height: 1px;
   width: calc(50% - 60px);
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--border-light);
 }
 
 .month-separator::before {
@@ -230,7 +230,7 @@
 .no-events-message {
   text-align: center;
   padding: 80px 20px;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
 }
 
 .no-events-message p {
@@ -254,19 +254,19 @@
   flex-shrink: 0;
   width: 48px;
   height: 48px;
-  background: #ffffff;
+  background: var(--date-badge-bg);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 12px var(--date-badge-shadow);
 }
 
 .date-day {
   font-size: 10px;
   font-weight: 700;
-  color: #6b7280;
+  color: var(--date-badge-day);
   text-transform: uppercase;
   letter-spacing: 0.5px;
   line-height: 1;
@@ -275,7 +275,7 @@
 .date-number {
   font-size: 18px;
   font-weight: 800;
-  color: #1a1d2e;
+  color: var(--date-badge-number);
   line-height: 1;
   margin-top: 2px;
 }
@@ -489,7 +489,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
+  background: var(--overlay-bg);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   z-index: 999;
@@ -503,14 +503,15 @@
   transform: translate(-50%, -50%);
   width: calc(100% - 40px);
   max-width: 560px;
-  background: linear-gradient(180deg, #2d3143 0%, #1a1d2e 100%);
+  background: var(--modal-bg);
   border-radius: 24px;
   padding: 32px 24px;
   max-height: 80vh;
   overflow-y: auto;
   z-index: 1000;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 48px var(--shadow-heavy);
   animation: modalIn 0.25s ease;
+  color: var(--text-primary);
 }
 
 @keyframes fadeIn {
@@ -553,21 +554,16 @@
 }
 
 .modal-close {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.18) 0%,
-    rgba(255, 255, 255, 0.06) 50%,
-    rgba(255, 255, 255, 0.12) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: var(--glass-active-bg);
+  border: 1px solid var(--glass-active-border);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow:
-    0 2px 8px rgba(0, 0, 0, 0.15),
-    inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    inset 0 -1px 1px rgba(255, 255, 255, 0.05);
+    0 2px 8px var(--shadow-light),
+    inset 0 1px 1px var(--glass-inset-top),
+    inset 0 -1px 1px var(--glass-inset-bottom);
   cursor: pointer;
-  color: #ffffff;
+  color: var(--text-primary);
   padding: 8px;
   display: flex;
   align-items: center;
@@ -579,19 +575,14 @@
 }
 
 .modal-close:hover {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.25) 0%,
-    rgba(255, 255, 255, 0.1) 50%,
-    rgba(255, 255, 255, 0.18) 100%
-  );
-  border-color: rgba(255, 255, 255, 0.3);
+  background: var(--glass-active-hover);
+  border-color: var(--border-hover);
 }
 
 .modal-title {
   font-size: 24px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
   margin: 0 0 24px 0;
   letter-spacing: -0.3px;
   line-height: 1.3;
@@ -604,7 +595,7 @@
   gap: 8px;
   margin-bottom: 20px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--modal-score-bg);
   border-radius: 12px;
 }
 
@@ -618,27 +609,27 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.12);
+  background: var(--chip-bg-active);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 11px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
 .modal-score-name {
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
   flex: 1;
 }
 
 .modal-score-value {
   font-size: 24px;
   font-weight: 800;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 /* Modal Standings */
@@ -648,7 +639,7 @@
   gap: 8px;
   margin-bottom: 20px;
   padding: 16px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--modal-score-bg);
   border-radius: 12px;
 }
 
@@ -661,14 +652,14 @@
 .modal-standing-pos {
   font-size: 14px;
   font-weight: 800;
-  color: rgba(255, 255, 255, 0.5);
+  color: var(--text-secondary);
   width: 24px;
 }
 
 .modal-standing-name {
   font-size: 16px;
   font-weight: 600;
-  color: #ffffff;
+  color: var(--text-primary);
 }
 
 .modal-details {
@@ -681,12 +672,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--text-bright);
   font-size: 15px;
 }
 
 .detail-row svg {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-icon);
   flex-shrink: 0;
 }
 
