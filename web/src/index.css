@@ -37,6 +37,9 @@
   --chip-bg-hover: rgba(255, 255, 255, 0.1);
   --chip-bg-active: rgba(255, 255, 255, 0.12);
   --chip-bg-strong: rgba(255, 255, 255, 0.08);
+  --chip-blur: blur(12px);
+  --chip-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --chip-active-shadow: 0 0 12px rgba(255, 255, 255, 0.06), 0 4px 12px rgba(0, 0, 0, 0.2);
 
   --overlay-bg: rgba(0, 0, 0, 0.75);
   --shadow-color: rgba(0, 0, 0, 0.3);
@@ -104,10 +107,13 @@
   --glass-bg-solid: rgba(255, 255, 255, 0.98);
   --glass-blur: blur(20px);
 
-  --chip-bg: rgba(0, 0, 0, 0.04);
-  --chip-bg-hover: rgba(0, 0, 0, 0.07);
-  --chip-bg-active: rgba(0, 0, 0, 0.1);
+  --chip-bg: rgba(0, 0, 0, 0.05);
+  --chip-bg-hover: rgba(0, 0, 0, 0.08);
+  --chip-bg-active: #ffffff;
   --chip-bg-strong: rgba(0, 0, 0, 0.06);
+  --chip-blur: none;
+  --chip-shadow: none;
+  --chip-active-shadow: 0 1px 4px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
 
   --overlay-bg: rgba(0, 0, 0, 0.4);
   --shadow-color: rgba(0, 0, 0, 0.1);

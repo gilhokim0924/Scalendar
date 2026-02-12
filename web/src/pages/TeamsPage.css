@@ -96,9 +96,9 @@
   border: 1px solid var(--border-light);
   border-radius: 20px;
   background: var(--chip-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 2px 8px var(--shadow-light);
+  backdrop-filter: var(--chip-blur);
+  -webkit-backdrop-filter: var(--chip-blur);
+  box-shadow: var(--chip-shadow);
   color: var(--text-primary);
   font-size: 13px;
   font-weight: 600;
@@ -114,14 +114,14 @@
 .teams-filter-btn:hover {
   background: var(--chip-bg-hover);
   border-color: var(--border-active);
-  box-shadow: 0 4px 12px var(--shadow-color);
+  box-shadow: var(--chip-shadow);
 }
 
 .teams-filter-btn.active {
   background: var(--chip-bg-active);
   color: var(--text-primary);
   border-color: var(--border-hover);
-  box-shadow: 0 0 12px var(--chip-bg), 0 4px 12px var(--shadow-color);
+  box-shadow: var(--chip-active-shadow);
 }
 
 .teams-filter-btn .filter-icon {
