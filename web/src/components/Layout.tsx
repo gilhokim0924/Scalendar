@@ -1,14 +1,10 @@
-import type { ReactNode } from 'react';
+import { Outlet } from 'react-router-dom';
 import Navigation from './Navigation';
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout() {
   return (
     <>
-      <div style={{ paddingBottom: '80px' }}>{children}</div>
+      <div style={{ paddingBottom: '80px' }}><Outlet /></div>
       <Navigation />
     </>
   );

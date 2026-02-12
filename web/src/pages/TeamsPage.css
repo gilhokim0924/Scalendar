@@ -220,33 +220,40 @@
 /* Selected Teams Bar */
 .teams-selected-bar {
   position: fixed;
-  bottom: 100px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 40px);
-  max-width: 560px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  padding: 10px 14px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(26, 29, 46, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 8px 0 max(8px, env(safe-area-inset-bottom));
+  z-index: 200;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.3);
+}
+
+.teams-selected-bar-inner {
+  max-width: 600px;
+  margin: 0 auto;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  border-radius: 999px;
-  z-index: 150;
-  box-sizing: border-box;
+  align-items: center;
+  padding: 0 20px;
 }
 
 .teams-selected-avatars {
   display: flex;
-  gap: -4px;
+  align-items: center;
+}
+
+.teams-selected-actions {
+  display: flex;
+  align-items: center;
 }
 
 .teams-selected-avatar {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.1);
   display: flex;
@@ -256,68 +263,80 @@
   font-weight: 700;
   color: rgba(255, 255, 255, 0.7);
   letter-spacing: -0.3px;
-  margin-right: -4px;
-  border: 2px solid #1a1d2e;
+  margin-right: -6px;
+  border: 2px solid rgba(26, 29, 46, 0.98);
 }
 
 .teams-selected-more {
-  width: 36px;
-  height: 36px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.7);
-  border: 2px solid #1a1d2e;
+  border: 2px solid rgba(26, 29, 46, 0.98);
 }
 
-.teams-selected-actions {
+.teams-bar-tab {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
   align-items: center;
-}
-
-.teams-clear-btn {
-  background: rgba(239, 68, 68, 0.7);
-  border: 1px solid rgba(255, 120, 120, 0.5);
-  border-radius: 999px;
-  padding: 8px 18px;
-  color: #ffffff;
-  font-size: 13px;
+  gap: 4px;
+  padding: 8px 4px;
+  min-width: 64px;
+  border: none;
+  background: transparent;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 11px;
   font-weight: 600;
+  line-height: 1;
+  font-family: inherit;
   cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  box-shadow:
-    0 2px 8px rgba(239, 68, 68, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2);
+  transition: color 0.25s ease;
+  position: relative;
 }
 
-.teams-clear-btn:hover {
-  background: rgba(239, 68, 68, 0.85);
+.teams-bar-tab svg {
+  width: 22px;
+  height: 22px;
+  transition: color 0.25s ease;
 }
 
-.teams-done-btn {
-  background: rgba(59, 130, 246, 0.75);
-  border: 1px solid rgba(100, 160, 255, 0.5);
-  border-radius: 999px;
-  padding: 8px 18px;
+.teams-bar-tab:hover {
   color: #ffffff;
-  font-size: 13px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  box-shadow:
-    0 2px 8px rgba(59, 130, 246, 0.3),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
-.teams-done-btn:hover {
-  background: rgba(59, 130, 246, 0.9);
+.teams-bar-tab:hover::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18) 0%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.12) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  z-index: -1;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.15),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.05);
+}
+
+.teams-bar-tab:active {
+  color: #ffffff;
 }
 
 /* Responsive */
@@ -340,5 +359,15 @@
 
   .teams-list {
     padding: 8px 16px 120px;
+  }
+
+  .teams-bar-tab {
+    font-size: 10px;
+    padding: 6px 4px;
+  }
+
+  .teams-bar-tab svg {
+    width: 20px;
+    height: 20px;
   }
 }

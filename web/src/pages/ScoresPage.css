@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.scores-page {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #1a1d2e 0%, #0f1116 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  color: #ffffff;
+}
+
+/* Sticky Header */
+.scores-sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: linear-gradient(180deg, #1a1d2e 0%, #1a1d2e 85%, rgba(26, 29, 46, 0.95) 100%);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 4px;
+}
+
+/* Header */
+.scores-header {
+  padding: 20px 0;
+}
+
+.scores-title {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  text-align: center;
+}
+
+/* Filters */
+.scores-filters {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.scores-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.scores-filter-btn {
+  padding: 10px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.scores-filter-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.scores-filter-btn.active {
+  background: #ffffff;
+  color: #1a1d2e;
+  border-color: #ffffff;
+}
+
+.scores-filter-btn .filter-icon {
+  font-size: 18px;
+}
+
+/* League Filters */
+.scores-league-filters {
+  max-width: 600px;
+  margin: 12px auto 0;
+  padding: 0 20px;
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.scores-league-filters::-webkit-scrollbar {
+  display: none;
+}
+
+.scores-league-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* Content */
+.scores-content {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 16px 20px 120px;
+}
+
+/* Standings Section */
+.standings-section {
+  margin-bottom: 28px;
+}
+
+.standings-league-name {
+  font-size: 18px;
+  font-weight: 700;
+  margin: 0 0 12px;
+  letter-spacing: -0.3px;
+}
+
+/* Standings Table */
+.standings-table {
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.standings-header-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.06);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.standings-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 14px;
+  transition: background 0.15s ease;
+}
+
+.standings-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.standings-row-alt {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.standings-col-pos {
+  width: 32px;
+  flex-shrink: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.standings-col-team {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.standings-col-f1-team {
+  width: 100px;
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.standings-col-stat {
+  width: 36px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.standings-col-pts {
+  width: 42px;
+  flex-shrink: 0;
+  text-align: right;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.standings-team-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.7);
+  letter-spacing: -0.3px;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scores-title {
+    font-size: 24px;
+  }
+
+  .scores-filters {
+    padding: 0 16px;
+  }
+
+  .scores-league-filters {
+    padding: 0 16px;
+  }
+
+  .scores-content {
+    padding: 16px 16px 120px;
+  }
+}

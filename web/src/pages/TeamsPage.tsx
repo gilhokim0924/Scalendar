@@ -159,8 +159,8 @@ export default function TeamsPage() {
       </div>
 
       {/* Selected Teams Bar */}
-      {selectedTeamObjects.length > 0 && (
-        <div className="teams-selected-bar">
+      <div className="teams-selected-bar">
+        <div className="teams-selected-bar-inner">
           <div className="teams-selected-avatars">
             {selectedTeamObjects.slice(0, 6).map(team => (
               <div key={team.id} className="teams-selected-avatar">{getTeamInitials(team.name)}</div>
@@ -170,11 +170,22 @@ export default function TeamsPage() {
             )}
           </div>
           <div className="teams-selected-actions">
-            <button className="teams-clear-btn" onClick={clearAllTeams}>Clear All</button>
-            <button className="teams-done-btn" onClick={handleDone}>Done</button>
+            <button className="teams-bar-tab" onClick={clearAllTeams}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <span>Clear</span>
+            </button>
+            <button className="teams-bar-tab" onClick={handleDone}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg>
+              <span>Done</span>
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
