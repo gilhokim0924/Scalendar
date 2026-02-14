@@ -266,7 +266,7 @@ export default function TeamsPage() {
                 className={`teams-filter-btn teams-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
                 onClick={() => setLeagueFilter('all')}
               >
-                {t('filters.allLeagues')}
+                {t('filters.all')}
               </button>
               <button
                 className={`teams-filter-btn teams-league-btn teams-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}

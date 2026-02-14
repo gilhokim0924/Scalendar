@@ -223,7 +223,7 @@ export default function ScoresPage() {
               className={`scores-filter-btn scores-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('all')}
             >
-              {t('filters.allLeagues')}
+              {t('filters.all')}
             </button>
             <button
               className={`scores-filter-btn scores-league-btn scores-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}

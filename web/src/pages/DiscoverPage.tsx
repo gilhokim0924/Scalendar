@@ -7,6 +7,17 @@ import { useF1Events } from '../hooks/useF1Data';
 import './DiscoverPage.css';
 
 type SportFilter = 'all' | '1' | '2';
+type FootballSubFilter =
+  | 'all'
+  | 'Premier League'
+  | 'Champions League'
+  | 'Europa League'
+  | 'Europa Conference League'
+  | 'La Liga'
+  | 'Bundesliga'
+  | 'Serie A'
+  | 'Ligue 1';
+type MotorsportSubFilter = 'all' | 'Formula 1';
 
 function getFootballAccent(competition: string): 'pl' | 'ucl' | 'laliga' | 'bundesliga' | 'seriea' | 'ligue1' | 'europa' | 'conference' {
   const c = competition.toLowerCase();
@@ -24,6 +35,8 @@ export default function DiscoverPage() {
   const { t } = useTranslation();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
+  const [footballSubFilter, setFootballSubFilter] = useState<FootballSubFilter>('all');
+  const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
 
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
@@ -58,7 +71,23 @@ export default function DiscoverPage() {
 
   const upcomingEvents = [...allEvents]
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
-    .filter(e => sportFilter === 'all' || e.sport_id === sportFilter)
+    .filter((event) => {
+      if (sportFilter === 'all') return true;
+      if (event.sport_id !== sportFilter) return false;
+
+      if (sportFilter === '1') {
+        if (footballSubFilter === 'all') return true;
+        const competition = event.competition.toLowerCase();
+        return competition.includes(footballSubFilter.toLowerCase());
+      }
+
+      if (sportFilter === '2') {
+        if (motorsportSubFilter === 'all') return true;
+        return motorsportSubFilter === 'Formula 1';
+      }
+
+      return true;
+    })
     .slice(0, 6);
 
   const footballEventCount = allEvents.filter(e => e.sport_id === '1').length;
@@ -150,25 +179,84 @@ export default function DiscoverPage() {
       <div className="discover-filters">
         <button
           className={`discover-filter-btn ${sportFilter === 'all' ? 'active' : ''}`}
-          onClick={() => setSportFilter('all')}
+          onClick={() => {
+            setSportFilter('all');
+            setFootballSubFilter('all');
+            setMotorsportSubFilter('all');
+          }}
         >
           {t('filters.all')}
         </button>
         <button
           className={`discover-filter-btn ${sportFilter === '1' ? 'active' : ''}`}
-          onClick={() => setSportFilter('1')}
+          onClick={() => {
+            setSportFilter('1');
+            setFootballSubFilter('all');
+          }}
         >
           <span className="filter-icon">⚽</span>
           {t('filters.football')}
         </button>
         <button
           className={`discover-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
-          onClick={() => setSportFilter('2')}
+          onClick={() => {
+            setSportFilter('2');
+            setMotorsportSubFilter('all');
+          }}
         >
           <span className="filter-icon">🏎️</span>
           {t('filters.motorsport')}
         </button>
       </div>
+
+      {sportFilter === '1' && (
+        <div className="discover-sub-filters">
+          <div className="discover-sub-row">
+            <button className={`discover-filter-btn discover-sub-btn ${footballSubFilter === 'all' ? 'active' : ''}`} onClick={() => setFootballSubFilter('all')}>
+              {t('filters.all')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-pl ${footballSubFilter === 'Premier League' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Premier League')}>
+              {t('filters.premierLeague')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-laliga ${footballSubFilter === 'La Liga' ? 'active' : ''}`} onClick={() => setFootballSubFilter('La Liga')}>
+              {t('filters.laLiga')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-bundesliga ${footballSubFilter === 'Bundesliga' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Bundesliga')}>
+              {t('filters.bundesliga')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-seriea ${footballSubFilter === 'Serie A' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Serie A')}>
+              {t('filters.serieA')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-ligue1 ${footballSubFilter === 'Ligue 1' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Ligue 1')}>
+              {t('filters.ligue1')}
+            </button>
+          </div>
+          <div className="discover-sub-row">
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-ucl ${footballSubFilter === 'Champions League' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Champions League')}>
+              {t('filters.championsLeague')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-europa ${footballSubFilter === 'Europa League' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Europa League')}>
+              {t('filters.europaLeague')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-conference ${footballSubFilter === 'Europa Conference League' ? 'active' : ''}`} onClick={() => setFootballSubFilter('Europa Conference League')}>
+              {t('filters.europaConferenceLeague')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sportFilter === '2' && (
+        <div className="discover-sub-filters">
+          <div className="discover-sub-row">
+            <button className={`discover-filter-btn discover-sub-btn ${motorsportSubFilter === 'all' ? 'active' : ''}`} onClick={() => setMotorsportSubFilter('all')}>
+              {t('filters.all')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-f1 ${motorsportSubFilter === 'Formula 1' ? 'active' : ''}`} onClick={() => setMotorsportSubFilter('Formula 1')}>
+              Formula 1
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Upcoming Events */}
       <section className="discover-section">
