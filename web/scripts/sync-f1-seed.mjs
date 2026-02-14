@@ -131,7 +131,7 @@ async function main() {
   }));
 
   const { error: eventsError } = await supabase
-    .from('events_v2')
+    .from('events')
     .upsert(events, { onConflict: 'competition_id,external_id' });
   if (eventsError) throw eventsError;
 
@@ -152,7 +152,7 @@ async function main() {
 
   if (standings.length > 0) {
     const { error: standingsError } = await supabase
-      .from('standings_v2')
+      .from('standings')
       .upsert(standings, { onConflict: 'competition_id,season,participant_id' });
     if (standingsError) throw standingsError;
   }

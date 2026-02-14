@@ -154,7 +154,7 @@ export async function fetchParticipantsByIds(participantIds: string[]) {
 
 export async function fetchEventsByCompetition(competitionId: string, season: string) {
   const { data, error } = await supabase
-    .from('events_v2')
+    .from('events')
     .select('id, sport_id, competition_id, external_id, season, round, stage, starts_at_utc, venue, status, metadata')
     .eq('competition_id', competitionId)
     .eq('season', season)
@@ -178,7 +178,7 @@ export async function fetchEventParticipants(eventIds: string[]) {
 
 export async function fetchStandingsByCompetition(competitionId: string, season: string) {
   const { data, error } = await supabase
-    .from('standings_v2')
+    .from('standings')
     .select('id, competition_id, season, participant_id, rank, points, played, wins, draws, losses, scored, conceded, diff, metadata')
     .eq('competition_id', competitionId)
     .eq('season', season)

@@ -31,21 +31,23 @@ function toUtcDateTime(date: string, time: string | null): string {
 }
 
 function rowToEvent(row: Awaited<ReturnType<typeof fetchEvents>>[number]): SportsEvent {
+  const homeName = row.home_team?.trim() || 'Home';
+  const awayName = row.away_team?.trim() || 'Away';
   return {
     id: row.id,
     sport_id: '1',
     round: row.round,
     home_team_id: row.home_team_id,
     away_team_id: row.away_team_id,
-    title: `${row.home_team} vs ${row.away_team}`,
+    title: `${homeName} vs ${awayName}`,
     datetime_utc: toUtcDateTime(row.date_event, row.time_event),
     venue: row.venue || 'TBD',
     competition: row.league_name,
     external_event_id: row.id,
     home_score: row.home_score ?? undefined,
     away_score: row.away_score ?? undefined,
-    home_team_name: row.home_team,
-    away_team_name: row.away_team,
+    home_team_name: homeName,
+    away_team_name: awayName,
   };
 }
 
