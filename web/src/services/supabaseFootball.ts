@@ -1,7 +1,15 @@
 import { supabase } from '../lib/supabase';
 
-const CURRENT_SEASON = '2025-2026';
 const FOOTBALL_SPORT_KEY = 'football';
+
+function getCurrentFootballSeason(now = new Date()) {
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
+  const startYear = month >= 7 ? year : year - 1;
+  return `${startYear}-${startYear + 1}`;
+}
+
+const CURRENT_SEASON = getCurrentFootballSeason();
 
 interface TeamRow {
   id: string;

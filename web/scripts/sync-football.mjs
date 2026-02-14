@@ -3,10 +3,18 @@ import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
 const DELAY_MS = 2500;
-const SEASON = '2025-2026';
 const SPORT_KEY = 'football';
 const SPORT_NAME = 'Football';
 const SPORTS_DB_BASE_URL = 'https://www.thesportsdb.com/api/v1/json/3';
+
+function getCurrentFootballSeason(now = new Date()) {
+  const year = now.getUTCFullYear();
+  const month = now.getUTCMonth() + 1;
+  const startYear = month >= 7 ? year : year - 1;
+  return `${startYear}-${startYear + 1}`;
+}
+
+const SEASON = getCurrentFootballSeason();
 
 const LEAGUES = [
   {
