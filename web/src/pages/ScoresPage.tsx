@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
+import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
-import { usePLStandings, useUCLStandings } from '../hooks/useFootballData';
+import { usePLStandings, useUCLEvents, useUCLStandings } from '../hooks/useFootballData';
 import { useF1DriverStandings } from '../hooks/useF1Data';
 import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
 type SportFilter = 'all' | 'football' | 'motorsport';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
+type UCLPhase = 'league' | 'tournament';
 
 interface F1StandingRow {
   driver: string;
@@ -92,9 +94,11 @@ export default function ScoresPage() {
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
   const [expandAll, setExpandAll] = useState(false);
+  const [uclPhase, setUclPhase] = useState<UCLPhase>('league');
 
   const plStandings = usePLStandings();
   const uclStandings = useUCLStandings();
+  const uclEvents = useUCLEvents();
   const f1StandingsQuery = useF1DriverStandings();
   const f1Standings = (f1StandingsQuery.data && f1StandingsQuery.data.length > 0)
     ? f1StandingsQuery.data
@@ -110,6 +114,9 @@ export default function ScoresPage() {
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showChampionsLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Champions League');
   const showExpandControl = showPremierLeague || showChampionsLeague || showMotorsport;
+  const uclTournamentFixtures = (uclEvents.data ?? [])
+    .filter((event) => (event.round ?? 0) >= 32)
+    .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
 
   return (
     <div className="scores-page">
@@ -188,16 +195,57 @@ export default function ScoresPage() {
         )}
 
         {showChampionsLeague && (
-          <StandingsTable
-            data={uclStandings.data}
-            isLoading={uclStandings.isLoading}
-            error={uclStandings.error}
-            refetch={() => uclStandings.refetch()}
-            accentClass="standings-ucl"
-            title={t('filters.championsLeague')}
-            defaultVisibleRows={12}
-            expandAll={expandAll}
-          />
+          <div className="standings-section standings-ucl">
+            <div className="ucl-phase-header">
+              <h2 className="standings-league-name">{t('filters.championsLeague')}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${uclPhase === 'league' ? 'active' : ''}`}
+                  onClick={() => setUclPhase('league')}
+                >
+                  League phase
+                </button>
+                <button
+                  className={`ucl-phase-btn ${uclPhase === 'tournament' ? 'active' : ''}`}
+                  onClick={() => setUclPhase('tournament')}
+                >
+                  Tournament phase
+                </button>
+              </div>
+            </div>
+
+            {uclPhase === 'league' ? (
+              <StandingsTable
+                data={uclStandings.data}
+                isLoading={uclStandings.isLoading}
+                error={uclStandings.error}
+                refetch={() => uclStandings.refetch()}
+                accentClass="standings-ucl"
+                title="League table"
+                defaultVisibleRows={12}
+                expandAll={expandAll}
+              />
+            ) : (
+              <div className="ucl-tournament-list">
+                {uclEvents.isLoading ? (
+                  <div className="standings-loading">Loading...</div>
+                ) : uclTournamentFixtures.length === 0 ? (
+                  <div className="standings-loading">No tournament fixtures available yet.</div>
+                ) : (
+                  uclTournamentFixtures.map((event) => (
+                    <div key={event.id} className="ucl-tournament-card">
+                      <div className="ucl-tournament-round">Knockout Round</div>
+                      <div className="ucl-tournament-title">{event.title}</div>
+                      <div className="ucl-tournament-meta">
+                        <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
+                        <span>{event.venue}</span>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         )}
 
         {showMotorsport && (

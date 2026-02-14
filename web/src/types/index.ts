@@ -17,6 +17,7 @@ export interface Team {
 export interface SportsEvent {
   id: string;
   sport_id: string;
+  round?: number;
   home_team_id?: string;
   away_team_id?: string;
   title: string;

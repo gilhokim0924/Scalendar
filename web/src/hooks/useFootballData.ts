@@ -25,6 +25,7 @@ function rowToEvent(row: Awaited<ReturnType<typeof fetchEvents>>[number]): Sport
   return {
     id: row.id,
     sport_id: '1',
+    round: row.round,
     home_team_id: row.home_team_id,
     away_team_id: row.away_team_id,
     title: `${row.home_team} vs ${row.away_team}`,
