@@ -5,6 +5,7 @@ import DiscoverPage from './pages/DiscoverPage';
 import TeamsPage from './pages/TeamsPage';
 import ScoresPage from './pages/ScoresPage';
 import SettingsPage from './pages/SettingsPage';
+import './App.css';
 
 function App() {
   return (

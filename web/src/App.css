@@ -4,16 +4,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .loading-spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(255, 255, 255, 0.28);
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.24);
+  border-right-color: rgba(255, 255, 255, 0.45);
   border-top-color: currentColor;
   border-radius: 50%;
-  animation: loading-spin 0.85s linear infinite;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.22);
+  animation: loading-spin 0.9s cubic-bezier(0.55, 0.15, 0.45, 0.85) infinite;
+  will-change: transform;
+  flex-shrink: 0;
 }
 
 @keyframes loading-spin {
