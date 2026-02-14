@@ -162,6 +162,18 @@
   color: #ffffff;
 }
 
+.discover-sub-mlb.active {
+  background: #1d4ed8;
+  border-color: #93c5fd;
+  color: #ffffff;
+}
+
+.discover-sub-kbo.active {
+  background: #b91c1c;
+  border-color: #fca5a5;
+  color: #ffffff;
+}
+
 /* Sections */
 .discover-section {
   max-width: 600px;
@@ -236,6 +248,14 @@
 
 .upcoming-card.f1 {
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
+.upcoming-card.mlb {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.upcoming-card.kbo {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
 }
 
 .upcoming-card-date {
@@ -335,6 +355,14 @@
 
 .competition-card.f1 {
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
+.competition-card.mlb {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.competition-card.kbo {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
 }
 
 .competition-icon {

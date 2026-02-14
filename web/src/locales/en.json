@@ -64,6 +64,7 @@
     "all": "All",
     "football": "Football",
     "motorsport": "Motorsport",
+    "baseball": "Baseball",
     "allLeagues": "All Leagues",
     "premierLeague": "Premier League",
     "championsLeague": "Champions League",
@@ -72,6 +73,8 @@
     "laLiga": "La Liga",
     "bundesliga": "Bundesliga",
     "serieA": "Serie A",
-    "ligue1": "Ligue 1"
+    "ligue1": "Ligue 1",
+    "mlb": "MLB",
+    "kbo": "KBO"
   }
 }

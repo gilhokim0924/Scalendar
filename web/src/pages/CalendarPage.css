@@ -390,6 +390,16 @@
   box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
 }
 
+.event-card.mlb {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.34);
+}
+
+.event-card.kbo {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.34);
+}
+
 .event-card.la-liga {
   background: linear-gradient(135deg, #be123c 0%, #881337 100%);
   box-shadow: 0 4px 16px rgba(190, 18, 60, 0.32);
@@ -427,6 +437,14 @@
 
 .event-card.formula-one:hover {
   box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+}
+
+.event-card.mlb:hover {
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.45);
+}
+
+.event-card.kbo:hover {
+  box-shadow: 0 8px 24px rgba(185, 28, 28, 0.45);
 }
 
 .event-card.la-liga:hover {
@@ -520,8 +538,26 @@
   box-shadow: 0 4px 16px rgba(122, 32, 32, 0.3);
 }
 
+.event-card.past-event.mlb {
+  background: linear-gradient(135deg, #1e2f66 0%, #15234f 100%);
+  box-shadow: 0 4px 16px rgba(30, 47, 102, 0.35);
+}
+
+.event-card.past-event.kbo {
+  background: linear-gradient(135deg, #6d1f1f 0%, #4f1717 100%);
+  box-shadow: 0 4px 16px rgba(109, 31, 31, 0.35);
+}
+
 .event-card.past-event.formula-one:hover {
   box-shadow: 0 8px 24px rgba(122, 32, 32, 0.4);
+}
+
+.event-card.past-event.mlb:hover {
+  box-shadow: 0 8px 24px rgba(30, 47, 102, 0.45);
+}
+
+.event-card.past-event.kbo:hover {
+  box-shadow: 0 8px 24px rgba(109, 31, 31, 0.45);
 }
 
 /* Event Card Pattern */
@@ -767,6 +803,14 @@
 
 .modal-sport-badge.formula-one {
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+}
+
+.modal-sport-badge.mlb {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.modal-sport-badge.kbo {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
 }
 
 .modal-close {

@@ -12,12 +12,14 @@ import {
   useUCLEvents,
   useUCLStandings,
 } from '../hooks/useFootballData';
-import { useF1DriverStandings } from '../hooks/useF1Data';
+import { BASEBALL_LEAGUES, useBaseballLeagueTeams, useKBOStandings, useMLBStandings } from '../hooks/useBaseballData';
+import { useF1Constructors, useF1DriverStandings, useF1Drivers } from '../hooks/useF1Data';
 import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
-type SportFilter = 'all' | 'football' | 'motorsport';
+type SportFilter = 'all' | 'football' | 'motorsport' | 'baseball';
 type MotorsportSubFilter = 'all' | 'Formula 1';
+type BaseballSubFilter = 'all' | 'MLB' | 'KBO';
 type LeagueFilter =
   | 'all'
   | 'Premier League'
@@ -42,13 +44,24 @@ interface F1ConstructorStandingRow {
   pts: number;
 }
 
-const fallbackF1Standings: F1StandingRow[] = [
-  { driver: 'M. Verstappen', team: 'Red Bull', pts: 51 },
-  { driver: 'C. Leclerc', team: 'Ferrari', pts: 42 },
-  { driver: 'L. Norris', team: 'McLaren', pts: 38 },
-  { driver: 'L. Hamilton', team: 'Mercedes', pts: 30 },
-  { driver: 'F. Alonso', team: 'Aston Martin', pts: 22 },
-];
+function zeroStandingsFromTeams(teamRows: Array<{ id: string; name: string }>): FootballStanding[] {
+  return teamRows
+    .map((team) => ({
+      rank: 0,
+      team: team.name,
+      played: 0,
+      w: 0,
+      d: 0,
+      l: 0,
+      gf: 0,
+      ga: 0,
+      gd: 0,
+      pts: 0,
+      teamId: team.id,
+    }))
+    .sort((a, b) => a.team.localeCompare(b.team))
+    .map((row, idx) => ({ ...row, rank: idx + 1 }));
+}
 
 function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll, onToggleExpand }: {
   data: FootballStanding[] | undefined;
@@ -145,6 +158,9 @@ export default function ScoresPage() {
   const [f1Mode, setF1Mode] = useState<F1Mode>('driver');
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
   const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
+  const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
+  const [mlbExpanded, setMlbExpanded] = useState(false);
+  const [kboExpanded, setKboExpanded] = useState(false);
 
   const plStandings = usePLStandings();
   const laLigaStandings = useLaLigaStandings();
@@ -153,30 +169,66 @@ export default function ScoresPage() {
   const ligue1Standings = useLigue1Standings();
   const uclStandings = useUCLStandings();
   const uclEvents = useUCLEvents();
+  const mlbStandings = useMLBStandings();
+  const kboStandings = useKBOStandings();
+  const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
+  const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
   const f1StandingsQuery = useF1DriverStandings();
-  const f1Standings = (f1StandingsQuery.data && f1StandingsQuery.data.length > 0)
-    ? f1StandingsQuery.data
-    : fallbackF1Standings;
+  const f1Drivers = useF1Drivers();
+  const f1Constructors = useF1Constructors();
+  const f1Standings = useMemo<F1StandingRow[]>(() => {
+    if (f1StandingsQuery.data && f1StandingsQuery.data.length > 0) {
+      return f1StandingsQuery.data;
+    }
+    return (f1Drivers.data ?? []).slice(0, 22).map((driver) => ({
+      driver: driver.name,
+      team: '-',
+      pts: 0,
+    }));
+  }, [f1StandingsQuery.data, f1Drivers.data]);
   const f1ConstructorStandings = useMemo<F1ConstructorStandingRow[]>(() => {
-    const pointsByTeam = new Map<string, number>();
-    f1Standings.forEach((row) => {
-      pointsByTeam.set(row.team, (pointsByTeam.get(row.team) ?? 0) + row.pts);
-    });
+    if (f1StandingsQuery.data && f1StandingsQuery.data.length > 0) {
+      const pointsByTeam = new Map<string, number>();
+      f1Standings.forEach((row) => {
+        pointsByTeam.set(row.team, (pointsByTeam.get(row.team) ?? 0) + row.pts);
+      });
 
-    return Array.from(pointsByTeam.entries())
-      .map(([team, pts]) => ({ team, pts }))
-      .sort((a, b) => b.pts - a.pts);
-  }, [f1Standings]);
+      return Array.from(pointsByTeam.entries())
+        .map(([team, pts]) => ({ team, pts }))
+        .sort((a, b) => b.pts - a.pts);
+    }
+
+    return (f1Constructors.data ?? []).map((constructor) => ({
+      team: constructor.name,
+      pts: 0,
+    }));
+  }, [f1StandingsQuery.data, f1Standings, f1Constructors.data]);
+  const mlbRows = useMemo(
+    () => (mlbStandings.data && mlbStandings.data.length > 0)
+      ? mlbStandings.data
+      : zeroStandingsFromTeams((mlbTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
+    [mlbStandings.data, mlbTeams.data],
+  );
+  const kboRows = useMemo(
+    () => (kboStandings.data && kboStandings.data.length > 0)
+      ? kboStandings.data
+      : zeroStandingsFromTeams((kboTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
+    [kboStandings.data, kboTeams.data],
+  );
 
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
     setLeagueFilter('all');
     setMotorsportSubFilter('all');
+    setBaseballSubFilter('all');
   };
 
   const showFootball = sportFilter === 'all' || sportFilter === 'football';
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
+  const showBaseball = sportFilter === 'all' || sportFilter === 'baseball';
   const showF1 = showMotorsport && (motorsportSubFilter === 'all' || motorsportSubFilter === 'Formula 1');
+  const showMlb = showBaseball && (baseballSubFilter === 'all' || baseballSubFilter === 'MLB');
+  const showKbo = showBaseball && (baseballSubFilter === 'all' || baseballSubFilter === 'KBO');
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showLaLiga = showFootball && (leagueFilter === 'all' || leagueFilter === 'La Liga');
   const showBundesliga = showFootball && (leagueFilter === 'all' || leagueFilter === 'Bundesliga');
@@ -217,6 +269,13 @@ export default function ScoresPage() {
         >
           <span className="filter-icon">🏎️</span>
           {t('filters.motorsport')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'baseball' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('baseball')}
+        >
+          <span className="filter-icon">⚾</span>
+          {t('filters.baseball')}
         </button>
       </div>
 
@@ -297,6 +356,31 @@ export default function ScoresPage() {
               onClick={() => setMotorsportSubFilter('Formula 1')}
             >
               Formula 1
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sportFilter === 'baseball' && (
+        <div className="scores-league-filters">
+          <div className="scores-league-row">
+            <button
+              className={`scores-filter-btn scores-league-btn ${baseballSubFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setBaseballSubFilter('all')}
+            >
+              {t('filters.all')}
+            </button>
+            <button
+              className={`scores-filter-btn scores-league-btn scores-league-mlb ${baseballSubFilter === 'MLB' ? 'active' : ''}`}
+              onClick={() => setBaseballSubFilter('MLB')}
+            >
+              {t('filters.mlb')}
+            </button>
+            <button
+              className={`scores-filter-btn scores-league-btn scores-league-kbo ${baseballSubFilter === 'KBO' ? 'active' : ''}`}
+              onClick={() => setBaseballSubFilter('KBO')}
+            >
+              {t('filters.kbo')}
             </button>
           </div>
         </div>
@@ -520,6 +604,34 @@ export default function ScoresPage() {
               </div>
             )}
           </div>
+        )}
+
+        {showMlb && (
+          <StandingsTable
+            data={mlbRows}
+            isLoading={mlbStandings.isLoading || mlbTeams.isLoading}
+            error={(mlbStandings.error ?? mlbTeams.error) as Error | null}
+            refetch={() => { mlbStandings.refetch(); mlbTeams.refetch(); }}
+            accentClass="standings-mlb"
+            title={BASEBALL_LEAGUES.mlb.name}
+            defaultVisibleRows={5}
+            expandAll={mlbExpanded}
+            onToggleExpand={() => setMlbExpanded((v) => !v)}
+          />
+        )}
+
+        {showKbo && (
+          <StandingsTable
+            data={kboRows}
+            isLoading={kboStandings.isLoading || kboTeams.isLoading}
+            error={(kboStandings.error ?? kboTeams.error) as Error | null}
+            refetch={() => { kboStandings.refetch(); kboTeams.refetch(); }}
+            accentClass="standings-kbo"
+            title={BASEBALL_LEAGUES.kbo.name}
+            defaultVisibleRows={5}
+            expandAll={kboExpanded}
+            onToggleExpand={() => setKboExpanded((v) => !v)}
+          />
         )}
       </div>
     </div>

@@ -3,6 +3,7 @@ import type { SportsEvent, Sport, Team } from '../types';
 export const mockSports: Sport[] = [
   { id: '1', name: 'Football', icon: '⚽' },
   { id: '2', name: 'Formula 1', icon: '🏎️' },
+  { id: '3', name: 'Baseball', icon: '⚾' },
 ];
 
 export const mockTeams: Team[] = [

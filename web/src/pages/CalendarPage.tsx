@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { mockEvents, getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
+import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
 import type { SportsEvent, Team } from '../types';
 import { Link, useLocation } from 'react-router-dom';
 import './CalendarPage.css';
@@ -21,8 +22,13 @@ function uniqueTeamsById(teams: Team[]): Team[] {
   return Array.from(byId.values());
 }
 
-function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'la-liga' | 'bundesliga' | 'serie-a' | 'ligue-1' | 'europa-league' | 'conference-league' | 'formula-one' {
+function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'la-liga' | 'bundesliga' | 'serie-a' | 'ligue-1' | 'europa-league' | 'conference-league' | 'formula-one' | 'mlb' | 'kbo' {
   if (event.sport_id === '2') return 'formula-one';
+  if (event.sport_id === '3') {
+    const competition = event.competition.toLowerCase();
+    if (competition.includes('kbo')) return 'kbo';
+    return 'mlb';
+  }
   const competition = event.competition.toLowerCase();
   if (competition.includes('conference')) return 'conference-league';
   if (competition.includes('champions')) return 'champions-league';
@@ -61,6 +67,8 @@ export default function CalendarPage() {
   const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
   const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
+  const mlbEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.mlb.id);
+  const kboEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.kbo.id);
   const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
   const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
   const europaTeams = useLeagueTeams(FOOTBALL_LEAGUES.europaLeague.id);
@@ -69,10 +77,12 @@ export default function CalendarPage() {
   const bundesligaTeams = useLeagueTeams(FOOTBALL_LEAGUES.bundesliga.id);
   const serieATeams = useLeagueTeams(FOOTBALL_LEAGUES.serieA.id);
   const ligue1Teams = useLeagueTeams(FOOTBALL_LEAGUES.ligue1.id);
+  const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
+  const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
   const f1EventsQuery = useF1Events();
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
-  const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
+  const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error && mlbEvents.error && kboEvents.error;
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
   const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
@@ -91,9 +101,13 @@ export default function CalendarPage() {
       ...(serieAEvents.data ?? []),
       ...(ligue1Events.data ?? []),
     ];
+    const baseballEvents = [
+      ...(mlbEvents.data ?? []),
+      ...(kboEvents.data ?? []),
+    ];
 
-    return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
+    return [...footballEvents, ...baseballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, f1Events]);
 
   const allTeams = useMemo<Team[]>(() => {
     const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
@@ -153,6 +167,18 @@ export default function CalendarPage() {
       ...(ligue1Teams.data ?? []),
       ...eventDerivedFootballTeams,
     ];
+    const baseballTeams = [
+      ...(mlbTeams.data ?? []),
+      ...(kboTeams.data ?? []),
+      ...((mlbEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'MLB'),
+        toTeam(event.away_team_id, event.away_team_name, 'MLB'),
+      ]))),
+      ...((kboEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'KBO'),
+        toTeam(event.away_team_id, event.away_team_name, 'KBO'),
+      ]))),
+    ].filter((team): team is Team => Boolean(team)).map((team) => ({ ...team, sport_id: '3' as const }));
     const f1Teams: Team[] = [{
       id: F1_SELECTION_ID,
       sport_id: '2',
@@ -160,7 +186,7 @@ export default function CalendarPage() {
       external_api_id: 'f1',
       league: 'Formula 1',
     }];
-    return uniqueTeamsById([...footballTeams, ...f1Teams]);
+    return uniqueTeamsById([...footballTeams, ...baseballTeams, ...f1Teams]);
   }, [
     plTeams.data,
     uclTeams.data,
@@ -178,6 +204,10 @@ export default function CalendarPage() {
     bundesligaEvents.data,
     serieAEvents.data,
     ligue1Events.data,
+    mlbTeams.data,
+    kboTeams.data,
+    mlbEvents.data,
+    kboEvents.data,
   ]);
 
   // Get selected team objects for avatar chips
@@ -298,8 +328,8 @@ export default function CalendarPage() {
           </div>
         ) : hasError ? (
           <div className="calendar-error">
-            <p>Couldn't load football events</p>
-            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); }} className="retry-btn">Retry</button>
+            <p>Couldn't load events</p>
+            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); laLigaEvents.refetch(); bundesligaEvents.refetch(); serieAEvents.refetch(); ligue1Events.refetch(); mlbEvents.refetch(); kboEvents.refetch(); f1EventsQuery.refetch(); }} className="retry-btn">Retry</button>
           </div>
         ) : !hasSelectedTeams ? (
           <div className="calendar-empty-selection">

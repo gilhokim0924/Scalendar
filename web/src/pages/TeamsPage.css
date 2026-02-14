@@ -211,6 +211,20 @@
   box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.26);
 }
 
+.teams-league-mlb.active {
+  background: #1d4ed8;
+  border-color: #93c5fd;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25);
+}
+
+.teams-league-kbo.active {
+  background: #b91c1c;
+  border-color: #fca5a5;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(252, 165, 165, 0.25);
+}
+
 /* Team List */
 .teams-list {
   max-width: 600px;

@@ -99,16 +99,18 @@ async function main() {
     throw new Error('Missing SUPABASE_URL (or VITE_SUPABASE_URL) and/or SUPABASE_SERVICE_ROLE_KEY in web/.env');
   }
 
-  const [driversPayload, racesPayload, standingsPayload] = await Promise.all([
+  const [driversPayload, racesPayload, standingsPayload, constructorsPayload] = await Promise.all([
     fetchJolpica(`/${season}/drivers.json`),
     fetchJolpica(`/${season}/races.json`),
     fetchJolpica(`/${season}/driverStandings.json`),
+    fetchJolpica(`/${season}/constructors.json`),
   ]);
 
   const drivers = driversPayload?.MRData?.DriverTable?.Drivers ?? [];
   const races = racesPayload?.MRData?.RaceTable?.Races ?? [];
   const standingsList = standingsPayload?.MRData?.StandingsTable?.StandingsLists?.[0];
   const driverStandings = standingsList?.DriverStandings ?? [];
+  const constructors = constructorsPayload?.MRData?.ConstructorTable?.Constructors ?? [];
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -168,6 +170,24 @@ async function main() {
       .from('participants')
       .upsert(participants, { onConflict: 'sport_id,external_id' });
     if (participantsError) throw participantsError;
+  }
+
+  const constructorParticipants = constructors
+    .map((constructor) => ({
+      sport_id: sportId,
+      external_id: constructor.constructorId ?? null,
+      name: constructor.name ?? constructor.constructorId ?? 'Unknown Constructor',
+      participant_type: 'constructor',
+      short_name: null,
+      country: constructor.nationality ?? null,
+    }))
+    .filter((constructor) => Boolean(constructor.external_id));
+
+  if (constructorParticipants.length > 0) {
+    const { error: constructorUpsertError } = await supabase
+      .from('participants')
+      .upsert(constructorParticipants, { onConflict: 'sport_id,external_id' });
+    if (constructorUpsertError) throw constructorUpsertError;
   }
 
   const participantExternalIds = participants.map((driver) => driver.external_id).filter(Boolean);
@@ -259,7 +279,7 @@ async function main() {
     if (standingsError) throw standingsError;
   }
 
-  console.log(`F1 sync complete (${season}): ${participants.length} drivers, ${events.length} races, ${standings.length} standings rows`);
+  console.log(`F1 sync complete (${season}): ${participants.length} drivers, ${constructorParticipants.length} constructors, ${events.length} races, ${standings.length} standings rows`);
 }
 
 main().catch((error) => {

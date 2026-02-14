@@ -3,6 +3,7 @@ import type { SportsEvent } from '../types';
 import {
   fetchCompetitionByExternalId,
   fetchEventsByCompetition,
+  fetchParticipantsBySport,
   fetchParticipantsByIds,
   fetchStandingsByCompetition,
 } from '../services/supabaseMultiSport';
@@ -20,6 +21,16 @@ export interface F1Standing {
   driver: string;
   team: string;
   pts: number;
+}
+
+export interface F1DriverParticipant {
+  id: string;
+  name: string;
+}
+
+export interface F1ConstructorParticipant {
+  id: string;
+  name: string;
 }
 
 const queryConfig = {
@@ -74,6 +85,32 @@ export function useF1DriverStandings(season: string = DEFAULT_SEASON) {
         team: typeof row.metadata?.team === 'string' ? row.metadata.team : '-',
         pts: Number(row.points ?? 0),
       }));
+    },
+    ...queryConfig,
+  });
+}
+
+export function useF1Drivers() {
+  return useQuery({
+    queryKey: ['f1Drivers'],
+    queryFn: async (): Promise<F1DriverParticipant[]> => {
+      const rows = await fetchParticipantsBySport('f1', 'driver');
+      return rows
+        .map((row) => ({ id: row.id, name: row.name }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    },
+    ...queryConfig,
+  });
+}
+
+export function useF1Constructors() {
+  return useQuery({
+    queryKey: ['f1Constructors'],
+    queryFn: async (): Promise<F1ConstructorParticipant[]> => {
+      const rows = await fetchParticipantsBySport('f1', 'constructor');
+      return rows
+        .map((row) => ({ id: row.id, name: row.name }))
+        .sort((a, b) => a.name.localeCompare(b.name));
     },
     ...queryConfig,
   });

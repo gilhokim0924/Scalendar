@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next';
 import { mockEvents, mockSports } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
+import { BASEBALL_LEAGUES, useBaseballLeagueEvents } from '../hooks/useBaseballData';
 import './DiscoverPage.css';
 
-type SportFilter = 'all' | '1' | '2';
+type SportFilter = 'all' | '1' | '2' | '3';
 type FootballSubFilter =
   | 'all'
   | 'Premier League'
@@ -18,6 +19,7 @@ type FootballSubFilter =
   | 'Serie A'
   | 'Ligue 1';
 type MotorsportSubFilter = 'all' | 'Formula 1';
+type BaseballSubFilter = 'all' | 'MLB' | 'KBO';
 
 function getFootballAccent(competition: string): 'pl' | 'ucl' | 'laliga' | 'bundesliga' | 'seriea' | 'ligue1' | 'europa' | 'conference' {
   const c = competition.toLowerCase();
@@ -37,6 +39,7 @@ export default function DiscoverPage() {
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [footballSubFilter, setFootballSubFilter] = useState<FootballSubFilter>('all');
   const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
+  const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
 
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
@@ -46,6 +49,8 @@ export default function DiscoverPage() {
   const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
   const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
+  const mlbEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.mlb.id);
+  const kboEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.kbo.id);
   const f1EventsQuery = useF1Events();
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
@@ -64,10 +69,14 @@ export default function DiscoverPage() {
       ...(serieAEvents.data ?? []),
       ...(ligue1Events.data ?? []),
     ];
-    return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
+    const baseballEvents = [
+      ...(mlbEvents.data ?? []),
+      ...(kboEvents.data ?? []),
+    ];
+    return [...footballEvents, ...baseballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, f1Events]);
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
 
   const upcomingEvents = [...allEvents]
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
@@ -85,6 +94,11 @@ export default function DiscoverPage() {
         if (motorsportSubFilter === 'all') return true;
         return motorsportSubFilter === 'Formula 1';
       }
+      if (sportFilter === '3') {
+        if (baseballSubFilter === 'all') return true;
+        const competition = event.competition.toLowerCase();
+        return competition.includes(baseballSubFilter.toLowerCase());
+      }
 
       return true;
     })
@@ -92,6 +106,8 @@ export default function DiscoverPage() {
 
   const footballEventCount = allEvents.filter(e => e.sport_id === '1').length;
   const f1EventCount = f1Events.length;
+  const mlbEventCount = (mlbEvents.data ?? []).length;
+  const kboEventCount = (kboEvents.data ?? []).length;
 
   const competitions = [
     {
@@ -157,12 +173,26 @@ export default function DiscoverPage() {
       accent: 'f1',
       eventCount: f1EventCount,
     },
+    {
+      name: 'MLB',
+      icon: '\u26BE',
+      sportId: '3',
+      accent: 'mlb',
+      eventCount: mlbEventCount,
+    },
+    {
+      name: 'KBO',
+      icon: '\u26BE',
+      sportId: '3',
+      accent: 'kbo',
+      eventCount: kboEventCount,
+    },
   ];
 
   const featuredCompetitions = useMemo(() => {
     const shuffled = [...competitions].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 2);
-  }, [footballEventCount, f1EventCount, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
+  }, [footballEventCount, f1EventCount, mlbEventCount, kboEventCount, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
 
   const recentlyUpdated = mockSports.map(sport => ({
     ...sport,
@@ -183,6 +213,7 @@ export default function DiscoverPage() {
             setSportFilter('all');
             setFootballSubFilter('all');
             setMotorsportSubFilter('all');
+            setBaseballSubFilter('all');
           }}
         >
           {t('filters.all')}
@@ -206,6 +237,16 @@ export default function DiscoverPage() {
         >
           <span className="filter-icon">🏎️</span>
           {t('filters.motorsport')}
+        </button>
+        <button
+          className={`discover-filter-btn ${sportFilter === '3' ? 'active' : ''}`}
+          onClick={() => {
+            setSportFilter('3');
+            setBaseballSubFilter('all');
+          }}
+        >
+          <span className="filter-icon">⚾</span>
+          {t('filters.baseball')}
         </button>
       </div>
 
@@ -258,6 +299,22 @@ export default function DiscoverPage() {
         </div>
       )}
 
+      {sportFilter === '3' && (
+        <div className="discover-sub-filters">
+          <div className="discover-sub-row">
+            <button className={`discover-filter-btn discover-sub-btn ${baseballSubFilter === 'all' ? 'active' : ''}`} onClick={() => setBaseballSubFilter('all')}>
+              {t('filters.all')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-mlb ${baseballSubFilter === 'MLB' ? 'active' : ''}`} onClick={() => setBaseballSubFilter('MLB')}>
+              {t('filters.mlb')}
+            </button>
+            <button className={`discover-filter-btn discover-sub-btn discover-sub-kbo ${baseballSubFilter === 'KBO' ? 'active' : ''}`} onClick={() => setBaseballSubFilter('KBO')}>
+              {t('filters.kbo')}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Upcoming Events */}
       <section className="discover-section">
         <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
@@ -273,7 +330,15 @@ export default function DiscoverPage() {
             upcomingEvents.map(event => (
               <div
                 key={event.id}
-                className={`upcoming-card ${event.sport_id === '1' ? getFootballAccent(event.competition) : 'f1'}`}
+                className={`upcoming-card ${
+                  event.sport_id === '1'
+                    ? getFootballAccent(event.competition)
+                    : event.sport_id === '2'
+                      ? 'f1'
+                      : event.competition.toLowerCase().includes('kbo')
+                        ? 'kbo'
+                        : 'mlb'
+                }`}
               >
                 <div className="upcoming-card-date">
                   {format(parseISO(event.datetime_utc), 'MMM d')}

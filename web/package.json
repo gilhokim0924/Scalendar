@@ -7,7 +7,10 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "sync:football": "node scripts/sync-football.mjs",
+    "sync:f1": "node scripts/sync-f1-seed.mjs",
+    "sync:baseball": "node scripts/sync-baseball.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",
