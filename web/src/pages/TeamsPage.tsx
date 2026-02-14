@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { mockTeams, getTeamInitials } from '../utils/mockData';
-import { useLeagueTeams } from '../hooks/useFootballData';
+import { useLeagueEvents, useLeagueTeams } from '../hooks/useFootballData';
 import { useNavigate } from 'react-router-dom';
 import type { Team } from '../types';
 import './TeamsPage.css';
@@ -29,14 +29,41 @@ export default function TeamsPage() {
 
   const plTeams = useLeagueTeams('4328');
   const uclTeams = useLeagueTeams('4480');
+  const plEvents = useLeagueEvents('4328');
+  const uclEvents = useLeagueEvents('4480');
+
+  const eventDerivedFootballTeams = useMemo<Team[]>(() => {
+    const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
+      if (!id || !name) return null;
+      return {
+        id,
+        sport_id: '1',
+        name,
+        external_api_id: id,
+        league,
+      };
+    };
+
+    const pl = (plEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'Premier League'),
+      toTeam(event.away_team_id, event.away_team_name, 'Premier League'),
+    ])).filter((team): team is Team => Boolean(team));
+
+    const ucl = (uclEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'Champions League'),
+      toTeam(event.away_team_id, event.away_team_name, 'Champions League'),
+    ])).filter((team): team is Team => Boolean(team));
+
+    return [...pl, ...ucl];
+  }, [plEvents.data, uclEvents.data]);
 
   const f1Teams = useMemo(() => mockTeams.filter(t => t.sport_id === '2'), []);
 
   const allTeams: Team[] = useMemo(() => {
     const apiPl = plTeams.data ?? [];
     const apiUcl = uclTeams.data ?? [];
-    return uniqueTeamsById([...apiPl, ...apiUcl, ...f1Teams]);
-  }, [plTeams.data, uclTeams.data, f1Teams]);
+    return uniqueTeamsById([...apiPl, ...apiUcl, ...eventDerivedFootballTeams, ...f1Teams]);
+  }, [plTeams.data, uclTeams.data, eventDerivedFootballTeams, f1Teams]);
 
   const isLoading = plTeams.isLoading || uclTeams.isLoading;
   const hasError = plTeams.error && uclTeams.error;
