@@ -1,47 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
+import { usePLStandings, useUCLStandings } from '../hooks/useFootballData';
+import { useF1DriverStandings } from '../hooks/useF1Data';
+import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
 type SportFilter = 'all' | 'football' | 'motorsport';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
 
-interface FootballStanding {
-  team: string;
-  w: number;
-  d: number;
-  l: number;
-  pts: number;
-}
-
-interface F1Standing {
+interface F1StandingRow {
   driver: string;
   team: string;
   pts: number;
 }
 
-const premierLeague: FootballStanding[] = [
-  { team: 'Liverpool', w: 21, d: 5, l: 4, pts: 68 },
-  { team: 'Arsenal', w: 18, d: 7, l: 5, pts: 61 },
-  { team: 'Man City', w: 16, d: 8, l: 6, pts: 56 },
-  { team: 'Chelsea', w: 14, d: 8, l: 8, pts: 50 },
-  { team: 'Aston Villa', w: 13, d: 8, l: 9, pts: 47 },
-  { team: 'Newcastle', w: 12, d: 9, l: 9, pts: 45 },
-  { team: 'Tottenham', w: 11, d: 8, l: 11, pts: 41 },
-  { team: 'Brighton', w: 11, d: 8, l: 11, pts: 41 },
-  { team: 'Man Utd', w: 10, d: 6, l: 14, pts: 36 },
-  { team: 'West Ham', w: 9, d: 7, l: 14, pts: 34 },
-];
-
-const championsLeague: FootballStanding[] = [
-  { team: 'Barcelona', w: 6, d: 1, l: 1, pts: 19 },
-  { team: 'Inter Milan', w: 5, d: 2, l: 1, pts: 17 },
-  { team: 'Bayern Munich', w: 5, d: 1, l: 2, pts: 16 },
-  { team: 'PSG', w: 4, d: 2, l: 2, pts: 14 },
-  { team: 'Juventus', w: 3, d: 3, l: 2, pts: 12 },
-];
-
-const f1Standings: F1Standing[] = [
+const fallbackF1Standings: F1StandingRow[] = [
   { driver: 'M. Verstappen', team: 'Red Bull', pts: 51 },
   { driver: 'C. Leclerc', team: 'Ferrari', pts: 42 },
   { driver: 'L. Norris', team: 'McLaren', pts: 38 },
@@ -49,11 +23,78 @@ const f1Standings: F1Standing[] = [
   { driver: 'F. Alonso', team: 'Aston Martin', pts: 22 },
 ];
 
+function StandingsTable({ data, isLoading, error, refetch, accentClass, title }: {
+  data: FootballStanding[] | undefined;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+  accentClass: string;
+  title: string;
+}) {
+  const { t } = useTranslation();
+  const rows = data ?? [];
+
+  return (
+    <div className={`standings-section ${accentClass}`}>
+      <h2 className="standings-league-name">{title}</h2>
+      {isLoading ? (
+        <div className="standings-loading">Loading...</div>
+      ) : error ? (
+        <div className="standings-error">
+          <p>Couldn't load standings</p>
+          <button onClick={refetch} className="retry-btn">Retry</button>
+        </div>
+      ) : rows.length === 0 ? (
+        <div className="standings-loading">No standings available</div>
+      ) : (
+        <table className="standings-table">
+          <thead>
+            <tr>
+              <th className="standings-col-pos">#</th>
+              <th className="standings-col-team">{t('scores.team')}</th>
+              <th className="standings-col-stat">P</th>
+              <th className="standings-col-stat">W</th>
+              <th className="standings-col-stat">D</th>
+              <th className="standings-col-stat">L</th>
+              <th className="standings-col-stat">GD</th>
+              <th className="standings-col-pts">{t('scores.pts')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                <td className="standings-col-pos">{row.rank}</td>
+                <td className="standings-col-team">
+                  <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
+                  {row.team}
+                </td>
+                <td className="standings-col-stat">{row.played}</td>
+                <td className="standings-col-stat">{row.w}</td>
+                <td className="standings-col-stat">{row.d}</td>
+                <td className="standings-col-stat">{row.l}</td>
+                <td className="standings-col-stat">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                <td className="standings-col-pts">{row.pts}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  );
+}
+
 export default function ScoresPage() {
   const { t } = useTranslation();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
+
+  const plStandings = usePLStandings();
+  const uclStandings = useUCLStandings();
+  const f1StandingsQuery = useF1DriverStandings();
+  const f1Standings = (f1StandingsQuery.data && f1StandingsQuery.data.length > 0)
+    ? f1StandingsQuery.data
+    : fallbackF1Standings;
 
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
@@ -121,69 +162,25 @@ export default function ScoresPage() {
 
       <div className="scores-content">
         {showPremierLeague && (
-          <div className="standings-section standings-football">
-            <h2 className="standings-league-name">{t('filters.premierLeague')}</h2>
-            <table className="standings-table">
-              <thead>
-                <tr>
-                  <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">{t('scores.team')}</th>
-                  <th className="standings-col-stat">W</th>
-                  <th className="standings-col-stat">D</th>
-                  <th className="standings-col-stat">L</th>
-                  <th className="standings-col-pts">{t('scores.pts')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {premierLeague.map((row, i) => (
-                  <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                    <td className="standings-col-pos">{i + 1}</td>
-                    <td className="standings-col-team">
-                      <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                      {row.team}
-                    </td>
-                    <td className="standings-col-stat">{row.w}</td>
-                    <td className="standings-col-stat">{row.d}</td>
-                    <td className="standings-col-stat">{row.l}</td>
-                    <td className="standings-col-pts">{row.pts}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <StandingsTable
+            data={plStandings.data}
+            isLoading={plStandings.isLoading}
+            error={plStandings.error}
+            refetch={() => plStandings.refetch()}
+            accentClass="standings-football"
+            title={t('filters.premierLeague')}
+          />
         )}
 
         {showChampionsLeague && (
-          <div className="standings-section standings-ucl">
-            <h2 className="standings-league-name">{t('filters.championsLeague')}</h2>
-            <table className="standings-table">
-              <thead>
-                <tr>
-                  <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">{t('scores.team')}</th>
-                  <th className="standings-col-stat">W</th>
-                  <th className="standings-col-stat">D</th>
-                  <th className="standings-col-stat">L</th>
-                  <th className="standings-col-pts">{t('scores.pts')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {championsLeague.map((row, i) => (
-                  <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                    <td className="standings-col-pos">{i + 1}</td>
-                    <td className="standings-col-team">
-                      <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                      {row.team}
-                    </td>
-                    <td className="standings-col-stat">{row.w}</td>
-                    <td className="standings-col-stat">{row.d}</td>
-                    <td className="standings-col-stat">{row.l}</td>
-                    <td className="standings-col-pts">{row.pts}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <StandingsTable
+            data={uclStandings.data}
+            isLoading={uclStandings.isLoading}
+            error={uclStandings.error}
+            refetch={() => uclStandings.refetch()}
+            accentClass="standings-ucl"
+            title={t('filters.championsLeague')}
+          />
         )}
 
         {showMotorsport && (

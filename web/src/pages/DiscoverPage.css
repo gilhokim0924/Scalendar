@@ -260,6 +260,13 @@
   flex-shrink: 0;
 }
 
+.discover-loading {
+  padding: 32px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .discover-title {

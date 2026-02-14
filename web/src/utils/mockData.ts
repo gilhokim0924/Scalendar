@@ -1,29 +1,11 @@
 import type { SportsEvent, Sport, Team } from '../types';
 
 export const mockSports: Sport[] = [
-  { id: '1', name: 'Premier League', icon: '⚽' },
+  { id: '1', name: 'Football', icon: '⚽' },
   { id: '2', name: 'Formula 1', icon: '🏎️' },
 ];
 
 export const mockTeams: Team[] = [
-  // Premier League teams
-  { id: '1', sport_id: '1', name: 'Arsenal', external_api_id: '133604', league: 'Premier League' },
-  { id: '2', sport_id: '1', name: 'Chelsea', external_api_id: '133613', league: 'Premier League' },
-  { id: '3', sport_id: '1', name: 'Liverpool', external_api_id: '133602', league: 'Premier League' },
-  { id: '4', sport_id: '1', name: 'Manchester City', external_api_id: '133613', league: 'Premier League' },
-  { id: '5', sport_id: '1', name: 'Manchester United', external_api_id: '133612', league: 'Premier League' },
-  { id: '6', sport_id: '1', name: 'Tottenham Hotspur', external_api_id: '133616', league: 'Premier League' },
-  { id: '7', sport_id: '1', name: 'Newcastle United', external_api_id: '133615', league: 'Premier League' },
-  { id: '8', sport_id: '1', name: 'Aston Villa', external_api_id: '133601', league: 'Premier League' },
-  { id: '9', sport_id: '1', name: 'Brighton', external_api_id: '133619', league: 'Premier League' },
-  { id: '10', sport_id: '1', name: 'West Ham United', external_api_id: '133622', league: 'Premier League' },
-  // Champions League teams
-  { id: '16', sport_id: '1', name: 'Barcelona', external_api_id: '133739', league: 'Champions League' },
-  { id: '17', sport_id: '1', name: 'Bayern Munich', external_api_id: '133674', league: 'Champions League' },
-  { id: '18', sport_id: '1', name: 'PSG', external_api_id: '133786', league: 'Champions League' },
-  { id: '19', sport_id: '1', name: 'Juventus', external_api_id: '133676', league: 'Champions League' },
-  { id: '20', sport_id: '1', name: 'Inter Milan', external_api_id: '133675', league: 'Champions League' },
-  // Formula 1 teams
   { id: '11', sport_id: '2', name: 'Ferrari', external_api_id: 'ferrari' },
   { id: '12', sport_id: '2', name: 'Red Bull Racing', external_api_id: 'red_bull' },
   { id: '13', sport_id: '2', name: 'Mercedes', external_api_id: 'mercedes' },
@@ -33,33 +15,7 @@ export const mockTeams: Team[] = [
 
 export const mockEvents: SportsEvent[] = [
   {
-    id: '101',
-    sport_id: '1',
-    home_team_id: '3',
-    away_team_id: '5',
-    title: 'Liverpool vs Manchester United',
-    datetime_utc: '2026-01-24T15:00:00Z',
-    venue: 'Anfield',
-    competition: 'Premier League',
-    external_event_id: 'pl_past_001',
-    home_score: 2,
-    away_score: 1,
-  },
-  {
-    id: '102',
-    sport_id: '1',
-    home_team_id: '4',
-    away_team_id: '1',
-    title: 'Manchester City vs Arsenal',
-    datetime_utc: '2026-01-25T17:30:00Z',
-    venue: 'Etihad Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_past_002',
-    home_score: 1,
-    away_score: 1,
-  },
-  {
-    id: '100',
+    id: 'f1_past_001',
     sport_id: '2',
     title: 'Japanese Grand Prix',
     datetime_utc: '2026-01-26T06:00:00Z',
@@ -69,147 +25,7 @@ export const mockEvents: SportsEvent[] = [
     result: '1. Verstappen  2. Leclerc  3. Norris',
   },
   {
-    id: '103',
-    sport_id: '1',
-    home_team_id: '6',
-    away_team_id: '2',
-    title: 'Tottenham vs Chelsea',
-    datetime_utc: '2026-01-31T12:30:00Z',
-    venue: 'Tottenham Hotspur Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_past_003',
-    home_score: 0,
-    away_score: 3,
-  },
-  {
-    id: '104',
-    sport_id: '1',
-    home_team_id: '7',
-    away_team_id: '8',
-    title: 'Newcastle vs Aston Villa',
-    datetime_utc: '2026-02-01T15:00:00Z',
-    venue: "St James' Park",
-    competition: 'Premier League',
-    external_event_id: 'pl_past_004',
-    home_score: 3,
-    away_score: 2,
-  },
-  {
-    id: '105',
-    sport_id: '1',
-    home_team_id: '9',
-    away_team_id: '10',
-    title: 'Brighton vs West Ham',
-    datetime_utc: '2026-02-07T15:00:00Z',
-    venue: 'Amex Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_past_005',
-    home_score: 2,
-    away_score: 0,
-  },
-  {
-    id: '106',
-    sport_id: '1',
-    home_team_id: '2',
-    away_team_id: '4',
-    title: 'Chelsea vs Manchester City',
-    datetime_utc: '2026-02-08T16:30:00Z',
-    venue: 'Stamford Bridge',
-    competition: 'Premier League',
-    external_event_id: 'pl_past_006',
-    home_score: 1,
-    away_score: 2,
-  },
-  {
-    id: '1',
-    sport_id: '1',
-    home_team_id: '1',
-    away_team_id: '2',
-    title: 'Arsenal vs Chelsea',
-    datetime_utc: '2026-02-14T15:00:00Z',
-    venue: 'Emirates Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_001',
-  },
-  {
-    id: '2',
-    sport_id: '1',
-    home_team_id: '2',
-    away_team_id: '3',
-    title: 'Chelsea vs Liverpool',
-    datetime_utc: '2026-02-16T14:00:00Z',
-    venue: 'Stamford Bridge',
-    competition: 'Premier League',
-    external_event_id: 'pl_002',
-  },
-  {
-    id: '3',
-    sport_id: '1',
-    home_team_id: '3',
-    away_team_id: '1',
-    title: 'Liverpool vs Arsenal',
-    datetime_utc: '2026-02-21T17:30:00Z',
-    venue: 'Anfield',
-    competition: 'Premier League',
-    external_event_id: 'pl_003',
-  },
-  {
-    id: '4',
-    sport_id: '1',
-    home_team_id: '4',
-    away_team_id: '6',
-    title: 'Manchester City vs Tottenham',
-    datetime_utc: '2026-02-22T12:30:00Z',
-    venue: 'Etihad Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_004',
-  },
-  {
-    id: '5',
-    sport_id: '1',
-    home_team_id: '5',
-    away_team_id: '7',
-    title: 'Manchester United vs Newcastle',
-    datetime_utc: '2026-02-22T15:00:00Z',
-    venue: 'Old Trafford',
-    competition: 'Premier League',
-    external_event_id: 'pl_005',
-  },
-  {
-    id: '6',
-    sport_id: '1',
-    home_team_id: '8',
-    away_team_id: '9',
-    title: 'Aston Villa vs Brighton',
-    datetime_utc: '2026-02-28T15:00:00Z',
-    venue: 'Villa Park',
-    competition: 'Premier League',
-    external_event_id: 'pl_006',
-  },
-  {
-    id: '7',
-    sport_id: '1',
-    home_team_id: '10',
-    away_team_id: '4',
-    title: 'West Ham vs Manchester City',
-    datetime_utc: '2026-03-01T16:30:00Z',
-    venue: 'London Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_007',
-  },
-  {
-    id: '8',
-    sport_id: '1',
-    home_team_id: '6',
-    away_team_id: '5',
-    title: 'Tottenham vs Manchester United',
-    datetime_utc: '2026-03-08T12:30:00Z',
-    venue: 'Tottenham Hotspur Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_008',
-  },
-  {
-    id: '9',
+    id: 'f1_001',
     sport_id: '2',
     title: 'Bahrain Grand Prix',
     datetime_utc: '2026-02-28T15:00:00Z',
@@ -218,7 +34,7 @@ export const mockEvents: SportsEvent[] = [
     external_event_id: 'f1_001',
   },
   {
-    id: '10',
+    id: 'f1_002',
     sport_id: '2',
     title: 'Saudi Arabian Grand Prix',
     datetime_utc: '2026-03-07T18:00:00Z',
@@ -227,7 +43,7 @@ export const mockEvents: SportsEvent[] = [
     external_event_id: 'f1_002',
   },
   {
-    id: '11',
+    id: 'f1_003',
     sport_id: '2',
     title: 'Australian Grand Prix',
     datetime_utc: '2026-03-21T06:00:00Z',
@@ -235,35 +51,9 @@ export const mockEvents: SportsEvent[] = [
     competition: 'Formula 1',
     external_event_id: 'f1_003',
   },
-  {
-    id: '12',
-    sport_id: '1',
-    home_team_id: '1',
-    away_team_id: '4',
-    title: 'Arsenal vs Manchester City',
-    datetime_utc: '2026-03-15T16:30:00Z',
-    venue: 'Emirates Stadium',
-    competition: 'Premier League',
-    external_event_id: 'pl_009',
-  },
 ];
 
-const teamInitialsMap: Record<string, string> = {
-  'Arsenal': 'ARS',
-  'Chelsea': 'CHE',
-  'Liverpool': 'LIV',
-  'Manchester City': 'MCI',
-  'Manchester United': 'MUN',
-  'Tottenham Hotspur': 'TOT',
-  'Newcastle United': 'NEW',
-  'Aston Villa': 'AVL',
-  'Brighton': 'BHA',
-  'West Ham United': 'WHU',
-  'Barcelona': 'BAR',
-  'Bayern Munich': 'BAY',
-  'PSG': 'PSG',
-  'Juventus': 'JUV',
-  'Inter Milan': 'INT',
+const knownInitials: Record<string, string> = {
   'Ferrari': 'FER',
   'Red Bull Racing': 'RBR',
   'Mercedes': 'MER',
@@ -271,12 +61,17 @@ const teamInitialsMap: Record<string, string> = {
   'Aston Martin F1': 'AMR',
 };
 
-/** Get a short abbreviation from a team name (e.g. "Manchester City" -> "MCI", "Arsenal" -> "ARS") */
 export function getTeamInitials(name: string): string {
-  if (teamInitialsMap[name]) return teamInitialsMap[name];
-  const words = name.split(' ');
+  if (knownInitials[name]) return knownInitials[name];
+
+  const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length >= 2) {
-    return words.map(w => w[0]).join('').toUpperCase().slice(0, 3);
+    return words
+      .map((word) => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 3);
   }
+
   return name.slice(0, 3).toUpperCase();
 }

@@ -227,6 +227,42 @@
   padding: 0 20px;
 }
 
+.calendar-loading {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.calendar-error {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.calendar-error p {
+  margin: 0 0 12px;
+}
+
+.retry-btn {
+  padding: 8px 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  background: var(--chip-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: var(--chip-bg-hover);
+  border-color: var(--border-active);
+}
+
 .no-events-message {
   text-align: center;
   padding: 80px 20px;

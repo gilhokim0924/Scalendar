@@ -274,6 +274,52 @@ td.standings-col-team {
   background: rgba(30, 64, 175, 0.05);
 }
 
+/* Team badge image */
+.standings-team-badge-img {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Loading / Error */
+.standings-loading {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.standings-error {
+  text-align: center;
+  padding: 24px 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.standings-error p {
+  margin: 0 0 12px;
+}
+
+.retry-btn {
+  padding: 8px 20px;
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  background: var(--chip-bg);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-btn:hover {
+  background: var(--chip-bg-hover);
+  border-color: var(--border-active);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .scores-title {

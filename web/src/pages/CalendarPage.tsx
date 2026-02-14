@@ -1,7 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { mockEvents, mockTeams, getTeamInitials } from '../utils/mockData';
+import { usePLEvents, useUCLEvents } from '../hooks/useFootballData';
+import { useF1Events } from '../hooks/useF1Data';
 import type { SportsEvent } from '../types';
 import { Link } from 'react-router-dom';
 import './CalendarPage.css';
@@ -14,25 +16,55 @@ export default function CalendarPage() {
     return saved ? JSON.parse(saved) : [];
   });
 
+  // Fetch live football events
+  const plEvents = usePLEvents();
+  const uclEvents = useUCLEvents();
+  const f1EventsQuery = useF1Events();
+
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || f1EventsQuery.isLoading;
+  const hasError = plEvents.error && uclEvents.error;
+
+  const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
+  const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
+    ? f1EventsQuery.data
+    : fallbackF1Events;
+
+  // Merge API football events with F1 mock events
+  const allEvents = useMemo(() => {
+    const footballEvents = [
+      ...(plEvents.data ?? []),
+      ...(uclEvents.data ?? []),
+    ];
+
+    return [...footballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, f1Events]);
+
+  // Build a lookup for API teams by ID (for team chip display)
+  const allTeams = useMemo(() => {
+    // For API events, we have team names embedded in events
+    // For F1/fallback, we use mockTeams
+    return mockTeams;
+  }, []);
+
   // Get selected team objects for avatar chips
-  const selectedTeamObjects = mockTeams.filter(t => selectedTeams.includes(t.id));
+  const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
 
   // Filter events by selected teams
   let filteredEvents = selectedTeams.length > 0
-    ? mockEvents.filter(event => {
+    ? allEvents.filter(event => {
         if (event.home_team_id || event.away_team_id) {
           return selectedTeams.includes(event.home_team_id || '') ||
                  selectedTeams.includes(event.away_team_id || '');
         }
         if (event.sport_id === '2') {
           return selectedTeams.some(teamId => {
-            const team = mockTeams.find(t => t.id === teamId);
+            const team = allTeams.find(t => t.id === teamId);
             return team && team.sport_id === '2';
           });
         }
         return false;
       })
-    : mockEvents;
+    : allEvents;
 
   // Sort all events ascending
   filteredEvents = [...filteredEvents].sort((a, b) => {
@@ -54,9 +86,22 @@ export default function CalendarPage() {
     groupedEvents[dateKey].push(event);
   });
 
-  const getTeamInfo = (teamId: string | null | undefined) => {
-    if (!teamId) return null;
-    return mockTeams.find(team => team.id === teamId);
+  const getTeamDisplay = (event: SportsEvent, which: 'home' | 'away') => {
+    const teamId = which === 'home' ? event.home_team_id : event.away_team_id;
+    const teamName = which === 'home' ? event.home_team_name : event.away_team_name;
+
+    // Try mock teams first (for fallback/F1)
+    if (teamId) {
+      const mockTeam = allTeams.find(team => team.id === teamId);
+      if (mockTeam) return { name: mockTeam.name, initials: getTeamInitials(mockTeam.name) };
+    }
+
+    // Use API team name from event
+    if (teamName) {
+      return { name: teamName, initials: getTeamInitials(teamName) };
+    }
+
+    return null;
   };
 
   const hasTodayEvents = !!groupedEvents[todayStr];
@@ -65,7 +110,7 @@ export default function CalendarPage() {
 
   useEffect(() => {
     todayRef.current?.scrollIntoView({ block: 'center' });
-  }, []);
+  }, [isLoading]);
 
   // Track months for separators and today marker insertion
   let lastMonth = '';
@@ -100,7 +145,14 @@ export default function CalendarPage() {
 
       {/* Events List */}
       <main className="events-list">
-        {Object.keys(groupedEvents).length === 0 ? (
+        {isLoading ? (
+          <div className="calendar-loading">Loading events...</div>
+        ) : hasError ? (
+          <div className="calendar-error">
+            <p>Couldn't load football events</p>
+            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); }} className="retry-btn">Retry</button>
+          </div>
+        ) : Object.keys(groupedEvents).length === 0 ? (
           <div className="no-events-message">
             <p>{t('calendar.noEvents')}</p>
             <span>{t('calendar.noEventsSub')}</span>
@@ -148,8 +200,8 @@ export default function CalendarPage() {
 
                   <div className="events-for-date">
                     {eventsForDate.map((event, index) => {
-                      const homeTeam = getTeamInfo(event.home_team_id);
-                      const awayTeam = getTeamInfo(event.away_team_id);
+                      const homeDisplay = getTeamDisplay(event, 'home');
+                      const awayDisplay = getTeamDisplay(event, 'away');
                       const eventDate = parseISO(event.datetime_utc);
                       const time = format(eventDate, 'HH:mm');
                       const isPast = dateKey < todayStr;
@@ -167,25 +219,25 @@ export default function CalendarPage() {
                           <div className="event-card-content">
                             <div className="event-time">{isPast ? t('calendar.ft') : time}</div>
                             <div className="event-teams">
-                              {homeTeam && (
+                              {homeDisplay && (
                                 <div className="team-info">
-                                  <span className="team-initials-badge">{getTeamInitials(homeTeam.name)}</span>
-                                  <span className="team-name">{homeTeam.name}</span>
+                                  <span className="team-initials-badge">{homeDisplay.initials}</span>
+                                  <span className="team-name">{homeDisplay.name}</span>
                                   {isPast && event.home_score != null && (
                                     <span className="team-score">{event.home_score}</span>
                                   )}
                                 </div>
                               )}
-                              {awayTeam && (
+                              {awayDisplay && (
                                 <div className="team-info">
-                                  <span className="team-initials-badge">{getTeamInitials(awayTeam.name)}</span>
-                                  <span className="team-name">{awayTeam.name}</span>
+                                  <span className="team-initials-badge">{awayDisplay.initials}</span>
+                                  <span className="team-name">{awayDisplay.name}</span>
                                   {isPast && event.away_score != null && (
                                     <span className="team-score">{event.away_score}</span>
                                   )}
                                 </div>
                               )}
-                              {!homeTeam && !awayTeam && (
+                              {!homeDisplay && !awayDisplay && (
                                 <div className="event-title-only">{event.title}</div>
                               )}
                             </div>
@@ -218,15 +270,15 @@ export default function CalendarPage() {
       {/* Event Modal */}
       {selectedEvent && (() => {
         const isEventPast = format(parseISO(selectedEvent.datetime_utc), 'yyyy-MM-dd') < todayStr;
-        const homeTeam = getTeamInfo(selectedEvent.home_team_id);
-        const awayTeam = getTeamInfo(selectedEvent.away_team_id);
+        const homeDisplay = getTeamDisplay(selectedEvent, 'home');
+        const awayDisplay = getTeamDisplay(selectedEvent, 'away');
         return (
         <>
           <div className="modal-overlay" onClick={() => setSelectedEvent(null)} />
           <div className="modal">
             <div className="modal-header">
               <div className={`modal-sport-badge ${selectedEvent.sport_id === '1' ? 'premier-league' : 'formula-one'}`}>
-                {selectedEvent.sport_id === '1' ? 'Premier League' : 'Formula 1'}
+                {selectedEvent.competition}
               </div>
               <button className="modal-close" onClick={() => setSelectedEvent(null)}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -236,16 +288,16 @@ export default function CalendarPage() {
             </div>
             <h2 className="modal-title">{selectedEvent.title}</h2>
 
-            {isEventPast && selectedEvent.home_score != null && homeTeam && awayTeam && (
+            {isEventPast && selectedEvent.home_score != null && homeDisplay && awayDisplay && (
               <div className="modal-score">
                 <div className="modal-score-team">
-                  <span className="modal-score-initials">{getTeamInitials(homeTeam.name)}</span>
-                  <span className="modal-score-name">{homeTeam.name}</span>
+                  <span className="modal-score-initials">{homeDisplay.initials}</span>
+                  <span className="modal-score-name">{homeDisplay.name}</span>
                   <span className="modal-score-value">{selectedEvent.home_score}</span>
                 </div>
                 <div className="modal-score-team">
-                  <span className="modal-score-initials">{getTeamInitials(awayTeam.name)}</span>
-                  <span className="modal-score-name">{awayTeam.name}</span>
+                  <span className="modal-score-initials">{awayDisplay.initials}</span>
+                  <span className="modal-score-name">{awayDisplay.name}</span>
                   <span className="modal-score-value">{selectedEvent.away_score}</span>
                 </div>
               </div>

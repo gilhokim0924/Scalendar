@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { mockEvents, mockSports } from '../utils/mockData';
+import { usePLEvents, useUCLEvents } from '../hooks/useFootballData';
+import { useF1Events } from '../hooks/useF1Data';
 import './DiscoverPage.css';
 
 type SportFilter = 'all' | '1' | '2';
@@ -11,10 +13,32 @@ export default function DiscoverPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
 
-  const upcomingEvents = [...mockEvents]
+  const plEvents = usePLEvents();
+  const uclEvents = useUCLEvents();
+  const f1EventsQuery = useF1Events();
+
+  const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
+  const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
+    ? f1EventsQuery.data
+    : fallbackF1Events;
+
+  const allEvents = useMemo(() => {
+    const footballEvents = [
+      ...(plEvents.data ?? []),
+      ...(uclEvents.data ?? []),
+    ];
+    return [...footballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, f1Events]);
+
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || f1EventsQuery.isLoading;
+
+  const upcomingEvents = [...allEvents]
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
     .filter(e => sportFilter === 'all' || e.sport_id === sportFilter)
     .slice(0, 6);
+
+  const footballEventCount = allEvents.filter(e => e.sport_id === '1').length;
+  const f1EventCount = f1Events.length;
 
   const competitions = [
     {
@@ -22,20 +46,20 @@ export default function DiscoverPage() {
       icon: '\u26BD',
       sportId: '1',
       accent: 'pl',
-      eventCount: mockEvents.filter(e => e.sport_id === '1').length,
+      eventCount: footballEventCount,
     },
     {
       name: 'Formula 1',
       icon: '\uD83C\uDFCE\uFE0F',
       sportId: '2',
       accent: 'f1',
-      eventCount: mockEvents.filter(e => e.sport_id === '2').length,
+      eventCount: f1EventCount,
     },
   ];
 
   const recentlyUpdated = mockSports.map(sport => ({
     ...sport,
-    eventCount: mockEvents.filter(e => e.sport_id === sport.id).length,
+    eventCount: allEvents.filter(e => e.sport_id === sport.id).length,
   }));
 
   return (
@@ -72,21 +96,25 @@ export default function DiscoverPage() {
       <section className="discover-section">
         <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
         <div className="upcoming-scroll">
-          {upcomingEvents.map(event => (
-            <div
-              key={event.id}
-              className={`upcoming-card ${event.sport_id === '1' ? 'pl' : 'f1'}`}
-            >
-              <div className="upcoming-card-date">
-                {format(parseISO(event.datetime_utc), 'MMM d')}
+          {isLoading ? (
+            <div className="discover-loading">Loading...</div>
+          ) : (
+            upcomingEvents.map(event => (
+              <div
+                key={event.id}
+                className={`upcoming-card ${event.sport_id === '1' ? 'pl' : 'f1'}`}
+              >
+                <div className="upcoming-card-date">
+                  {format(parseISO(event.datetime_utc), 'MMM d')}
+                </div>
+                <div className="upcoming-card-title">{event.title}</div>
+                <div className="upcoming-card-venue">{event.venue}</div>
+                <div className="upcoming-card-time">
+                  {format(parseISO(event.datetime_utc), 'HH:mm')}
+                </div>
               </div>
-              <div className="upcoming-card-title">{event.title}</div>
-              <div className="upcoming-card-venue">{event.venue}</div>
-              <div className="upcoming-card-time">
-                {format(parseISO(event.datetime_utc), 'HH:mm')}
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </section>
 

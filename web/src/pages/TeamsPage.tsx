@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { mockTeams, getTeamInitials } from '../utils/mockData';
+import { useLeagueTeams } from '../hooks/useFootballData';
 import { useNavigate } from 'react-router-dom';
+import type { Team } from '../types';
 import './TeamsPage.css';
 
 type SportFilter = 'all' | '1' | '2';
@@ -14,6 +16,20 @@ export default function TeamsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
+
+  const plTeams = useLeagueTeams('4328');
+  const uclTeams = useLeagueTeams('4480');
+
+  const f1Teams = useMemo(() => mockTeams.filter(t => t.sport_id === '2'), []);
+
+  const allTeams: Team[] = useMemo(() => {
+    const apiPl = plTeams.data ?? [];
+    const apiUcl = uclTeams.data ?? [];
+    return [...apiPl, ...apiUcl, ...f1Teams];
+  }, [plTeams.data, uclTeams.data, f1Teams]);
+
+  const isLoading = plTeams.isLoading || uclTeams.isLoading;
+  const hasError = plTeams.error && uclTeams.error;
 
   useEffect(() => {
     const saved = localStorage.getItem('selectedTeams');
@@ -45,7 +61,7 @@ export default function TeamsPage() {
     localStorage.removeItem('selectedTeams');
   };
 
-  let filteredTeams = mockTeams;
+  let filteredTeams = allTeams;
 
   if (sportFilter !== 'all') {
     filteredTeams = filteredTeams.filter(t => t.sport_id === sportFilter);
@@ -60,7 +76,7 @@ export default function TeamsPage() {
     filteredTeams = filteredTeams.filter(t => t.name.toLowerCase().includes(q));
   }
 
-  const selectedTeamObjects = mockTeams.filter(t => selectedTeams.includes(t.id));
+  const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
 
   return (
     <div className="teams-page">
@@ -137,26 +153,37 @@ export default function TeamsPage() {
 
       {/* Team List */}
       <div className="teams-list">
-        {filteredTeams.map(team => {
-          const isSelected = selectedTeams.includes(team.id);
-          return (
-            <div key={team.id} className="teams-list-row" onClick={() => toggleTeam(team.id)}>
-              <div className="teams-list-logo">{getTeamInitials(team.name)}</div>
-              <div className="teams-list-name">{team.name}</div>
-              <button className={`teams-list-toggle ${isSelected ? 'selected' : ''}`}>
-                {isSelected ? (
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <path d="M13.3332 4L5.99984 11.3333L2.6665 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                ) : (
-                  <span>+</span>
-                )}
-              </button>
-            </div>
-          );
-        })}
-        {filteredTeams.length === 0 && (
-          <div className="teams-empty">{t('teams.noTeams')}</div>
+        {isLoading ? (
+          <div className="teams-loading">Loading teams...</div>
+        ) : hasError ? (
+          <div className="teams-loading">
+            <p>Couldn't load teams</p>
+            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); }} className="retry-btn">Retry</button>
+          </div>
+        ) : (
+          <>
+            {filteredTeams.map(team => {
+              const isSelected = selectedTeams.includes(team.id);
+              return (
+                <div key={team.id} className="teams-list-row" onClick={() => toggleTeam(team.id)}>
+                  <div className="teams-list-logo">{getTeamInitials(team.name)}</div>
+                  <div className="teams-list-name">{team.name}</div>
+                  <button className={`teams-list-toggle ${isSelected ? 'selected' : ''}`}>
+                    {isSelected ? (
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M13.3332 4L5.99984 11.3333L2.6665 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    ) : (
+                      <span>+</span>
+                    )}
+                  </button>
+                </div>
+              );
+            })}
+            {filteredTeams.length === 0 && (
+              <div className="teams-empty">{t('teams.noTeams')}</div>
+            )}
+          </>
         )}
       </div>
 

@@ -185,6 +185,22 @@
   flex-shrink: 0;
 }
 
+.teams-list-logo-img {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.teams-loading {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
 .teams-list-name {
   flex: 1;
   font-size: 16px;
