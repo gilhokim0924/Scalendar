@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
@@ -13,6 +13,11 @@ type UCLPhase = 'league' | 'tournament';
 
 interface F1StandingRow {
   driver: string;
+  team: string;
+  pts: number;
+}
+
+interface F1ConstructorStandingRow {
   team: string;
   pts: number;
 }
@@ -103,6 +108,16 @@ export default function ScoresPage() {
   const f1Standings = (f1StandingsQuery.data && f1StandingsQuery.data.length > 0)
     ? f1StandingsQuery.data
     : fallbackF1Standings;
+  const f1ConstructorStandings = useMemo<F1ConstructorStandingRow[]>(() => {
+    const pointsByTeam = new Map<string, number>();
+    f1Standings.forEach((row) => {
+      pointsByTeam.set(row.team, (pointsByTeam.get(row.team) ?? 0) + row.pts);
+    });
+
+    return Array.from(pointsByTeam.entries())
+      .map(([team, pts]) => ({ team, pts }))
+      .sort((a, b) => b.pts - a.pts);
+  }, [f1Standings]);
 
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
@@ -249,28 +264,52 @@ export default function ScoresPage() {
         )}
 
         {showMotorsport && (
-          <div className="standings-section standings-f1">
-            <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
-            <table className="standings-table">
-              <thead>
-                <tr>
-                  <th className="standings-col-pos">#</th>
-                  <th className="standings-col-team">{t('scores.driver')}</th>
-                  <th className="standings-col-f1-team">{t('scores.team')}</th>
-                  <th className="standings-col-pts">{t('scores.pts')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {(expandAll ? f1Standings : f1Standings.slice(0, 3)).map((row, i) => (
-                  <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                    <td className="standings-col-pos">{i + 1}</td>
-                    <td className="standings-col-team">{row.driver}</td>
-                    <td className="standings-col-f1-team">{row.team}</td>
-                    <td className="standings-col-pts">{row.pts}</td>
+          <div className="standings-f1-block">
+            <div className="standings-section standings-f1">
+              <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
+              <table className="standings-table">
+                <thead>
+                  <tr>
+                    <th className="standings-col-pos">#</th>
+                    <th className="standings-col-team">{t('scores.driver')}</th>
+                    <th className="standings-col-f1-team">{t('scores.team')}</th>
+                    <th className="standings-col-pts">{t('scores.pts')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {(expandAll ? f1Standings : f1Standings.slice(0, 3)).map((row, i) => (
+                    <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                      <td className="standings-col-pos">{i + 1}</td>
+                      <td className="standings-col-team">{row.driver}</td>
+                      <td className="standings-col-f1-team">{row.team}</td>
+                      <td className="standings-col-pts">{row.pts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="standings-section standings-f1">
+              <h2 className="standings-league-name">F1 Constructor Standings</h2>
+              <table className="standings-table">
+                <thead>
+                  <tr>
+                    <th className="standings-col-pos">#</th>
+                    <th className="standings-col-team">{t('scores.team')}</th>
+                    <th className="standings-col-pts">{t('scores.pts')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(expandAll ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 3)).map((row, i) => (
+                    <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                      <td className="standings-col-pos">{i + 1}</td>
+                      <td className="standings-col-team">{row.team}</td>
+                      <td className="standings-col-pts">{row.pts}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>

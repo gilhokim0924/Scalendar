@@ -140,6 +140,12 @@
   margin-bottom: 28px;
 }
 
+.standings-f1-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .ucl-phase-header {
   display: flex;
   align-items: center;
