@@ -30,7 +30,7 @@ const fallbackF1Standings: F1StandingRow[] = [
   { driver: 'F. Alonso', team: 'Aston Martin', pts: 22 },
 ];
 
-function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll }: {
+function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll, onToggleExpand }: {
   data: FootballStanding[] | undefined;
   isLoading: boolean;
   error: Error | null;
@@ -39,14 +39,23 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
   title: string;
   defaultVisibleRows: number;
   expandAll: boolean;
+  onToggleExpand: () => void;
 }) {
   const { t } = useTranslation();
   const rows = data ?? [];
   const visibleRows = expandAll ? rows : rows.slice(0, defaultVisibleRows);
+  const canExpand = rows.length > defaultVisibleRows;
 
   return (
     <div className={`standings-section ${accentClass}`}>
-      <h2 className="standings-league-name">{title}</h2>
+      <div className="standings-header-row">
+        <h2 className="standings-league-name">{title}</h2>
+        {canExpand && (
+          <button className="scores-expand-btn" onClick={onToggleExpand}>
+            {expandAll ? 'Collapse' : 'Expand all'}
+          </button>
+        )}
+      </div>
       {isLoading ? (
         <div className="standings-loading">Loading...</div>
       ) : error ? (
@@ -98,7 +107,11 @@ export default function ScoresPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
-  const [expandAll, setExpandAll] = useState(false);
+  const [plExpanded, setPlExpanded] = useState(false);
+  const [uclLeagueExpanded, setUclLeagueExpanded] = useState(false);
+  const [uclTournamentExpanded, setUclTournamentExpanded] = useState(false);
+  const [f1DriverExpanded, setF1DriverExpanded] = useState(false);
+  const [f1ConstructorExpanded, setF1ConstructorExpanded] = useState(false);
   const [uclPhase, setUclPhase] = useState<UCLPhase>('league');
 
   const plStandings = usePLStandings();
@@ -128,7 +141,6 @@ export default function ScoresPage() {
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showChampionsLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Champions League');
-  const showExpandControl = showPremierLeague || showChampionsLeague || showMotorsport;
   const uclTournamentFixtures = (uclEvents.data ?? [])
     .filter((event) => (event.round ?? 0) >= 32)
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
@@ -188,14 +200,6 @@ export default function ScoresPage() {
       )}
 
       <div className="scores-content">
-        {showExpandControl && (
-          <div className="scores-table-controls">
-            <button className="scores-expand-btn" onClick={() => setExpandAll(v => !v)}>
-              {expandAll ? 'Collapse all' : 'Expand all'}
-            </button>
-          </div>
-        )}
-
         {showPremierLeague && (
           <StandingsTable
             data={plStandings.data}
@@ -204,8 +208,9 @@ export default function ScoresPage() {
             refetch={() => plStandings.refetch()}
             accentClass="standings-football"
             title={t('filters.premierLeague')}
-            defaultVisibleRows={10}
-            expandAll={expandAll}
+            defaultVisibleRows={5}
+            expandAll={plExpanded}
+            onToggleExpand={() => setPlExpanded((v) => !v)}
           />
         )}
 
@@ -237,17 +242,26 @@ export default function ScoresPage() {
                 refetch={() => uclStandings.refetch()}
                 accentClass="standings-ucl"
                 title="League table"
-                defaultVisibleRows={12}
-                expandAll={expandAll}
+                defaultVisibleRows={5}
+                expandAll={uclLeagueExpanded}
+                onToggleExpand={() => setUclLeagueExpanded((v) => !v)}
               />
             ) : (
               <div className="ucl-tournament-list">
+                {uclTournamentFixtures.length > 5 && (
+                  <div className="standings-header-row">
+                    <h3 className="standings-subtitle">Knockout Fixtures</h3>
+                    <button className="scores-expand-btn" onClick={() => setUclTournamentExpanded(v => !v)}>
+                      {uclTournamentExpanded ? 'Collapse' : 'Expand all'}
+                    </button>
+                  </div>
+                )}
                 {uclEvents.isLoading ? (
                   <div className="standings-loading">Loading...</div>
                 ) : uclTournamentFixtures.length === 0 ? (
                   <div className="standings-loading">No tournament fixtures available yet.</div>
                 ) : (
-                  uclTournamentFixtures.map((event) => (
+                  (uclTournamentExpanded ? uclTournamentFixtures : uclTournamentFixtures.slice(0, 5)).map((event) => (
                     <div key={event.id} className="ucl-tournament-card">
                       <div className="ucl-tournament-round">Knockout Round</div>
                       <div className="ucl-tournament-title">{event.title}</div>
@@ -266,7 +280,14 @@ export default function ScoresPage() {
         {showMotorsport && (
           <div className="standings-f1-block">
             <div className="standings-section standings-f1">
-              <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
+              <div className="standings-header-row">
+                <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
+                {f1Standings.length > 3 && (
+                  <button className="scores-expand-btn" onClick={() => setF1DriverExpanded(v => !v)}>
+                    {f1DriverExpanded ? 'Collapse' : 'Expand all'}
+                  </button>
+                )}
+              </div>
               <table className="standings-table">
                 <thead>
                   <tr>
@@ -277,7 +298,7 @@ export default function ScoresPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(expandAll ? f1Standings : f1Standings.slice(0, 3)).map((row, i) => (
+                  {(f1DriverExpanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
                     <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                       <td className="standings-col-pos">{i + 1}</td>
                       <td className="standings-col-team">{row.driver}</td>
@@ -290,7 +311,14 @@ export default function ScoresPage() {
             </div>
 
             <div className="standings-section standings-f1">
-              <h2 className="standings-league-name">F1 Constructor Standings</h2>
+              <div className="standings-header-row">
+                <h2 className="standings-league-name">F1 Constructor Standings</h2>
+                {f1ConstructorStandings.length > 3 && (
+                  <button className="scores-expand-btn" onClick={() => setF1ConstructorExpanded(v => !v)}>
+                    {f1ConstructorExpanded ? 'Collapse' : 'Expand all'}
+                  </button>
+                )}
+              </div>
               <table className="standings-table">
                 <thead>
                   <tr>
@@ -300,7 +328,7 @@ export default function ScoresPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {(expandAll ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 3)).map((row, i) => (
+                  {(f1ConstructorExpanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
                     <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                       <td className="standings-col-pos">{i + 1}</td>
                       <td className="standings-col-team">{row.team}</td>

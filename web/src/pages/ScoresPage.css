@@ -113,12 +113,6 @@
   padding: 16px 20px 120px;
 }
 
-.scores-table-controls {
-  display: flex;
-  justify-content: flex-end;
-  margin: 0 0 12px;
-}
-
 .scores-expand-btn {
   padding: 6px 14px;
   border: 1px solid var(--border-light);
@@ -138,6 +132,21 @@
 /* Standings Section */
 .standings-section {
   margin-bottom: 28px;
+}
+
+.standings-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.standings-subtitle {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-secondary);
 }
 
 .standings-f1-block {
@@ -223,6 +232,7 @@
 .standings-table {
   display: table;
   width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
   border-radius: 14px;
@@ -262,10 +272,12 @@
 }
 
 .standings-col-pos {
-  width: 32px;
+  width: 44px;
   font-size: 14px;
   font-weight: 700;
   color: var(--text-secondary);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .standings-col-team {
@@ -287,19 +299,21 @@ td.standings-col-team {
 }
 
 .standings-col-stat {
-  width: 36px;
+  width: 42px;
   text-align: center;
   font-size: 14px;
   font-weight: 500;
   color: var(--text-stat);
+  font-variant-numeric: tabular-nums;
 }
 
 .standings-col-pts {
-  width: 42px;
+  width: 56px;
   text-align: right;
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
 }
 
 .standings-team-badge {

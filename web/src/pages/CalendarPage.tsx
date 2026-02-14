@@ -8,6 +8,16 @@ import type { SportsEvent, Team } from '../types';
 import { Link } from 'react-router-dom';
 import './CalendarPage.css';
 
+function uniqueTeamsById(teams: Team[]): Team[] {
+  const byId = new Map<string, Team>();
+  for (const team of teams) {
+    if (!byId.has(team.id)) {
+      byId.set(team.id, team);
+    }
+  }
+  return Array.from(byId.values());
+}
+
 export default function CalendarPage() {
   const { t } = useTranslation();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
@@ -45,7 +55,7 @@ export default function CalendarPage() {
   const allTeams = useMemo<Team[]>(() => {
     const footballTeams = [...(plTeams.data ?? []), ...(uclTeams.data ?? [])];
     const f1Teams = mockTeams.filter((team) => team.sport_id === '2');
-    return [...footballTeams, ...f1Teams];
+    return uniqueTeamsById([...footballTeams, ...f1Teams]);
   }, [plTeams.data, uclTeams.data]);
 
   // Get selected team objects for avatar chips

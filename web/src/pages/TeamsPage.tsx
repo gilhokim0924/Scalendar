@@ -9,6 +9,16 @@ import './TeamsPage.css';
 type SportFilter = 'all' | '1' | '2';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
 
+function uniqueTeamsById(teams: Team[]): Team[] {
+  const byId = new Map<string, Team>();
+  for (const team of teams) {
+    if (!byId.has(team.id)) {
+      byId.set(team.id, team);
+    }
+  }
+  return Array.from(byId.values());
+}
+
 export default function TeamsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -25,7 +35,7 @@ export default function TeamsPage() {
   const allTeams: Team[] = useMemo(() => {
     const apiPl = plTeams.data ?? [];
     const apiUcl = uclTeams.data ?? [];
-    return [...apiPl, ...apiUcl, ...f1Teams];
+    return uniqueTeamsById([...apiPl, ...apiUcl, ...f1Teams]);
   }, [plTeams.data, uclTeams.data, f1Teams]);
 
   const isLoading = plTeams.isLoading || uclTeams.isLoading;
