@@ -60,7 +60,12 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
     <div className={`standings-section ${accentClass}`}>
       {title && <h2 className="standings-league-name">{title}</h2>}
       {isLoading ? (
-        <div className="standings-loading">Loading...</div>
+        <div className="standings-loading">
+          <span className="loading-with-spinner">
+            <span className="loading-spinner" aria-hidden="true" />
+            <span>Loading...</span>
+          </span>
+        </div>
       ) : error ? (
         <div className="standings-error">
           <p>Couldn't load standings</p>
@@ -353,7 +358,12 @@ export default function ScoresPage() {
             ) : (
               <div className="ucl-tournament-list">
                 {uclEvents.isLoading ? (
-                  <div className="standings-loading">Loading...</div>
+                  <div className="standings-loading">
+                    <span className="loading-with-spinner">
+                      <span className="loading-spinner" aria-hidden="true" />
+                      <span>Loading...</span>
+                    </span>
+                  </div>
                 ) : uclTournamentFixtures.length === 0 ? (
                   <div className="standings-loading">No tournament fixtures available yet.</div>
                 ) : (

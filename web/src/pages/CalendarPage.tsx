@@ -269,7 +269,12 @@ export default function CalendarPage() {
       {/* Events List */}
       <main className="events-list">
         {isLoading ? (
-          <div className="calendar-loading">Loading events...</div>
+          <div className="calendar-loading">
+            <span className="loading-with-spinner">
+              <span className="loading-spinner" aria-hidden="true" />
+              <span>Loading events...</span>
+            </span>
+          </div>
         ) : hasError ? (
           <div className="calendar-error">
             <p>Couldn't load football events</p>

@@ -156,7 +156,12 @@ export default function DiscoverPage() {
         <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
         <div className="upcoming-scroll">
           {isLoading ? (
-            <div className="discover-loading">Loading...</div>
+            <div className="discover-loading">
+              <span className="loading-with-spinner">
+                <span className="loading-spinner" aria-hidden="true" />
+                <span>Loading...</span>
+              </span>
+            </div>
           ) : (
             upcomingEvents.map(event => (
               <div

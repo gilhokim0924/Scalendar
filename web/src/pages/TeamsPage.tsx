@@ -281,7 +281,12 @@ export default function TeamsPage() {
       {/* Team List */}
       <div className="teams-list">
         {isLoading ? (
-          <div className="teams-loading">Loading teams...</div>
+          <div className="teams-loading teams-loading-state">
+            <span className="loading-with-spinner">
+              <span className="loading-spinner" aria-hidden="true" />
+              <span>Loading teams...</span>
+            </span>
+          </div>
         ) : hasError ? (
           <div className="teams-loading">
             <p>Couldn't load teams</p>
