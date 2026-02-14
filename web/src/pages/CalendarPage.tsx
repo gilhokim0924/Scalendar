@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { mockEvents, mockTeams, getTeamInitials } from '../utils/mockData';
+import { mockEvents, getTeamInitials } from '../utils/mockData';
 import { useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import type { SportsEvent, Team } from '../types';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import './CalendarPage.css';
+
+const F1_SELECTION_ID = 'f1';
+const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
 
 function uniqueTeamsById(teams: Team[]): Team[] {
   const byId = new Map<string, Team>();
@@ -18,12 +21,30 @@ function uniqueTeamsById(teams: Team[]): Team[] {
   return Array.from(byId.values());
 }
 
+function isChampionsLeagueEvent(event: SportsEvent): boolean {
+  return event.sport_id === '1' && event.competition.toLowerCase().includes('champions');
+}
+
+function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'formula-one' {
+  if (event.sport_id === '2') return 'formula-one';
+  return isChampionsLeagueEvent(event) ? 'champions-league' : 'premier-league';
+}
+
 export default function CalendarPage() {
   const { t } = useTranslation();
+  const location = useLocation();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
-  const [selectedTeams] = useState<string[]>(() => {
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
-    return saved ? JSON.parse(saved) : [];
+    if (!saved) return [];
+    const parsed: string[] = JSON.parse(saved);
+    const normalized = Array.from(new Set(parsed.map((id) => (
+      LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+    ))));
+    if (normalized.join(',') !== parsed.join(',')) {
+      localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+    }
+    return normalized;
   });
   const hasSelectedTeams = selectedTeams.length > 0;
 
@@ -53,10 +74,38 @@ export default function CalendarPage() {
   }, [plEvents.data, uclEvents.data, f1Events]);
 
   const allTeams = useMemo<Team[]>(() => {
-    const footballTeams = [...(plTeams.data ?? []), ...(uclTeams.data ?? [])];
-    const f1Teams = mockTeams.filter((team) => team.sport_id === '2');
+    const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
+      if (!id || !name) return null;
+      return {
+        id,
+        sport_id: '1',
+        name,
+        external_api_id: id,
+        league,
+      };
+    };
+
+    const eventDerivedFootballTeams = [
+      ...(plEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Premier League'),
+        toTeam(event.away_team_id, event.away_team_name, 'Premier League'),
+      ])),
+      ...(uclEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Champions League'),
+        toTeam(event.away_team_id, event.away_team_name, 'Champions League'),
+      ])),
+    ].filter((team): team is Team => Boolean(team));
+
+    const footballTeams = [...(plTeams.data ?? []), ...(uclTeams.data ?? []), ...eventDerivedFootballTeams];
+    const f1Teams: Team[] = [{
+      id: F1_SELECTION_ID,
+      sport_id: '2',
+      name: 'Formula 1',
+      external_api_id: 'f1',
+      league: 'Formula 1',
+    }];
     return uniqueTeamsById([...footballTeams, ...f1Teams]);
-  }, [plTeams.data, uclTeams.data]);
+  }, [plTeams.data, uclTeams.data, plEvents.data, uclEvents.data]);
 
   // Get selected team objects for avatar chips
   const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
@@ -121,6 +170,16 @@ export default function CalendarPage() {
   const todayRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    const saved = localStorage.getItem('selectedTeams');
+    const parsed: string[] = saved ? JSON.parse(saved) : [];
+    const normalized = Array.from(new Set(parsed.map((id) => (
+      LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+    ))));
+    setSelectedTeams(normalized);
+  }, [location.pathname]);
+
+  useEffect(() => {
     todayRef.current?.scrollIntoView({ block: 'center' });
   }, [isLoading]);
 
@@ -166,7 +225,7 @@ export default function CalendarPage() {
           </div>
         ) : !hasSelectedTeams ? (
           <div className="calendar-empty-selection">
-            <p>Select teams to see your schedule.</p>
+            <p>Select teams to see your schedule</p>
             <Link to="/teams" className="calendar-select-teams-btn">Choose teams</Link>
           </div>
         ) : Object.keys(groupedEvents).length === 0 ? (
@@ -223,10 +282,11 @@ export default function CalendarPage() {
                       const time = format(eventDate, 'HH:mm');
                       const isPast = dateKey < todayStr;
 
+                      const eventThemeClass = getEventThemeClass(event);
                       return (
                         <div
                           key={event.id}
-                          className={`event-card ${event.sport_id === '1' ? 'premier-league' : 'formula-one'} ${isPast ? 'past-event' : ''}`}
+                          className={`event-card ${eventThemeClass} ${isPast ? 'past-event' : ''}`}
                           onClick={() => setSelectedEvent(event)}
                         >
                           {eventsForDate.length > 1 && (
@@ -289,12 +349,13 @@ export default function CalendarPage() {
         const isEventPast = format(parseISO(selectedEvent.datetime_utc), 'yyyy-MM-dd') < todayStr;
         const homeDisplay = getTeamDisplay(selectedEvent, 'home');
         const awayDisplay = getTeamDisplay(selectedEvent, 'away');
+        const selectedEventThemeClass = getEventThemeClass(selectedEvent);
         return (
         <>
           <div className="modal-overlay" onClick={() => setSelectedEvent(null)} />
           <div className="modal">
             <div className="modal-header">
-              <div className={`modal-sport-badge ${selectedEvent.sport_id === '1' ? 'premier-league' : 'formula-one'}`}>
+              <div className={`modal-sport-badge ${selectedEventThemeClass}`}>
                 {selectedEvent.competition}
               </div>
               <button className="modal-close" onClick={() => setSelectedEvent(null)}>

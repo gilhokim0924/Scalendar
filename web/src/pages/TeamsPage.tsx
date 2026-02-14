@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { mockTeams, getTeamInitials } from '../utils/mockData';
+import { getTeamInitials } from '../utils/mockData';
 import { useLeagueEvents, useLeagueTeams } from '../hooks/useFootballData';
 import { useNavigate } from 'react-router-dom';
 import type { Team } from '../types';
@@ -8,6 +8,8 @@ import './TeamsPage.css';
 
 type SportFilter = 'all' | '1' | '2';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
+const F1_SELECTION_ID = 'f1';
+const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
 
 function uniqueTeamsById(teams: Team[]): Team[] {
   const byId = new Map<string, Team>();
@@ -57,7 +59,15 @@ export default function TeamsPage() {
     return [...pl, ...ucl];
   }, [plEvents.data, uclEvents.data]);
 
-  const f1Teams = useMemo(() => mockTeams.filter(t => t.sport_id === '2'), []);
+  const f1Teams = useMemo<Team[]>(() => ([
+    {
+      id: F1_SELECTION_ID,
+      sport_id: '2',
+      name: 'Formula 1',
+      external_api_id: 'f1',
+      league: 'Formula 1',
+    },
+  ]), []);
 
   const allTeams: Team[] = useMemo(() => {
     const apiPl = plTeams.data ?? [];
@@ -71,7 +81,12 @@ export default function TeamsPage() {
   useEffect(() => {
     const saved = localStorage.getItem('selectedTeams');
     if (saved) {
-      setSelectedTeams(JSON.parse(saved));
+      const parsed: string[] = JSON.parse(saved);
+      const normalized = Array.from(new Set(parsed.map((id) => (
+        LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+      ))));
+      setSelectedTeams(normalized);
+      localStorage.setItem('selectedTeams', JSON.stringify(normalized));
     }
   }, []);
 
@@ -173,13 +188,13 @@ export default function TeamsPage() {
               {t('filters.allLeagues')}
             </button>
             <button
-              className={`teams-filter-btn teams-league-btn ${leagueFilter === 'Premier League' ? 'active' : ''}`}
+              className={`teams-filter-btn teams-league-btn teams-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('Premier League')}
             >
               {t('filters.premierLeague')}
             </button>
             <button
-              className={`teams-filter-btn teams-league-btn ${leagueFilter === 'Champions League' ? 'active' : ''}`}
+              className={`teams-filter-btn teams-league-btn teams-league-ucl ${leagueFilter === 'Champions League' ? 'active' : ''}`}
               onClick={() => setLeagueFilter('Champions League')}
             >
               {t('filters.championsLeague')}

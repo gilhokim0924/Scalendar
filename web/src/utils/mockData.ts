@@ -54,24 +54,58 @@ export const mockEvents: SportsEvent[] = [
 ];
 
 const knownInitials: Record<string, string> = {
+  'Arsenal': 'ARS',
+  'Aston Villa': 'AVL',
+  'Atletico Madrid': 'ATM',
+  'Barcelona': 'BAR',
+  'Bayern Munich': 'BAY',
+  'Borussia Dortmund': 'DOR',
+  'Brighton': 'BHA',
+  'Chelsea': 'CHE',
   'Ferrari': 'FER',
+  'Formula 1': 'F1',
+  'Inter Milan': 'INT',
+  'Juventus': 'JUV',
+  'Liverpool': 'LIV',
+  'Manchester City': 'MCI',
+  'Manchester United': 'MUN',
+  'Newcastle United': 'NEW',
+  'PSG': 'PSG',
+  'Paris Saint-Germain': 'PSG',
+  'Real Madrid': 'RMA',
   'Red Bull Racing': 'RBR',
+  'RB Leipzig': 'RBL',
+  'Tottenham Hotspur': 'TOT',
+  'West Ham United': 'WHU',
   'Mercedes': 'MER',
   'McLaren': 'MCL',
   'Aston Martin F1': 'AMR',
 };
 
 export function getTeamInitials(name: string): string {
-  if (knownInitials[name]) return knownInitials[name];
+  const trimmed = name.trim();
+  if (knownInitials[trimmed]) return knownInitials[trimmed];
 
-  const words = name.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) {
-    return words
+  const stopWords = new Set(['FC', 'CF', 'SC', 'AC', 'AFC', 'THE', 'DE', 'LA']);
+  const words = trimmed
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, ' ')
+    .split(/\s+/)
+    .filter(Boolean);
+
+  const filtered = words.filter((word) => !stopWords.has(word));
+  const sourceWords = filtered.length > 0 ? filtered : words;
+
+  if (sourceWords.length === 0) return 'TBD';
+
+  let code = sourceWords[0].slice(0, 3);
+  if (code.length < 3) {
+    const tail = sourceWords
+      .slice(1)
       .map((word) => word[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 3);
+      .join('');
+    code = `${code}${tail}`.slice(0, 3);
   }
 
-  return name.slice(0, 3).toUpperCase();
+  return code.padEnd(3, 'X');
 }

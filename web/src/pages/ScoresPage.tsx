@@ -49,7 +49,7 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
 
   return (
     <div className={`standings-section ${accentClass}`}>
-      <h2 className="standings-league-name">{title}</h2>
+      {title && <h2 className="standings-league-name">{title}</h2>}
       {isLoading ? (
         <div className="standings-loading">Loading...</div>
       ) : error ? (
@@ -188,13 +188,13 @@ export default function ScoresPage() {
             {t('filters.allLeagues')}
           </button>
           <button
-            className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Premier League' ? 'active' : ''}`}
+            className={`scores-filter-btn scores-league-btn scores-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}
             onClick={() => setLeagueFilter('Premier League')}
           >
             {t('filters.premierLeague')}
           </button>
           <button
-            className={`scores-filter-btn scores-league-btn ${leagueFilter === 'Champions League' ? 'active' : ''}`}
+            className={`scores-filter-btn scores-league-btn scores-league-ucl ${leagueFilter === 'Champions League' ? 'active' : ''}`}
             onClick={() => setLeagueFilter('Champions League')}
           >
             {t('filters.championsLeague')}
@@ -244,14 +244,13 @@ export default function ScoresPage() {
                 error={uclStandings.error}
                 refetch={() => uclStandings.refetch()}
                 accentClass="standings-ucl"
-                title="League table"
+                title=""
                 defaultVisibleRows={5}
                 expandAll={uclLeagueExpanded}
                 onToggleExpand={() => setUclLeagueExpanded((v) => !v)}
               />
             ) : (
               <div className="ucl-tournament-list">
-                <h3 className="standings-subtitle">Knockout Fixtures</h3>
                 {uclEvents.isLoading ? (
                   <div className="standings-loading">Loading...</div>
                 ) : uclTournamentFixtures.length === 0 ? (

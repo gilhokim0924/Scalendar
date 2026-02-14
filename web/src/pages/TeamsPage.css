@@ -124,6 +124,13 @@
   box-shadow: var(--chip-active-shadow);
 }
 
+.teams-league-pl.active {
+  background: #7c3aed;
+  border-color: #a78bfa;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.22);
+}
+
 .teams-filter-btn .filter-icon {
   font-size: 18px;
 }
@@ -147,6 +154,13 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
+}
+
+.teams-league-ucl.active {
+  background: #1d4ed8;
+  border-color: #60a5fa;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25);
 }
 
 /* Team List */

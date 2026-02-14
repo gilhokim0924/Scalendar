@@ -225,11 +225,12 @@
   max-width: 600px;
   margin: 0 auto;
   padding: 0 20px;
+  min-height: calc(100dvh - 69px - 64px - 92px);
 }
 
 .calendar-loading {
   text-align: center;
-  min-height: 42vh;
+  min-height: calc(100dvh - 69px - 64px - 92px);
   padding: 80px 20px;
   display: flex;
   align-items: center;
@@ -252,8 +253,8 @@
 
 .calendar-empty-selection {
   text-align: center;
-  min-height: 42vh;
-  padding: 80px 20px;
+  min-height: calc(100dvh - 69px - 64px - 92px);
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -389,8 +390,17 @@
   box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
 }
 
+.event-card.champions-league {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.34);
+}
+
 .event-card.formula-one:hover {
   box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4);
+}
+
+.event-card.champions-league:hover {
+  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.45);
 }
 
 /* Past Event Card */
@@ -399,8 +409,17 @@
   box-shadow: 0 4px 16px rgba(74, 51, 102, 0.3);
 }
 
+.event-card.past-event.champions-league {
+  background: linear-gradient(135deg, #1e2f66 0%, #15234f 100%);
+  box-shadow: 0 4px 16px rgba(30, 47, 102, 0.35);
+}
+
 .event-card.past-event.premier-league:hover {
   box-shadow: 0 8px 24px rgba(74, 51, 102, 0.4);
+}
+
+.event-card.past-event.champions-league:hover {
+  box-shadow: 0 8px 24px rgba(30, 47, 102, 0.45);
 }
 
 .event-card.past-event.formula-one {
@@ -623,6 +642,10 @@
 
 .modal-sport-badge.premier-league {
   background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+}
+
+.modal-sport-badge.champions-league {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
 }
 
 .modal-sport-badge.formula-one {
