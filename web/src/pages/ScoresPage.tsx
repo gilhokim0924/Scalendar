@@ -3,11 +3,7 @@ import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
 import {
-  useConferenceStandings,
-  useConferenceEvents,
   FOOTBALL_LEAGUES,
-  useEuropaStandings,
-  useEuropaEvents,
   useBundesligaStandings,
   useLaLigaStandings,
   useLigue1Standings,
@@ -144,15 +140,9 @@ export default function ScoresPage() {
   const [ligue1Expanded, setLigue1Expanded] = useState(false);
   const [uclLeagueExpanded, setUclLeagueExpanded] = useState(false);
   const [uclTournamentExpanded, setUclTournamentExpanded] = useState(false);
-  const [europaLeagueExpanded, setEuropaLeagueExpanded] = useState(false);
-  const [europaTournamentExpanded, setEuropaTournamentExpanded] = useState(false);
-  const [conferenceLeagueExpanded, setConferenceLeagueExpanded] = useState(false);
-  const [conferenceTournamentExpanded, setConferenceTournamentExpanded] = useState(false);
   const [f1Expanded, setF1Expanded] = useState(false);
   const [f1Mode, setF1Mode] = useState<F1Mode>('driver');
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
-  const [europaPhase, setEuropaPhase] = useState<CompetitionPhase>('league');
-  const [conferencePhase, setConferencePhase] = useState<CompetitionPhase>('league');
 
   const plStandings = usePLStandings();
   const laLigaStandings = useLaLigaStandings();
@@ -161,10 +151,6 @@ export default function ScoresPage() {
   const ligue1Standings = useLigue1Standings();
   const uclStandings = useUCLStandings();
   const uclEvents = useUCLEvents();
-  const europaStandings = useEuropaStandings();
-  const conferenceStandings = useConferenceStandings();
-  const europaEvents = useEuropaEvents();
-  const conferenceEvents = useConferenceEvents();
   const f1StandingsQuery = useF1DriverStandings();
   const f1Standings = (f1StandingsQuery.data && f1StandingsQuery.data.length > 0)
     ? f1StandingsQuery.data
@@ -196,12 +182,6 @@ export default function ScoresPage() {
   const showEuropaLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Europa League');
   const showConferenceLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Europa Conference League');
   const uclTournamentFixtures = (uclEvents.data ?? [])
-    .filter((event) => (event.round ?? 0) >= 32)
-    .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
-  const europaTournamentFixtures = (europaEvents.data ?? [])
-    .filter((event) => (event.round ?? 0) >= 32)
-    .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
-  const conferenceTournamentFixtures = (conferenceEvents.data ?? [])
     .filter((event) => (event.round ?? 0) >= 32)
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
 
@@ -441,139 +421,15 @@ export default function ScoresPage() {
 
         {showEuropaLeague && (
           <div className="standings-section standings-europa">
-            <div className="ucl-phase-header">
-              <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
-              <div className="ucl-phase-toggle">
-                <button
-                  className={`ucl-phase-btn ${europaPhase === 'league' ? 'active' : ''}`}
-                  onClick={() => setEuropaPhase('league')}
-                >
-                  League phase
-                </button>
-                <button
-                  className={`ucl-phase-btn ${europaPhase === 'tournament' ? 'active' : ''}`}
-                  onClick={() => setEuropaPhase('tournament')}
-                >
-                  Tournament phase
-                </button>
-              </div>
-            </div>
-
-            {europaPhase === 'league' ? (
-              <StandingsTable
-                data={europaStandings.data}
-                isLoading={europaStandings.isLoading}
-                error={europaStandings.error}
-                refetch={() => europaStandings.refetch()}
-                accentClass="standings-europa"
-                title=""
-                defaultVisibleRows={5}
-                expandAll={europaLeagueExpanded}
-                onToggleExpand={() => setEuropaLeagueExpanded((v) => !v)}
-              />
-            ) : (
-              <div className="ucl-tournament-list">
-                {europaEvents.isLoading ? (
-                  <div className="standings-loading">
-                    <span className="loading-with-spinner">
-                      <span className="loading-spinner" aria-hidden="true" />
-                      <span>Loading...</span>
-                    </span>
-                  </div>
-                ) : europaTournamentFixtures.length === 0 ? (
-                  <div className="standings-loading">No tournament fixtures available yet.</div>
-                ) : (
-                  <>
-                    {(europaTournamentExpanded ? europaTournamentFixtures : europaTournamentFixtures.slice(0, 5)).map((event) => (
-                      <div key={event.id} className="ucl-tournament-card">
-                        <div className="ucl-tournament-round">Knockout Round</div>
-                        <div className="ucl-tournament-title">{event.title}</div>
-                        <div className="ucl-tournament-meta">
-                          <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
-                          <span>{event.venue}</span>
-                        </div>
-                      </div>
-                    ))}
-                    {europaTournamentFixtures.length > 5 && (
-                      <div className="scores-view-more-row">
-                        <button className="scores-expand-btn" onClick={() => setEuropaTournamentExpanded((v) => !v)}>
-                          {europaTournamentExpanded ? 'View less' : 'View more'}
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
+            <div className="standings-loading">Work in progress</div>
           </div>
         )}
 
         {showConferenceLeague && (
           <div className="standings-section standings-conference">
-            <div className="ucl-phase-header">
-              <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
-              <div className="ucl-phase-toggle">
-                <button
-                  className={`ucl-phase-btn ${conferencePhase === 'league' ? 'active' : ''}`}
-                  onClick={() => setConferencePhase('league')}
-                >
-                  League phase
-                </button>
-                <button
-                  className={`ucl-phase-btn ${conferencePhase === 'tournament' ? 'active' : ''}`}
-                  onClick={() => setConferencePhase('tournament')}
-                >
-                  Tournament phase
-                </button>
-              </div>
-            </div>
-
-            {conferencePhase === 'league' ? (
-              <StandingsTable
-                data={conferenceStandings.data}
-                isLoading={conferenceStandings.isLoading}
-                error={conferenceStandings.error}
-                refetch={() => conferenceStandings.refetch()}
-                accentClass="standings-conference"
-                title=""
-                defaultVisibleRows={5}
-                expandAll={conferenceLeagueExpanded}
-                onToggleExpand={() => setConferenceLeagueExpanded((v) => !v)}
-              />
-            ) : (
-              <div className="ucl-tournament-list">
-                {conferenceEvents.isLoading ? (
-                  <div className="standings-loading">
-                    <span className="loading-with-spinner">
-                      <span className="loading-spinner" aria-hidden="true" />
-                      <span>Loading...</span>
-                    </span>
-                  </div>
-                ) : conferenceTournamentFixtures.length === 0 ? (
-                  <div className="standings-loading">No tournament fixtures available yet.</div>
-                ) : (
-                  <>
-                    {(conferenceTournamentExpanded ? conferenceTournamentFixtures : conferenceTournamentFixtures.slice(0, 5)).map((event) => (
-                      <div key={event.id} className="ucl-tournament-card">
-                        <div className="ucl-tournament-round">Knockout Round</div>
-                        <div className="ucl-tournament-title">{event.title}</div>
-                        <div className="ucl-tournament-meta">
-                          <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
-                          <span>{event.venue}</span>
-                        </div>
-                      </div>
-                    ))}
-                    {conferenceTournamentFixtures.length > 5 && (
-                      <div className="scores-view-more-row">
-                        <button className="scores-expand-btn" onClick={() => setConferenceTournamentExpanded((v) => !v)}>
-                          {conferenceTournamentExpanded ? 'View less' : 'View more'}
-                        </button>
-                      </div>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
+            <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
+            <div className="standings-loading">Work in progress</div>
           </div>
         )}
 
