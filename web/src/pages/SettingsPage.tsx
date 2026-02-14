@@ -157,6 +157,7 @@ export default function SettingsPage() {
               <option value="Europe/Paris">Paris</option>
               <option value="Asia/Tokyo">Tokyo</option>
               <option value="Asia/Seoul">Seoul</option>
+              <option value="Asia/Bangkok">Bangkok</option>
               <option value="Australia/Sydney">Sydney</option>
             </select>
           </div>
