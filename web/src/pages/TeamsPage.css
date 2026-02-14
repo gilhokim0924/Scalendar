@@ -163,6 +163,41 @@
   box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25);
 }
 
+.teams-league-laliga.active {
+  background: #be123c;
+  border-color: #fb7185;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(251, 113, 133, 0.24);
+}
+
+.teams-league-bundesliga.active {
+  background: #b45309;
+  border-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24);
+}
+
+.teams-league-seriea.active {
+  background: #0f766e;
+  border-color: #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.24);
+}
+
+.teams-league-ligue1.active {
+  background: #0e7490;
+  border-color: #67e8f9;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.24);
+}
+
+.teams-league-europa.active {
+  background: #ea580c;
+  border-color: #fdba74;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(253, 186, 116, 0.24);
+}
+
 /* Team List */
 .teams-list {
   max-width: 600px;

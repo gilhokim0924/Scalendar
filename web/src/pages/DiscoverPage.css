@@ -126,6 +126,30 @@
   background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
 }
 
+.upcoming-card.ucl {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.upcoming-card.laliga {
+  background: linear-gradient(135deg, #be123c 0%, #881337 100%);
+}
+
+.upcoming-card.bundesliga {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+}
+
+.upcoming-card.seriea {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+}
+
+.upcoming-card.ligue1 {
+  background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+}
+
+.upcoming-card.europa {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
 .upcoming-card.f1 {
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
@@ -195,6 +219,30 @@
 
 .competition-card.pl {
   background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+}
+
+.competition-card.ucl {
+  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+}
+
+.competition-card.laliga {
+  background: linear-gradient(135deg, #be123c 0%, #881337 100%);
+}
+
+.competition-card.bundesliga {
+  background: linear-gradient(135deg, #b45309 0%, #92400e 100%);
+}
+
+.competition-card.seriea {
+  background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+}
+
+.competition-card.ligue1 {
+  background: linear-gradient(135deg, #0e7490 0%, #155e75 100%);
+}
+
+.competition-card.europa {
+  background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
 }
 
 .competition-card.f1 {

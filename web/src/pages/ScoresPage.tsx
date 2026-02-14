@@ -2,13 +2,22 @@ import { useState, useEffect, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
-import { usePLStandings, useUCLEvents, useUCLStandings } from '../hooks/useFootballData';
+import {
+  FOOTBALL_LEAGUES,
+  useBundesligaStandings,
+  useLaLigaStandings,
+  useLigue1Standings,
+  usePLStandings,
+  useSerieAStandings,
+  useUCLEvents,
+  useUCLStandings,
+} from '../hooks/useFootballData';
 import { useF1DriverStandings } from '../hooks/useF1Data';
 import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
 type SportFilter = 'all' | 'football' | 'motorsport';
-type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
+type LeagueFilter = 'all' | 'Premier League' | 'Champions League' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1';
 type UCLPhase = 'league' | 'tournament';
 type F1Mode = 'driver' | 'constructor';
 
@@ -111,6 +120,10 @@ export default function ScoresPage() {
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
   const [plExpanded, setPlExpanded] = useState(false);
+  const [laLigaExpanded, setLaLigaExpanded] = useState(false);
+  const [bundesligaExpanded, setBundesligaExpanded] = useState(false);
+  const [serieAExpanded, setSerieAExpanded] = useState(false);
+  const [ligue1Expanded, setLigue1Expanded] = useState(false);
   const [uclLeagueExpanded, setUclLeagueExpanded] = useState(false);
   const [uclTournamentExpanded, setUclTournamentExpanded] = useState(false);
   const [f1Expanded, setF1Expanded] = useState(false);
@@ -118,6 +131,10 @@ export default function ScoresPage() {
   const [uclPhase, setUclPhase] = useState<UCLPhase>('league');
 
   const plStandings = usePLStandings();
+  const laLigaStandings = useLaLigaStandings();
+  const bundesligaStandings = useBundesligaStandings();
+  const serieAStandings = useSerieAStandings();
+  const ligue1Standings = useLigue1Standings();
   const uclStandings = useUCLStandings();
   const uclEvents = useUCLEvents();
   const f1StandingsQuery = useF1DriverStandings();
@@ -143,6 +160,10 @@ export default function ScoresPage() {
   const showFootball = sportFilter === 'all' || sportFilter === 'football';
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
+  const showLaLiga = showFootball && (leagueFilter === 'all' || leagueFilter === 'La Liga');
+  const showBundesliga = showFootball && (leagueFilter === 'all' || leagueFilter === 'Bundesliga');
+  const showSerieA = showFootball && (leagueFilter === 'all' || leagueFilter === 'Serie A');
+  const showLigue1 = showFootball && (leagueFilter === 'all' || leagueFilter === 'Ligue 1');
   const showChampionsLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Champions League');
   const uclTournamentFixtures = (uclEvents.data ?? [])
     .filter((event) => (event.round ?? 0) >= 32)
@@ -199,6 +220,30 @@ export default function ScoresPage() {
           >
             {t('filters.championsLeague')}
           </button>
+          <button
+            className={`scores-filter-btn scores-league-btn scores-league-laliga ${leagueFilter === 'La Liga' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('La Liga')}
+          >
+            {t('filters.laLiga')}
+          </button>
+          <button
+            className={`scores-filter-btn scores-league-btn scores-league-bundesliga ${leagueFilter === 'Bundesliga' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('Bundesliga')}
+          >
+            {t('filters.bundesliga')}
+          </button>
+          <button
+            className={`scores-filter-btn scores-league-btn scores-league-seriea ${leagueFilter === 'Serie A' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('Serie A')}
+          >
+            {t('filters.serieA')}
+          </button>
+          <button
+            className={`scores-filter-btn scores-league-btn scores-league-ligue1 ${leagueFilter === 'Ligue 1' ? 'active' : ''}`}
+            onClick={() => setLeagueFilter('Ligue 1')}
+          >
+            {t('filters.ligue1')}
+          </button>
         </div>
       )}
 
@@ -214,6 +259,62 @@ export default function ScoresPage() {
             defaultVisibleRows={5}
             expandAll={plExpanded}
             onToggleExpand={() => setPlExpanded((v) => !v)}
+          />
+        )}
+
+        {showLaLiga && (
+          <StandingsTable
+            data={laLigaStandings.data}
+            isLoading={laLigaStandings.isLoading}
+            error={laLigaStandings.error}
+            refetch={() => laLigaStandings.refetch()}
+            accentClass="standings-laliga"
+            title={FOOTBALL_LEAGUES.laLiga.name}
+            defaultVisibleRows={5}
+            expandAll={laLigaExpanded}
+            onToggleExpand={() => setLaLigaExpanded((v) => !v)}
+          />
+        )}
+
+        {showBundesliga && (
+          <StandingsTable
+            data={bundesligaStandings.data}
+            isLoading={bundesligaStandings.isLoading}
+            error={bundesligaStandings.error}
+            refetch={() => bundesligaStandings.refetch()}
+            accentClass="standings-bundesliga"
+            title={FOOTBALL_LEAGUES.bundesliga.name}
+            defaultVisibleRows={5}
+            expandAll={bundesligaExpanded}
+            onToggleExpand={() => setBundesligaExpanded((v) => !v)}
+          />
+        )}
+
+        {showSerieA && (
+          <StandingsTable
+            data={serieAStandings.data}
+            isLoading={serieAStandings.isLoading}
+            error={serieAStandings.error}
+            refetch={() => serieAStandings.refetch()}
+            accentClass="standings-seriea"
+            title={FOOTBALL_LEAGUES.serieA.name}
+            defaultVisibleRows={5}
+            expandAll={serieAExpanded}
+            onToggleExpand={() => setSerieAExpanded((v) => !v)}
+          />
+        )}
+
+        {showLigue1 && (
+          <StandingsTable
+            data={ligue1Standings.data}
+            isLoading={ligue1Standings.isLoading}
+            error={ligue1Standings.error}
+            refetch={() => ligue1Standings.refetch()}
+            accentClass="standings-ligue1"
+            title={FOOTBALL_LEAGUES.ligue1.name}
+            defaultVisibleRows={5}
+            expandAll={ligue1Expanded}
+            onToggleExpand={() => setLigue1Expanded((v) => !v)}
           />
         )}
 

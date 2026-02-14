@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { mockEvents, getTeamInitials } from '../utils/mockData';
-import { useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
+import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import type { SportsEvent, Team } from '../types';
 import { Link, useLocation } from 'react-router-dom';
@@ -21,13 +21,16 @@ function uniqueTeamsById(teams: Team[]): Team[] {
   return Array.from(byId.values());
 }
 
-function isChampionsLeagueEvent(event: SportsEvent): boolean {
-  return event.sport_id === '1' && event.competition.toLowerCase().includes('champions');
-}
-
-function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'formula-one' {
+function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'la-liga' | 'bundesliga' | 'serie-a' | 'ligue-1' | 'europa-league' | 'formula-one' {
   if (event.sport_id === '2') return 'formula-one';
-  return isChampionsLeagueEvent(event) ? 'champions-league' : 'premier-league';
+  const competition = event.competition.toLowerCase();
+  if (competition.includes('champions')) return 'champions-league';
+  if (competition.includes('europa')) return 'europa-league';
+  if (competition.includes('la liga')) return 'la-liga';
+  if (competition.includes('bundesliga')) return 'bundesliga';
+  if (competition.includes('serie a')) return 'serie-a';
+  if (competition.includes('ligue 1')) return 'ligue-1';
+  return 'premier-league';
 }
 
 export default function CalendarPage() {
@@ -51,12 +54,20 @@ export default function CalendarPage() {
   // Fetch live football events
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
-  const plTeams = useLeagueTeams('4328');
-  const uclTeams = useLeagueTeams('4480');
+  const laLigaEvents = useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
+  const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
+  const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
+  const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
+  const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
+  const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
+  const laLigaTeams = useLeagueTeams(FOOTBALL_LEAGUES.laLiga.id);
+  const bundesligaTeams = useLeagueTeams(FOOTBALL_LEAGUES.bundesliga.id);
+  const serieATeams = useLeagueTeams(FOOTBALL_LEAGUES.serieA.id);
+  const ligue1Teams = useLeagueTeams(FOOTBALL_LEAGUES.ligue1.id);
   const f1EventsQuery = useF1Events();
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || f1EventsQuery.isLoading;
-  const hasError = plEvents.error && uclEvents.error;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
+  const hasError = plEvents.error && uclEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error;
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
   const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
@@ -68,10 +79,14 @@ export default function CalendarPage() {
     const footballEvents = [
       ...(plEvents.data ?? []),
       ...(uclEvents.data ?? []),
+      ...(laLigaEvents.data ?? []),
+      ...(bundesligaEvents.data ?? []),
+      ...(serieAEvents.data ?? []),
+      ...(ligue1Events.data ?? []),
     ];
 
     return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, f1Events]);
+  }, [plEvents.data, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
 
   const allTeams = useMemo<Team[]>(() => {
     const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
@@ -94,9 +109,33 @@ export default function CalendarPage() {
         toTeam(event.home_team_id, event.home_team_name, 'Champions League'),
         toTeam(event.away_team_id, event.away_team_name, 'Champions League'),
       ])),
+      ...(laLigaEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'La Liga'),
+        toTeam(event.away_team_id, event.away_team_name, 'La Liga'),
+      ])),
+      ...(bundesligaEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Bundesliga'),
+        toTeam(event.away_team_id, event.away_team_name, 'Bundesliga'),
+      ])),
+      ...(serieAEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Serie A'),
+        toTeam(event.away_team_id, event.away_team_name, 'Serie A'),
+      ])),
+      ...(ligue1Events.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Ligue 1'),
+        toTeam(event.away_team_id, event.away_team_name, 'Ligue 1'),
+      ])),
     ].filter((team): team is Team => Boolean(team));
 
-    const footballTeams = [...(plTeams.data ?? []), ...(uclTeams.data ?? []), ...eventDerivedFootballTeams];
+    const footballTeams = [
+      ...(plTeams.data ?? []),
+      ...(uclTeams.data ?? []),
+      ...(laLigaTeams.data ?? []),
+      ...(bundesligaTeams.data ?? []),
+      ...(serieATeams.data ?? []),
+      ...(ligue1Teams.data ?? []),
+      ...eventDerivedFootballTeams,
+    ];
     const f1Teams: Team[] = [{
       id: F1_SELECTION_ID,
       sport_id: '2',
@@ -105,7 +144,20 @@ export default function CalendarPage() {
       league: 'Formula 1',
     }];
     return uniqueTeamsById([...footballTeams, ...f1Teams]);
-  }, [plTeams.data, uclTeams.data, plEvents.data, uclEvents.data]);
+  }, [
+    plTeams.data,
+    uclTeams.data,
+    laLigaTeams.data,
+    bundesligaTeams.data,
+    serieATeams.data,
+    ligue1Teams.data,
+    plEvents.data,
+    uclEvents.data,
+    laLigaEvents.data,
+    bundesligaEvents.data,
+    serieAEvents.data,
+    ligue1Events.data,
+  ]);
 
   // Get selected team objects for avatar chips
   const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));

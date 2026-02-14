@@ -2,6 +2,15 @@ import { useQuery } from '@tanstack/react-query';
 import { fetchEvents, fetchStandings, fetchTeams } from '../services/supabaseFootball';
 import type { SportsEvent, Team } from '../types';
 
+export const FOOTBALL_LEAGUES = {
+  premierLeague: { id: '4328', name: 'Premier League' },
+  championsLeague: { id: '4480', name: 'Champions League' },
+  laLiga: { id: '4335', name: 'La Liga' },
+  bundesliga: { id: '4331', name: 'Bundesliga' },
+  serieA: { id: '4332', name: 'Serie A' },
+  ligue1: { id: '4334', name: 'Ligue 1' },
+} as const;
+
 export interface FootballStanding {
   rank: number;
   team: string;
@@ -58,11 +67,27 @@ export function useLeagueEvents(leagueId: string, rounds?: number[]) {
 }
 
 export function usePLEvents() {
-  return useLeagueEvents('4328');
+  return useLeagueEvents(FOOTBALL_LEAGUES.premierLeague.id);
 }
 
 export function useUCLEvents() {
-  return useLeagueEvents('4480');
+  return useLeagueEvents(FOOTBALL_LEAGUES.championsLeague.id);
+}
+
+export function useLaLigaEvents() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
+}
+
+export function useBundesligaEvents() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
+}
+
+export function useSerieAEvents() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
+}
+
+export function useLigue1Events() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
 }
 
 export function useComputedStandings(leagueId: string) {
@@ -91,11 +116,27 @@ export function useComputedStandings(leagueId: string) {
 }
 
 export function usePLStandings() {
-  return useComputedStandings('4328');
+  return useComputedStandings(FOOTBALL_LEAGUES.premierLeague.id);
 }
 
 export function useUCLStandings() {
-  return useComputedStandings('4480');
+  return useComputedStandings(FOOTBALL_LEAGUES.championsLeague.id);
+}
+
+export function useLaLigaStandings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.laLiga.id);
+}
+
+export function useBundesligaStandings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.bundesliga.id);
+}
+
+export function useSerieAStandings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.serieA.id);
+}
+
+export function useLigue1Standings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.ligue1.id);
 }
 
 export function useLeagueTeams(leagueId: string) {

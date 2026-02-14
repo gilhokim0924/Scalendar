@@ -19,6 +19,30 @@ const LEAGUES = [
     displayName: 'Champions League',
     rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
   },
+  {
+    id: '4335',
+    searchName: 'Spanish La Liga',
+    displayName: 'La Liga',
+    rounds: Array.from({ length: 38 }, (_, i) => i + 1),
+  },
+  {
+    id: '4331',
+    searchName: 'German Bundesliga',
+    displayName: 'Bundesliga',
+    rounds: Array.from({ length: 34 }, (_, i) => i + 1),
+  },
+  {
+    id: '4332',
+    searchName: 'Italian Serie A',
+    displayName: 'Serie A',
+    rounds: Array.from({ length: 38 }, (_, i) => i + 1),
+  },
+  {
+    id: '4334',
+    searchName: 'French Ligue 1',
+    displayName: 'Ligue 1',
+    rounds: Array.from({ length: 34 }, (_, i) => i + 1),
+  },
 ];
 
 function sleep(ms) {

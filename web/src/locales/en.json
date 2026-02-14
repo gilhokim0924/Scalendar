@@ -66,6 +66,10 @@
     "motorsport": "Motorsport",
     "allLeagues": "All Leagues",
     "premierLeague": "Premier League",
-    "championsLeague": "Champions League"
+    "championsLeague": "Champions League",
+    "laLiga": "La Liga",
+    "bundesliga": "Bundesliga",
+    "serieA": "Serie A",
+    "ligue1": "Ligue 1"
   }
 }

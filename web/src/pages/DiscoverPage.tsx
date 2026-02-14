@@ -2,11 +2,22 @@ import { useState, useEffect, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { mockEvents, mockSports } from '../utils/mockData';
-import { usePLEvents, useUCLEvents } from '../hooks/useFootballData';
+import { FOOTBALL_LEAGUES, useLeagueEvents, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import './DiscoverPage.css';
 
 type SportFilter = 'all' | '1' | '2';
+
+function getFootballAccent(competition: string): 'pl' | 'ucl' | 'laliga' | 'bundesliga' | 'seriea' | 'ligue1' | 'europa' {
+  const c = competition.toLowerCase();
+  if (c.includes('champions')) return 'ucl';
+  if (c.includes('la liga')) return 'laliga';
+  if (c.includes('bundesliga')) return 'bundesliga';
+  if (c.includes('serie a')) return 'seriea';
+  if (c.includes('ligue 1')) return 'ligue1';
+  if (c.includes('europa')) return 'europa';
+  return 'pl';
+}
 
 export default function DiscoverPage() {
   const { t } = useTranslation();
@@ -15,6 +26,10 @@ export default function DiscoverPage() {
 
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
+  const laLigaEvents = useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
+  const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
+  const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
+  const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
   const f1EventsQuery = useF1Events();
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
@@ -26,11 +41,15 @@ export default function DiscoverPage() {
     const footballEvents = [
       ...(plEvents.data ?? []),
       ...(uclEvents.data ?? []),
+      ...(laLigaEvents.data ?? []),
+      ...(bundesligaEvents.data ?? []),
+      ...(serieAEvents.data ?? []),
+      ...(ligue1Events.data ?? []),
     ];
     return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, f1Events]);
+  }, [plEvents.data, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || f1EventsQuery.isLoading;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
 
   const upcomingEvents = [...allEvents]
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
@@ -47,6 +66,41 @@ export default function DiscoverPage() {
       sportId: '1',
       accent: 'pl',
       eventCount: footballEventCount,
+    },
+    {
+      name: 'Champions League',
+      icon: '\uD83C\uDFC6',
+      sportId: '1',
+      accent: 'ucl',
+      eventCount: (uclEvents.data ?? []).length,
+    },
+    {
+      name: 'La Liga',
+      icon: '\u26BD',
+      sportId: '1',
+      accent: 'laliga',
+      eventCount: (laLigaEvents.data ?? []).length,
+    },
+    {
+      name: 'Bundesliga',
+      icon: '\u26BD',
+      sportId: '1',
+      accent: 'bundesliga',
+      eventCount: (bundesligaEvents.data ?? []).length,
+    },
+    {
+      name: 'Serie A',
+      icon: '\u26BD',
+      sportId: '1',
+      accent: 'seriea',
+      eventCount: (serieAEvents.data ?? []).length,
+    },
+    {
+      name: 'Ligue 1',
+      icon: '\u26BD',
+      sportId: '1',
+      accent: 'ligue1',
+      eventCount: (ligue1Events.data ?? []).length,
     },
     {
       name: 'Formula 1',
@@ -102,7 +156,7 @@ export default function DiscoverPage() {
             upcomingEvents.map(event => (
               <div
                 key={event.id}
-                className={`upcoming-card ${event.sport_id === '1' ? 'pl' : 'f1'}`}
+                className={`upcoming-card ${event.sport_id === '1' ? getFootballAccent(event.competition) : 'f1'}`}
               >
                 <div className="upcoming-card-date">
                   {format(parseISO(event.datetime_utc), 'MMM d')}

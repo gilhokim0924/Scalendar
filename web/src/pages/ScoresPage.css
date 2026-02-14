@@ -120,6 +120,41 @@
   box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.25);
 }
 
+.scores-league-laliga.active {
+  background: #be123c;
+  border-color: #fb7185;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(251, 113, 133, 0.24);
+}
+
+.scores-league-bundesliga.active {
+  background: #b45309;
+  border-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.24);
+}
+
+.scores-league-seriea.active {
+  background: #0f766e;
+  border-color: #2dd4bf;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.24);
+}
+
+.scores-league-ligue1.active {
+  background: #0e7490;
+  border-color: #67e8f9;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.24);
+}
+
+.scores-league-europa.active {
+  background: #ea580c;
+  border-color: #fdba74;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(253, 186, 116, 0.24);
+}
+
 /* Content */
 .scores-content {
   max-width: 600px;
@@ -364,6 +399,86 @@ td.standings-col-team {
 
 .standings-football .standings-table tbody tr.standings-row-alt {
   background: rgba(124, 58, 237, 0.05);
+}
+
+.standings-laliga .standings-table {
+  border-left: 3px solid #be123c;
+}
+
+.standings-laliga .standings-league-name {
+  color: #fb7185;
+}
+
+.standings-laliga .standings-table thead tr {
+  background: rgba(190, 18, 60, 0.15);
+}
+
+.standings-laliga .standings-table tbody tr.standings-row-alt {
+  background: rgba(190, 18, 60, 0.05);
+}
+
+.standings-bundesliga .standings-table {
+  border-left: 3px solid #b45309;
+}
+
+.standings-bundesliga .standings-league-name {
+  color: #f59e0b;
+}
+
+.standings-bundesliga .standings-table thead tr {
+  background: rgba(180, 83, 9, 0.15);
+}
+
+.standings-bundesliga .standings-table tbody tr.standings-row-alt {
+  background: rgba(180, 83, 9, 0.05);
+}
+
+.standings-seriea .standings-table {
+  border-left: 3px solid #0f766e;
+}
+
+.standings-seriea .standings-league-name {
+  color: #2dd4bf;
+}
+
+.standings-seriea .standings-table thead tr {
+  background: rgba(15, 118, 110, 0.15);
+}
+
+.standings-seriea .standings-table tbody tr.standings-row-alt {
+  background: rgba(15, 118, 110, 0.05);
+}
+
+.standings-ligue1 .standings-table {
+  border-left: 3px solid #0e7490;
+}
+
+.standings-ligue1 .standings-league-name {
+  color: #67e8f9;
+}
+
+.standings-ligue1 .standings-table thead tr {
+  background: rgba(14, 116, 144, 0.15);
+}
+
+.standings-ligue1 .standings-table tbody tr.standings-row-alt {
+  background: rgba(14, 116, 144, 0.05);
+}
+
+.standings-europa .standings-table {
+  border-left: 3px solid #ea580c;
+}
+
+.standings-europa .standings-league-name {
+  color: #fdba74;
+}
+
+.standings-europa .standings-table thead tr {
+  background: rgba(234, 88, 12, 0.15);
+}
+
+.standings-europa .standings-table tbody tr.standings-row-alt {
+  background: rgba(234, 88, 12, 0.05);
 }
 
 /* Sport-specific colors — F1 (red) */
