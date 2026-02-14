@@ -10,6 +10,7 @@ import './ScoresPage.css';
 type SportFilter = 'all' | 'football' | 'motorsport';
 type LeagueFilter = 'all' | 'Premier League' | 'Champions League';
 type UCLPhase = 'league' | 'tournament';
+type F1Mode = 'driver' | 'constructor';
 
 interface F1StandingRow {
   driver: string;
@@ -48,14 +49,7 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
 
   return (
     <div className={`standings-section ${accentClass}`}>
-      <div className="standings-header-row">
-        <h2 className="standings-league-name">{title}</h2>
-        {canExpand && (
-          <button className="scores-expand-btn" onClick={onToggleExpand}>
-            {expandAll ? 'Collapse' : 'Expand all'}
-          </button>
-        )}
-      </div>
+      <h2 className="standings-league-name">{title}</h2>
       {isLoading ? (
         <div className="standings-loading">Loading...</div>
       ) : error ? (
@@ -66,37 +60,46 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
       ) : rows.length === 0 ? (
         <div className="standings-loading">No standings available</div>
       ) : (
-        <table className="standings-table">
-          <thead>
-            <tr>
-              <th className="standings-col-pos">#</th>
-              <th className="standings-col-team">{t('scores.team')}</th>
-              <th className="standings-col-stat">P</th>
-              <th className="standings-col-stat">W</th>
-              <th className="standings-col-stat">D</th>
-              <th className="standings-col-stat">L</th>
-              <th className="standings-col-stat">GD</th>
-              <th className="standings-col-pts">{t('scores.pts')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {visibleRows.map((row, i) => (
-              <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                <td className="standings-col-pos">{row.rank}</td>
-                <td className="standings-col-team">
-                  <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                  {row.team}
-                </td>
-                <td className="standings-col-stat">{row.played}</td>
-                <td className="standings-col-stat">{row.w}</td>
-                <td className="standings-col-stat">{row.d}</td>
-                <td className="standings-col-stat">{row.l}</td>
-                <td className="standings-col-stat">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                <td className="standings-col-pts">{row.pts}</td>
+        <>
+          <table className="standings-table">
+            <thead>
+              <tr>
+                <th className="standings-col-pos">#</th>
+                <th className="standings-col-team">{t('scores.team')}</th>
+                <th className="standings-col-stat">P</th>
+                <th className="standings-col-stat">W</th>
+                <th className="standings-col-stat">D</th>
+                <th className="standings-col-stat">L</th>
+                <th className="standings-col-stat">GD</th>
+                <th className="standings-col-pts">{t('scores.pts')}</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {visibleRows.map((row, i) => (
+                <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                  <td className="standings-col-pos">{row.rank}</td>
+                  <td className="standings-col-team">
+                    <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
+                    {row.team}
+                  </td>
+                  <td className="standings-col-stat">{row.played}</td>
+                  <td className="standings-col-stat">{row.w}</td>
+                  <td className="standings-col-stat">{row.d}</td>
+                  <td className="standings-col-stat">{row.l}</td>
+                  <td className="standings-col-stat">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                  <td className="standings-col-pts">{row.pts}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {canExpand && (
+            <div className="scores-view-more-row">
+              <button className="scores-expand-btn" onClick={onToggleExpand}>
+                {expandAll ? 'View less' : 'View more'}
+              </button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -110,8 +113,8 @@ export default function ScoresPage() {
   const [plExpanded, setPlExpanded] = useState(false);
   const [uclLeagueExpanded, setUclLeagueExpanded] = useState(false);
   const [uclTournamentExpanded, setUclTournamentExpanded] = useState(false);
-  const [f1DriverExpanded, setF1DriverExpanded] = useState(false);
-  const [f1ConstructorExpanded, setF1ConstructorExpanded] = useState(false);
+  const [f1Expanded, setF1Expanded] = useState(false);
+  const [f1Mode, setF1Mode] = useState<F1Mode>('driver');
   const [uclPhase, setUclPhase] = useState<UCLPhase>('league');
 
   const plStandings = usePLStandings();
@@ -248,29 +251,31 @@ export default function ScoresPage() {
               />
             ) : (
               <div className="ucl-tournament-list">
-                {uclTournamentFixtures.length > 5 && (
-                  <div className="standings-header-row">
-                    <h3 className="standings-subtitle">Knockout Fixtures</h3>
-                    <button className="scores-expand-btn" onClick={() => setUclTournamentExpanded(v => !v)}>
-                      {uclTournamentExpanded ? 'Collapse' : 'Expand all'}
-                    </button>
-                  </div>
-                )}
+                <h3 className="standings-subtitle">Knockout Fixtures</h3>
                 {uclEvents.isLoading ? (
                   <div className="standings-loading">Loading...</div>
                 ) : uclTournamentFixtures.length === 0 ? (
                   <div className="standings-loading">No tournament fixtures available yet.</div>
                 ) : (
-                  (uclTournamentExpanded ? uclTournamentFixtures : uclTournamentFixtures.slice(0, 5)).map((event) => (
-                    <div key={event.id} className="ucl-tournament-card">
-                      <div className="ucl-tournament-round">Knockout Round</div>
-                      <div className="ucl-tournament-title">{event.title}</div>
-                      <div className="ucl-tournament-meta">
-                        <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
-                        <span>{event.venue}</span>
+                  <>
+                    {(uclTournamentExpanded ? uclTournamentFixtures : uclTournamentFixtures.slice(0, 5)).map((event) => (
+                      <div key={event.id} className="ucl-tournament-card">
+                        <div className="ucl-tournament-round">Knockout Round</div>
+                        <div className="ucl-tournament-title">{event.title}</div>
+                        <div className="ucl-tournament-meta">
+                          <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
+                          <span>{event.venue}</span>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    ))}
+                    {uclTournamentFixtures.length > 5 && (
+                      <div className="scores-view-more-row">
+                        <button className="scores-expand-btn" onClick={() => setUclTournamentExpanded(v => !v)}>
+                          {uclTournamentExpanded ? 'View less' : 'View more'}
+                        </button>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             )}
@@ -278,66 +283,68 @@ export default function ScoresPage() {
         )}
 
         {showMotorsport && (
-          <div className="standings-f1-block">
-            <div className="standings-section standings-f1">
-              <div className="standings-header-row">
-                <h2 className="standings-league-name">{t('scores.f1DriverStandings')}</h2>
-                {f1Standings.length > 3 && (
-                  <button className="scores-expand-btn" onClick={() => setF1DriverExpanded(v => !v)}>
-                    {f1DriverExpanded ? 'Collapse' : 'Expand all'}
-                  </button>
-                )}
+          <div className="standings-section standings-f1">
+            <div className="standings-header-row">
+              <h2 className="standings-league-name">Formula 1</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${f1Mode === 'driver' ? 'active' : ''}`}
+                  onClick={() => setF1Mode('driver')}
+                >
+                  Driver
+                </button>
+                <button
+                  className={`ucl-phase-btn ${f1Mode === 'constructor' ? 'active' : ''}`}
+                  onClick={() => setF1Mode('constructor')}
+                >
+                  Constructor
+                </button>
               </div>
-              <table className="standings-table">
-                <thead>
+            </div>
+
+            <table className="standings-table">
+              <thead>
+                {f1Mode === 'driver' ? (
                   <tr>
                     <th className="standings-col-pos">#</th>
                     <th className="standings-col-team">{t('scores.driver')}</th>
                     <th className="standings-col-f1-team">{t('scores.team')}</th>
                     <th className="standings-col-pts">{t('scores.pts')}</th>
                   </tr>
-                </thead>
-                <tbody>
-                  {(f1DriverExpanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
+                ) : (
+                  <tr>
+                    <th className="standings-col-pos">#</th>
+                    <th className="standings-col-team">{t('scores.team')}</th>
+                    <th className="standings-col-pts">{t('scores.pts')}</th>
+                  </tr>
+                )}
+              </thead>
+              <tbody>
+                {(f1Mode === 'driver'
+                  ? (f1Expanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
                     <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                       <td className="standings-col-pos">{i + 1}</td>
                       <td className="standings-col-team">{row.driver}</td>
                       <td className="standings-col-f1-team">{row.team}</td>
                       <td className="standings-col-pts">{row.pts}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            <div className="standings-section standings-f1">
-              <div className="standings-header-row">
-                <h2 className="standings-league-name">F1 Constructor Standings</h2>
-                {f1ConstructorStandings.length > 3 && (
-                  <button className="scores-expand-btn" onClick={() => setF1ConstructorExpanded(v => !v)}>
-                    {f1ConstructorExpanded ? 'Collapse' : 'Expand all'}
-                  </button>
-                )}
-              </div>
-              <table className="standings-table">
-                <thead>
-                  <tr>
-                    <th className="standings-col-pos">#</th>
-                    <th className="standings-col-team">{t('scores.team')}</th>
-                    <th className="standings-col-pts">{t('scores.pts')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {(f1ConstructorExpanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
+                  ))
+                  : (f1Expanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
                     <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                       <td className="standings-col-pos">{i + 1}</td>
                       <td className="standings-col-team">{row.team}</td>
                       <td className="standings-col-pts">{row.pts}</td>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  )))}
+              </tbody>
+            </table>
+            {((f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) > 5) && (
+              <div className="scores-view-more-row">
+                <button className="scores-expand-btn" onClick={() => setF1Expanded((v) => !v)}>
+                  {f1Expanded ? 'View less' : 'View more'}
+                </button>
+              </div>
+            )}
           </div>
         )}
       </div>

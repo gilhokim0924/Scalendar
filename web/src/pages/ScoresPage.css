@@ -129,6 +129,12 @@
   border-color: var(--border-active);
 }
 
+.scores-view-more-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
 /* Standings Section */
 .standings-section {
   margin-bottom: 28px;
@@ -142,17 +148,15 @@
   margin-bottom: 10px;
 }
 
-.standings-subtitle {
+.standings-header-row .standings-league-name {
   margin: 0;
+}
+
+.standings-subtitle {
+  margin: 0 0 6px;
   font-size: 14px;
   font-weight: 700;
   color: var(--text-secondary);
-}
-
-.standings-f1-block {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .ucl-phase-header {
