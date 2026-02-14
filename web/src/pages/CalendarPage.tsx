@@ -15,6 +15,7 @@ export default function CalendarPage() {
     const saved = localStorage.getItem('selectedTeams');
     return saved ? JSON.parse(saved) : [];
   });
+  const hasSelectedTeams = selectedTeams.length > 0;
 
   // Fetch live football events
   const plEvents = usePLEvents();
@@ -64,7 +65,7 @@ export default function CalendarPage() {
         }
         return false;
       })
-    : allEvents;
+    : [];
 
   // Sort all events ascending
   filteredEvents = [...filteredEvents].sort((a, b) => {
@@ -151,6 +152,11 @@ export default function CalendarPage() {
           <div className="calendar-error">
             <p>Couldn't load football events</p>
             <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); }} className="retry-btn">Retry</button>
+          </div>
+        ) : !hasSelectedTeams ? (
+          <div className="calendar-empty-selection">
+            <p>Select teams to see your schedule.</p>
+            <Link to="/teams" className="calendar-select-teams-btn">Choose teams</Link>
           </div>
         ) : Object.keys(groupedEvents).length === 0 ? (
           <div className="no-events-message">

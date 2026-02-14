@@ -246,6 +246,37 @@
   margin: 0 0 12px;
 }
 
+.calendar-empty-selection {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.calendar-empty-selection p {
+  margin: 0 0 14px;
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.calendar-select-teams-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 18px;
+  border-radius: 20px;
+  border: 1px solid var(--border-light);
+  background: var(--chip-bg);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.calendar-select-teams-btn:hover {
+  background: var(--chip-bg-hover);
+  border-color: var(--border-active);
+}
+
 .retry-btn {
   padding: 8px 20px;
   border: 1px solid var(--border-light);
