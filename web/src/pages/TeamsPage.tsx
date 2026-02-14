@@ -7,7 +7,16 @@ import type { Team } from '../types';
 import './TeamsPage.css';
 
 type SportFilter = 'all' | '1' | '2';
-type LeagueFilter = 'all' | 'Premier League' | 'Champions League' | 'La Liga' | 'Bundesliga' | 'Serie A' | 'Ligue 1';
+type LeagueFilter =
+  | 'all'
+  | 'Premier League'
+  | 'Champions League'
+  | 'Europa League'
+  | 'Europa Conference League'
+  | 'La Liga'
+  | 'Bundesliga'
+  | 'Serie A'
+  | 'Ligue 1';
 const F1_SELECTION_ID = 'f1';
 const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
 
@@ -31,6 +40,8 @@ export default function TeamsPage() {
 
   const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
   const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
+  const europaTeams = useLeagueTeams(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceTeams = useLeagueTeams(FOOTBALL_LEAGUES.conferenceLeague.id);
   const laLigaTeams = useLeagueTeams(FOOTBALL_LEAGUES.laLiga.id);
   const bundesligaTeams = useLeagueTeams(FOOTBALL_LEAGUES.bundesliga.id);
   const serieATeams = useLeagueTeams(FOOTBALL_LEAGUES.serieA.id);
@@ -38,6 +49,8 @@ export default function TeamsPage() {
 
   const plEvents = useLeagueEvents(FOOTBALL_LEAGUES.premierLeague.id);
   const uclEvents = useLeagueEvents(FOOTBALL_LEAGUES.championsLeague.id);
+  const europaEvents = useLeagueEvents(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceEvents = useLeagueEvents(FOOTBALL_LEAGUES.conferenceLeague.id);
   const laLigaEvents = useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
   const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
   const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
@@ -65,6 +78,16 @@ export default function TeamsPage() {
       toTeam(event.away_team_id, event.away_team_name, 'Champions League'),
     ])).filter((team): team is Team => Boolean(team));
 
+    const europa = (europaEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'Europa League'),
+      toTeam(event.away_team_id, event.away_team_name, 'Europa League'),
+    ])).filter((team): team is Team => Boolean(team));
+
+    const conference = (conferenceEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'Europa Conference League'),
+      toTeam(event.away_team_id, event.away_team_name, 'Europa Conference League'),
+    ])).filter((team): team is Team => Boolean(team));
+
     const laLiga = (laLigaEvents.data ?? []).flatMap((event) => ([
       toTeam(event.home_team_id, event.home_team_name, 'La Liga'),
       toTeam(event.away_team_id, event.away_team_name, 'La Liga'),
@@ -85,8 +108,8 @@ export default function TeamsPage() {
       toTeam(event.away_team_id, event.away_team_name, 'Ligue 1'),
     ])).filter((team): team is Team => Boolean(team));
 
-    return [...pl, ...ucl, ...laLiga, ...bundesliga, ...serieA, ...ligue1];
-  }, [plEvents.data, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
+    return [...pl, ...ucl, ...europa, ...conference, ...laLiga, ...bundesliga, ...serieA, ...ligue1];
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
 
   const f1Teams = useMemo<Team[]>(() => ([
     {
@@ -101,6 +124,8 @@ export default function TeamsPage() {
   const allTeams: Team[] = useMemo(() => {
     const apiPl = plTeams.data ?? [];
     const apiUcl = uclTeams.data ?? [];
+    const apiEuropa = europaTeams.data ?? [];
+    const apiConference = conferenceTeams.data ?? [];
     const apiLaLiga = laLigaTeams.data ?? [];
     const apiBundesliga = bundesligaTeams.data ?? [];
     const apiSerieA = serieATeams.data ?? [];
@@ -108,6 +133,8 @@ export default function TeamsPage() {
     return uniqueTeamsById([
       ...apiPl,
       ...apiUcl,
+      ...apiEuropa,
+      ...apiConference,
       ...apiLaLiga,
       ...apiBundesliga,
       ...apiSerieA,
@@ -118,6 +145,8 @@ export default function TeamsPage() {
   }, [
     plTeams.data,
     uclTeams.data,
+    europaTeams.data,
+    conferenceTeams.data,
     laLigaTeams.data,
     bundesligaTeams.data,
     serieATeams.data,
@@ -126,8 +155,8 @@ export default function TeamsPage() {
     f1Teams,
   ]);
 
-  const isLoading = plTeams.isLoading || uclTeams.isLoading || laLigaTeams.isLoading || bundesligaTeams.isLoading || serieATeams.isLoading || ligue1Teams.isLoading;
-  const hasError = plTeams.error && uclTeams.error && laLigaTeams.error && bundesligaTeams.error && serieATeams.error && ligue1Teams.error;
+  const isLoading = plTeams.isLoading || uclTeams.isLoading || europaTeams.isLoading || conferenceTeams.isLoading || laLigaTeams.isLoading || bundesligaTeams.isLoading || serieATeams.isLoading || ligue1Teams.isLoading;
+  const hasError = plTeams.error && uclTeams.error && europaTeams.error && conferenceTeams.error && laLigaTeams.error && bundesligaTeams.error && serieATeams.error && ligue1Teams.error;
 
   useEffect(() => {
     const saved = localStorage.getItem('selectedTeams');
@@ -232,48 +261,64 @@ export default function TeamsPage() {
         {/* League Filter Chips (Football only) */}
         {sportFilter === '1' && (
           <div className="teams-league-filters">
-            <button
-              className={`teams-filter-btn teams-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('all')}
-            >
-              {t('filters.allLeagues')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Premier League')}
-            >
-              {t('filters.premierLeague')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-ucl ${leagueFilter === 'Champions League' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Champions League')}
-            >
-              {t('filters.championsLeague')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-laliga ${leagueFilter === 'La Liga' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('La Liga')}
-            >
-              {t('filters.laLiga')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-bundesliga ${leagueFilter === 'Bundesliga' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Bundesliga')}
-            >
-              {t('filters.bundesliga')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-seriea ${leagueFilter === 'Serie A' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Serie A')}
-            >
-              {t('filters.serieA')}
-            </button>
-            <button
-              className={`teams-filter-btn teams-league-btn teams-league-ligue1 ${leagueFilter === 'Ligue 1' ? 'active' : ''}`}
-              onClick={() => setLeagueFilter('Ligue 1')}
-            >
-              {t('filters.ligue1')}
-            </button>
+            <div className="teams-league-row">
+              <button
+                className={`teams-filter-btn teams-league-btn ${leagueFilter === 'all' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('all')}
+              >
+                {t('filters.allLeagues')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-pl ${leagueFilter === 'Premier League' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Premier League')}
+              >
+                {t('filters.premierLeague')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-laliga ${leagueFilter === 'La Liga' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('La Liga')}
+              >
+                {t('filters.laLiga')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-bundesliga ${leagueFilter === 'Bundesliga' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Bundesliga')}
+              >
+                {t('filters.bundesliga')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-seriea ${leagueFilter === 'Serie A' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Serie A')}
+              >
+                {t('filters.serieA')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-ligue1 ${leagueFilter === 'Ligue 1' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Ligue 1')}
+              >
+                {t('filters.ligue1')}
+              </button>
+            </div>
+            <div className="teams-league-row">
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-ucl ${leagueFilter === 'Champions League' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Champions League')}
+              >
+                {t('filters.championsLeague')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-europa ${leagueFilter === 'Europa League' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Europa League')}
+              >
+                {t('filters.europaLeague')}
+              </button>
+              <button
+                className={`teams-filter-btn teams-league-btn teams-league-conference ${leagueFilter === 'Europa Conference League' ? 'active' : ''}`}
+                onClick={() => setLeagueFilter('Europa Conference League')}
+              >
+                {t('filters.europaConferenceLeague')}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -290,7 +335,7 @@ export default function TeamsPage() {
         ) : hasError ? (
           <div className="teams-loading">
             <p>Couldn't load teams</p>
-            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); }} className="retry-btn">Retry</button>
+            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); europaTeams.refetch(); conferenceTeams.refetch(); }} className="retry-btn">Retry</button>
           </div>
         ) : (
           <>

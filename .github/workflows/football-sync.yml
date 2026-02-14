@@ -3,8 +3,8 @@ name: Football Sync
 on:
   workflow_dispatch:
   schedule:
-    # Every 6 hours
-    - cron: '0 */6 * * *'
+    # Every 30 minutes
+    - cron: '*/30 * * * *'
 
 permissions:
   contents: read

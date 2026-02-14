@@ -98,12 +98,18 @@
   margin: 12px auto 0;
   padding: 0 20px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.scores-league-row {
+  display: flex;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.scores-league-filters::-webkit-scrollbar {
+.scores-league-row::-webkit-scrollbar {
   display: none;
 }
 
@@ -153,6 +159,13 @@
   border-color: #fdba74;
   color: #ffffff;
   box-shadow: 0 0 0 1px rgba(253, 186, 116, 0.24);
+}
+
+.scores-league-conference.active {
+  background: #15803d;
+  border-color: #86efac;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.26);
 }
 
 /* Content */
@@ -237,6 +250,16 @@
   border-color: #1e40af;
 }
 
+.standings-europa .ucl-phase-btn.active {
+  background: rgba(234, 88, 12, 0.2);
+  border-color: #ea580c;
+}
+
+.standings-conference .ucl-phase-btn.active {
+  background: rgba(21, 128, 61, 0.2);
+  border-color: #15803d;
+}
+
 .standings-league-name {
   font-size: 18px;
   font-weight: 700;
@@ -279,6 +302,24 @@
   gap: 8px;
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.standings-europa .ucl-tournament-card {
+  border-color: rgba(234, 88, 12, 0.35);
+  background: rgba(234, 88, 12, 0.1);
+}
+
+.standings-europa .ucl-tournament-round {
+  color: #fdba74;
+}
+
+.standings-conference .ucl-tournament-card {
+  border-color: rgba(21, 128, 61, 0.35);
+  background: rgba(21, 128, 61, 0.1);
+}
+
+.standings-conference .ucl-tournament-round {
+  color: #86efac;
 }
 
 /* Standings Table */
@@ -479,6 +520,22 @@ td.standings-col-team {
 
 .standings-europa .standings-table tbody tr.standings-row-alt {
   background: rgba(234, 88, 12, 0.05);
+}
+
+.standings-conference .standings-table {
+  border-left: 3px solid #15803d;
+}
+
+.standings-conference .standings-league-name {
+  color: #86efac;
+}
+
+.standings-conference .standings-table thead tr {
+  background: rgba(21, 128, 61, 0.15);
+}
+
+.standings-conference .standings-table tbody tr.standings-row-alt {
+  background: rgba(21, 128, 61, 0.05);
 }
 
 /* Sport-specific colors — F1 (red) */

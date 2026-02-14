@@ -15,6 +15,7 @@ const LEAGUES = [
     displayName: 'Premier League',
     format: 'league',
     rounds: Array.from({ length: 38 }, (_, i) => i + 1),
+    standingRounds: Array.from({ length: 38 }, (_, i) => i + 1),
   },
   {
     id: '4480',
@@ -22,6 +23,23 @@ const LEAGUES = [
     displayName: 'Champions League',
     format: 'cup',
     rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    standingRounds: Array.from({ length: 8 }, (_, i) => i + 1),
+  },
+  {
+    id: '4481',
+    searchName: 'UEFA Europa League',
+    displayName: 'Europa League',
+    format: 'cup',
+    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    standingRounds: Array.from({ length: 8 }, (_, i) => i + 1),
+  },
+  {
+    id: '5071',
+    searchName: 'UEFA Europa Conference League',
+    displayName: 'Europa Conference League',
+    format: 'cup',
+    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    standingRounds: Array.from({ length: 6 }, (_, i) => i + 1),
   },
   {
     id: '4335',
@@ -29,6 +47,7 @@ const LEAGUES = [
     displayName: 'La Liga',
     format: 'league',
     rounds: Array.from({ length: 38 }, (_, i) => i + 1),
+    standingRounds: Array.from({ length: 38 }, (_, i) => i + 1),
   },
   {
     id: '4331',
@@ -36,6 +55,7 @@ const LEAGUES = [
     displayName: 'Bundesliga',
     format: 'league',
     rounds: Array.from({ length: 34 }, (_, i) => i + 1),
+    standingRounds: Array.from({ length: 34 }, (_, i) => i + 1),
   },
   {
     id: '4332',
@@ -43,6 +63,7 @@ const LEAGUES = [
     displayName: 'Serie A',
     format: 'league',
     rounds: Array.from({ length: 38 }, (_, i) => i + 1),
+    standingRounds: Array.from({ length: 38 }, (_, i) => i + 1),
   },
   {
     id: '4334',
@@ -50,6 +71,7 @@ const LEAGUES = [
     displayName: 'Ligue 1',
     format: 'league',
     rounds: Array.from({ length: 34 }, (_, i) => i + 1),
+    standingRounds: Array.from({ length: 34 }, (_, i) => i + 1),
   },
 ];
 
@@ -113,11 +135,13 @@ function toUtcIsoString(dateEvent, timeEvent) {
   return asDate.toISOString();
 }
 
-function computeStandings(events, competitionByLeague, participantByExternalId) {
+function computeStandings(events, competitionByLeague, participantByExternalId, standingRoundsByLeague) {
   const byCompetition = new Map();
 
   for (const event of events) {
     if (event.home_score == null || event.away_score == null) continue;
+    const standingRounds = standingRoundsByLeague.get(event.league_id);
+    if (standingRounds && !standingRounds.has(event.round)) continue;
 
     const competitionId = competitionByLeague.get(event.league_id);
     if (!competitionId) continue;
@@ -311,6 +335,9 @@ async function main() {
   if (competitionsReadError) throw competitionsReadError;
 
   const competitionByLeague = new Map((competitions ?? []).map((competition) => [competition.external_id, competition.id]));
+  const standingRoundsByLeague = new Map(
+    LEAGUES.map((league) => [league.id, new Set(league.standingRounds)]),
+  );
 
   const allTeams = [];
   const allEvents = [];
@@ -467,7 +494,7 @@ async function main() {
     if (eventParticipantsError) throw eventParticipantsError;
   }
 
-  const standings = computeStandings(allEvents, competitionByLeague, participantByExternalId);
+  const standings = computeStandings(allEvents, competitionByLeague, participantByExternalId, standingRoundsByLeague);
   if (standings.length > 0) {
     const { error: standingsError } = await supabase
       .from('standings')

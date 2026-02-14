@@ -21,9 +21,10 @@ function uniqueTeamsById(teams: Team[]): Team[] {
   return Array.from(byId.values());
 }
 
-function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'la-liga' | 'bundesliga' | 'serie-a' | 'ligue-1' | 'europa-league' | 'formula-one' {
+function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-league' | 'la-liga' | 'bundesliga' | 'serie-a' | 'ligue-1' | 'europa-league' | 'conference-league' | 'formula-one' {
   if (event.sport_id === '2') return 'formula-one';
   const competition = event.competition.toLowerCase();
+  if (competition.includes('conference')) return 'conference-league';
   if (competition.includes('champions')) return 'champions-league';
   if (competition.includes('europa')) return 'europa-league';
   if (competition.includes('la liga')) return 'la-liga';
@@ -54,20 +55,24 @@ export default function CalendarPage() {
   // Fetch live football events
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
+  const europaEvents = useLeagueEvents(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceEvents = useLeagueEvents(FOOTBALL_LEAGUES.conferenceLeague.id);
   const laLigaEvents = useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
   const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
   const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
   const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
   const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
+  const europaTeams = useLeagueTeams(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceTeams = useLeagueTeams(FOOTBALL_LEAGUES.conferenceLeague.id);
   const laLigaTeams = useLeagueTeams(FOOTBALL_LEAGUES.laLiga.id);
   const bundesligaTeams = useLeagueTeams(FOOTBALL_LEAGUES.bundesliga.id);
   const serieATeams = useLeagueTeams(FOOTBALL_LEAGUES.serieA.id);
   const ligue1Teams = useLeagueTeams(FOOTBALL_LEAGUES.ligue1.id);
   const f1EventsQuery = useF1Events();
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
-  const hasError = plEvents.error && uclEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
+  const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error;
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
   const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
@@ -79,6 +84,8 @@ export default function CalendarPage() {
     const footballEvents = [
       ...(plEvents.data ?? []),
       ...(uclEvents.data ?? []),
+      ...(europaEvents.data ?? []),
+      ...(conferenceEvents.data ?? []),
       ...(laLigaEvents.data ?? []),
       ...(bundesligaEvents.data ?? []),
       ...(serieAEvents.data ?? []),
@@ -86,7 +93,7 @@ export default function CalendarPage() {
     ];
 
     return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
 
   const allTeams = useMemo<Team[]>(() => {
     const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
@@ -109,6 +116,14 @@ export default function CalendarPage() {
         toTeam(event.home_team_id, event.home_team_name, 'Champions League'),
         toTeam(event.away_team_id, event.away_team_name, 'Champions League'),
       ])),
+      ...(europaEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Europa League'),
+        toTeam(event.away_team_id, event.away_team_name, 'Europa League'),
+      ])),
+      ...(conferenceEvents.data ?? []).flatMap((event) => ([
+        toTeam(event.home_team_id, event.home_team_name, 'Europa Conference League'),
+        toTeam(event.away_team_id, event.away_team_name, 'Europa Conference League'),
+      ])),
       ...(laLigaEvents.data ?? []).flatMap((event) => ([
         toTeam(event.home_team_id, event.home_team_name, 'La Liga'),
         toTeam(event.away_team_id, event.away_team_name, 'La Liga'),
@@ -130,6 +145,8 @@ export default function CalendarPage() {
     const footballTeams = [
       ...(plTeams.data ?? []),
       ...(uclTeams.data ?? []),
+      ...(europaTeams.data ?? []),
+      ...(conferenceTeams.data ?? []),
       ...(laLigaTeams.data ?? []),
       ...(bundesligaTeams.data ?? []),
       ...(serieATeams.data ?? []),
@@ -147,12 +164,16 @@ export default function CalendarPage() {
   }, [
     plTeams.data,
     uclTeams.data,
+    europaTeams.data,
+    conferenceTeams.data,
     laLigaTeams.data,
     bundesligaTeams.data,
     serieATeams.data,
     ligue1Teams.data,
     plEvents.data,
     uclEvents.data,
+    europaEvents.data,
+    conferenceEvents.data,
     laLigaEvents.data,
     bundesligaEvents.data,
     serieAEvents.data,
@@ -278,7 +299,7 @@ export default function CalendarPage() {
         ) : hasError ? (
           <div className="calendar-error">
             <p>Couldn't load football events</p>
-            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); }} className="retry-btn">Retry</button>
+            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); }} className="retry-btn">Retry</button>
           </div>
         ) : !hasSelectedTeams ? (
           <div className="calendar-empty-selection">

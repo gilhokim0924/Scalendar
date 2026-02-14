@@ -150,6 +150,10 @@
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
 }
 
+.upcoming-card.conference {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+}
+
 .upcoming-card.f1 {
   background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
 }
@@ -243,6 +247,10 @@
 
 .competition-card.europa {
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+.competition-card.conference {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
 }
 
 .competition-card.f1 {

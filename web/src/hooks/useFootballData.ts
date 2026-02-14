@@ -5,6 +5,8 @@ import type { SportsEvent, Team } from '../types';
 export const FOOTBALL_LEAGUES = {
   premierLeague: { id: '4328', name: 'Premier League' },
   championsLeague: { id: '4480', name: 'Champions League' },
+  europaLeague: { id: '4481', name: 'Europa League' },
+  conferenceLeague: { id: '5071', name: 'Europa Conference League' },
   laLiga: { id: '4335', name: 'La Liga' },
   bundesliga: { id: '4331', name: 'Bundesliga' },
   serieA: { id: '4332', name: 'Serie A' },
@@ -80,6 +82,14 @@ export function useLaLigaEvents() {
   return useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
 }
 
+export function useEuropaEvents() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.europaLeague.id);
+}
+
+export function useConferenceEvents() {
+  return useLeagueEvents(FOOTBALL_LEAGUES.conferenceLeague.id);
+}
+
 export function useBundesligaEvents() {
   return useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
 }
@@ -127,6 +137,14 @@ export function useUCLStandings() {
 
 export function useLaLigaStandings() {
   return useComputedStandings(FOOTBALL_LEAGUES.laLiga.id);
+}
+
+export function useEuropaStandings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.europaLeague.id);
+}
+
+export function useConferenceStandings() {
+  return useComputedStandings(FOOTBALL_LEAGUES.conferenceLeague.id);
 }
 
 export function useBundesligaStandings() {

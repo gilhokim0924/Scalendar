@@ -415,6 +415,11 @@
   box-shadow: 0 4px 16px rgba(234, 88, 12, 0.34);
 }
 
+.event-card.conference-league {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  box-shadow: 0 4px 16px rgba(21, 128, 61, 0.34);
+}
+
 .event-card.champions-league {
   background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
   box-shadow: 0 4px 16px rgba(30, 64, 175, 0.34);
@@ -442,6 +447,10 @@
 
 .event-card.europa-league:hover {
   box-shadow: 0 8px 24px rgba(234, 88, 12, 0.46);
+}
+
+.event-card.conference-league:hover {
+  box-shadow: 0 8px 24px rgba(21, 128, 61, 0.46);
 }
 
 .event-card.champions-league:hover {
@@ -484,6 +493,11 @@
   box-shadow: 0 4px 16px rgba(122, 63, 20, 0.35);
 }
 
+.event-card.past-event.conference-league {
+  background: linear-gradient(135deg, #1d5e38 0%, #174a2d 100%);
+  box-shadow: 0 4px 16px rgba(29, 94, 56, 0.35);
+}
+
 .event-card.past-event.premier-league:hover {
   box-shadow: 0 8px 24px rgba(74, 51, 102, 0.4);
 }
@@ -496,7 +510,8 @@
 .event-card.past-event.bundesliga:hover,
 .event-card.past-event.serie-a:hover,
 .event-card.past-event.ligue-1:hover,
-.event-card.past-event.europa-league:hover {
+.event-card.past-event.europa-league:hover,
+.event-card.past-event.conference-league:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.38);
 }
 
@@ -744,6 +759,10 @@
 
 .modal-sport-badge.europa-league {
   background: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+}
+
+.modal-sport-badge.conference-league {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
 }
 
 .modal-sport-badge.formula-one {

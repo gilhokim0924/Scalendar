@@ -141,12 +141,18 @@
   margin: 12px auto 0;
   padding: 0 20px;
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.teams-league-row {
+  display: flex;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
-.teams-league-filters::-webkit-scrollbar {
+.teams-league-row::-webkit-scrollbar {
   display: none;
 }
 
@@ -196,6 +202,13 @@
   border-color: #fdba74;
   color: #ffffff;
   box-shadow: 0 0 0 1px rgba(253, 186, 116, 0.24);
+}
+
+.teams-league-conference.active {
+  background: #15803d;
+  border-color: #86efac;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.26);
 }
 
 /* Team List */

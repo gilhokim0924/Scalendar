@@ -8,8 +8,9 @@ import './DiscoverPage.css';
 
 type SportFilter = 'all' | '1' | '2';
 
-function getFootballAccent(competition: string): 'pl' | 'ucl' | 'laliga' | 'bundesliga' | 'seriea' | 'ligue1' | 'europa' {
+function getFootballAccent(competition: string): 'pl' | 'ucl' | 'laliga' | 'bundesliga' | 'seriea' | 'ligue1' | 'europa' | 'conference' {
   const c = competition.toLowerCase();
+  if (c.includes('conference')) return 'conference';
   if (c.includes('champions')) return 'ucl';
   if (c.includes('la liga')) return 'laliga';
   if (c.includes('bundesliga')) return 'bundesliga';
@@ -26,6 +27,8 @@ export default function DiscoverPage() {
 
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
+  const europaEvents = useLeagueEvents(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceEvents = useLeagueEvents(FOOTBALL_LEAGUES.conferenceLeague.id);
   const laLigaEvents = useLeagueEvents(FOOTBALL_LEAGUES.laLiga.id);
   const bundesligaEvents = useLeagueEvents(FOOTBALL_LEAGUES.bundesliga.id);
   const serieAEvents = useLeagueEvents(FOOTBALL_LEAGUES.serieA.id);
@@ -41,15 +44,17 @@ export default function DiscoverPage() {
     const footballEvents = [
       ...(plEvents.data ?? []),
       ...(uclEvents.data ?? []),
+      ...(europaEvents.data ?? []),
+      ...(conferenceEvents.data ?? []),
       ...(laLigaEvents.data ?? []),
       ...(bundesligaEvents.data ?? []),
       ...(serieAEvents.data ?? []),
       ...(ligue1Events.data ?? []),
     ];
     return [...footballEvents, ...f1Events];
-  }, [plEvents.data, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, f1Events]);
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || f1EventsQuery.isLoading;
 
   const upcomingEvents = [...allEvents]
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
@@ -73,6 +78,20 @@ export default function DiscoverPage() {
       sportId: '1',
       accent: 'ucl',
       eventCount: (uclEvents.data ?? []).length,
+    },
+    {
+      name: 'Europa League',
+      icon: '\uD83C\uDFC6',
+      sportId: '1',
+      accent: 'europa',
+      eventCount: (europaEvents.data ?? []).length,
+    },
+    {
+      name: 'Europa Conference League',
+      icon: '\uD83C\uDFC6',
+      sportId: '1',
+      accent: 'conference',
+      eventCount: (conferenceEvents.data ?? []).length,
     },
     {
       name: 'La Liga',
@@ -114,7 +133,7 @@ export default function DiscoverPage() {
   const featuredCompetitions = useMemo(() => {
     const shuffled = [...competitions].sort(() => Math.random() - 0.5);
     return shuffled.slice(0, 2);
-  }, [footballEventCount, f1EventCount, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
+  }, [footballEventCount, f1EventCount, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
 
   const recentlyUpdated = mockSports.map(sport => ({
     ...sport,
