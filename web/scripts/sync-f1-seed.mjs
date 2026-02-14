@@ -3,24 +3,9 @@ import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
 const SPORT_KEY = 'f1';
-const SEASON = '2026';
 const COMPETITION_EXTERNAL_ID = 'f1-wdc';
 const COMPETITION_NAME = 'Formula 1 World Championship';
-
-const DRIVER_STANDINGS = [
-  { external_id: 'max_verstappen', name: 'M. Verstappen', team: 'Red Bull', points: 51, rank: 1 },
-  { external_id: 'charles_leclerc', name: 'C. Leclerc', team: 'Ferrari', points: 42, rank: 2 },
-  { external_id: 'lando_norris', name: 'L. Norris', team: 'McLaren', points: 38, rank: 3 },
-  { external_id: 'lewis_hamilton', name: 'L. Hamilton', team: 'Mercedes', points: 30, rank: 4 },
-  { external_id: 'fernando_alonso', name: 'F. Alonso', team: 'Aston Martin', points: 22, rank: 5 },
-];
-
-const F1_RACES = [
-  { external_id: 'f1_past_001', title: 'Japanese Grand Prix', starts_at_utc: '2026-01-26T06:00:00Z', venue: 'Suzuka International Racing Course', round: '1' },
-  { external_id: 'f1_001', title: 'Bahrain Grand Prix', starts_at_utc: '2026-02-28T15:00:00Z', venue: 'Bahrain International Circuit', round: '2' },
-  { external_id: 'f1_002', title: 'Saudi Arabian Grand Prix', starts_at_utc: '2026-03-07T18:00:00Z', venue: 'Jeddah Corniche Circuit', round: '3' },
-  { external_id: 'f1_003', title: 'Australian Grand Prix', starts_at_utc: '2026-03-21T06:00:00Z', venue: 'Albert Park Circuit', round: '4' },
-];
+const JOLPICA_BASE_URL = 'https://api.jolpi.ca/ergast/f1';
 
 function parseEnvFile(content) {
   const env = {};
@@ -46,14 +31,84 @@ function loadEnvFromWebDir() {
   }
 }
 
+function getCurrentF1Season(now = new Date()) {
+  return String(now.getUTCFullYear());
+}
+
+async function fetchJolpica(pathWithQuery) {
+  const response = await fetch(`${JOLPICA_BASE_URL}${pathWithQuery}`);
+  if (!response.ok) {
+    throw new Error(`Jolpica request failed (${response.status}): ${pathWithQuery}`);
+  }
+  return response.json();
+}
+
+function raceToIsoDateTime(race) {
+  const date = race.date;
+  const time = race.time ?? '00:00:00Z';
+  if (!date) return null;
+  const asDate = new Date(`${date}T${time}`);
+  if (Number.isNaN(asDate.getTime())) return null;
+  return asDate.toISOString();
+}
+
+function sessionToIsoDateTime(session) {
+  const date = session?.date;
+  const time = session?.time ?? '00:00:00Z';
+  if (!date) return null;
+  const asDate = new Date(`${date}T${time}`);
+  if (Number.isNaN(asDate.getTime())) return null;
+  return asDate.toISOString();
+}
+
+function buildF1Sessions(race) {
+  const sessions = [
+    { key: 'FirstPractice', stage: 'practice-1', title: `${race.raceName} - Practice 1` },
+    { key: 'SecondPractice', stage: 'practice-2', title: `${race.raceName} - Practice 2` },
+    { key: 'ThirdPractice', stage: 'practice-3', title: `${race.raceName} - Practice 3` },
+    { key: 'SprintQualifying', stage: 'sprint-qualifying', title: `${race.raceName} - Sprint Qualifying` },
+    { key: 'Sprint', stage: 'sprint', title: `${race.raceName} - Sprint` },
+    { key: 'Qualifying', stage: 'qualifying', title: `${race.raceName} - Qualifying` },
+    { key: 'Race', stage: 'race', title: race.raceName },
+  ];
+
+  const sessionRows = [];
+  for (const session of sessions) {
+    const raw = session.key === 'Race' ? { date: race.date, time: race.time } : race[session.key];
+    const startsAtUtc = sessionToIsoDateTime(raw);
+    if (!startsAtUtc) continue;
+
+    sessionRows.push({
+      sessionType: session.key,
+      stage: session.stage,
+      title: session.title,
+      startsAtUtc,
+    });
+  }
+
+  return sessionRows;
+}
+
 async function main() {
   const env = loadEnvFromWebDir();
   const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
   const serviceRoleKey = env.SUPABASE_SERVICE_ROLE_KEY;
+  const season = env.F1_SEASON || getCurrentF1Season();
 
   if (!supabaseUrl || !serviceRoleKey) {
     throw new Error('Missing SUPABASE_URL (or VITE_SUPABASE_URL) and/or SUPABASE_SERVICE_ROLE_KEY in web/.env');
   }
+
+  const [driversPayload, racesPayload, standingsPayload] = await Promise.all([
+    fetchJolpica(`/${season}/drivers.json`),
+    fetchJolpica(`/${season}/races.json`),
+    fetchJolpica(`/${season}/driverStandings.json`),
+  ]);
+
+  const drivers = driversPayload?.MRData?.DriverTable?.Drivers ?? [];
+  const races = racesPayload?.MRData?.RaceTable?.Races ?? [];
+  const standingsList = standingsPayload?.MRData?.StandingsTable?.StandingsLists?.[0];
+  const driverStandings = standingsList?.DriverStandings ?? [];
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -92,63 +147,110 @@ async function main() {
 
   const competitionId = competitionRow.id;
 
-  const participants = DRIVER_STANDINGS.map((driver) => ({
-    sport_id: sportId,
-    external_id: driver.external_id,
-    name: driver.name,
-    participant_type: 'driver',
-    short_name: driver.name,
-    country: null,
-  }));
+  const participants = drivers
+    .map((driver) => {
+      const given = driver.givenName ?? '';
+      const family = driver.familyName ?? '';
+      const fullName = `${given} ${family}`.trim();
+      return {
+        sport_id: sportId,
+        external_id: driver.driverId ?? null,
+        name: fullName || driver.driverId || 'Unknown Driver',
+        participant_type: 'driver',
+        short_name: driver.code ?? null,
+        country: driver.nationality ?? null,
+      };
+    })
+    .filter((driver) => Boolean(driver.external_id));
 
-  const { error: participantsError } = await supabase
-    .from('participants')
-    .upsert(participants, { onConflict: 'sport_id,external_id' });
-  if (participantsError) throw participantsError;
+  if (participants.length > 0) {
+    const { error: participantsError } = await supabase
+      .from('participants')
+      .upsert(participants, { onConflict: 'sport_id,external_id' });
+    if (participantsError) throw participantsError;
+  }
 
+  const participantExternalIds = participants.map((driver) => driver.external_id).filter(Boolean);
   const { data: participantRows, error: participantReadError } = await supabase
     .from('participants')
     .select('id, external_id')
     .eq('sport_id', sportId)
-    .in('external_id', DRIVER_STANDINGS.map((d) => d.external_id));
+    .in('external_id', participantExternalIds);
   if (participantReadError) throw participantReadError;
 
   const participantIdByExternal = new Map(
     (participantRows ?? []).map((row) => [row.external_id, row.id]),
   );
 
-  const events = F1_RACES.map((race) => ({
-    sport_id: sportId,
-    competition_id: competitionId,
-    external_id: race.external_id,
-    season: SEASON,
-    round: race.round,
-    stage: null,
-    starts_at_utc: race.starts_at_utc,
-    venue: race.venue,
-    status: 'scheduled',
-    metadata: { title: race.title },
-  }));
+  const now = Date.now();
+  const events = races.flatMap((race) => {
+    const sessions = buildF1Sessions(race);
+    return sessions.map((session) => ({
+      sport_id: sportId,
+      competition_id: competitionId,
+      external_id: `${season}-round-${race.round}-${session.sessionType.toLowerCase()}`,
+      season,
+      round: String(race.round ?? ''),
+      stage: session.stage,
+      starts_at_utc: session.startsAtUtc,
+      venue: race?.Circuit?.circuitName ?? race?.Circuit?.Location?.locality ?? null,
+      status: new Date(session.startsAtUtc).getTime() < now ? 'finished' : 'scheduled',
+      metadata: {
+        title: session.title,
+        session_type: session.sessionType,
+        country: race?.Circuit?.Location?.country ?? null,
+        locality: race?.Circuit?.Location?.locality ?? null,
+      },
+    }));
+  });
 
-  const { error: eventsError } = await supabase
+  const { error: deleteEventsError } = await supabase
     .from('events')
-    .upsert(events, { onConflict: 'competition_id,external_id' });
-  if (eventsError) throw eventsError;
+    .delete()
+    .eq('competition_id', competitionId)
+    .eq('season', season);
+  if (deleteEventsError) throw deleteEventsError;
 
-  const standings = DRIVER_STANDINGS
-    .map((driver) => {
-      const participantId = participantIdByExternal.get(driver.external_id);
+  if (events.length > 0) {
+    const { error: eventsError } = await supabase
+      .from('events')
+      .upsert(events, { onConflict: 'competition_id,external_id' });
+    if (eventsError) throw eventsError;
+  }
+
+  const standings = driverStandings
+    .map((standing) => {
+      const driverId = standing?.Driver?.driverId;
+      if (!driverId) return null;
+      const participantId = participantIdByExternal.get(driverId);
       if (!participantId) return null;
+
       return {
         competition_id: competitionId,
-        season: SEASON,
+        season,
         participant_id: participantId,
-        rank: driver.rank,
-        points: driver.points,
-        metadata: { team: driver.team },
+        rank: Number.parseInt(standing.position ?? '0', 10) || 0,
+        points: Number.parseFloat(standing.points ?? '0') || 0,
+        played: Number.parseInt(standingsList?.round ?? '0', 10) || null,
+        wins: Number.parseInt(standing.wins ?? '0', 10) || 0,
+        draws: null,
+        losses: null,
+        scored: null,
+        conceded: null,
+        diff: null,
+        metadata: {
+          team: standing?.Constructors?.[0]?.name ?? null,
+        },
       };
     })
     .filter(Boolean);
+
+  const { error: deleteStandingsError } = await supabase
+    .from('standings')
+    .delete()
+    .eq('competition_id', competitionId)
+    .eq('season', season);
+  if (deleteStandingsError) throw deleteStandingsError;
 
   if (standings.length > 0) {
     const { error: standingsError } = await supabase
@@ -157,10 +259,10 @@ async function main() {
     if (standingsError) throw standingsError;
   }
 
-  console.log(`F1 seed sync complete: ${participants.length} drivers, ${events.length} races, ${standings.length} standings rows`);
+  console.log(`F1 sync complete (${season}): ${participants.length} drivers, ${events.length} races, ${standings.length} standings rows`);
 }
 
 main().catch((error) => {
-  console.error('F1 seed sync failed:', error);
+  console.error('F1 sync failed:', error);
   process.exitCode = 1;
 });

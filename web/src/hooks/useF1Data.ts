@@ -8,7 +8,12 @@ import {
 } from '../services/supabaseMultiSport';
 
 const F1_COMPETITION_EXTERNAL_ID = 'f1-wdc';
-const DEFAULT_SEASON = '2026';
+
+function getCurrentF1Season(now = new Date()) {
+  return String(now.getUTCFullYear());
+}
+
+const DEFAULT_SEASON = getCurrentF1Season();
 
 export interface F1Standing {
   rank: number;
