@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { mockEvents, mockTeams, getTeamInitials } from '../utils/mockData';
-import { usePLEvents, useUCLEvents } from '../hooks/useFootballData';
+import { useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
-import type { SportsEvent } from '../types';
+import type { SportsEvent, Team } from '../types';
 import { Link } from 'react-router-dom';
 import './CalendarPage.css';
 
@@ -20,6 +20,8 @@ export default function CalendarPage() {
   // Fetch live football events
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
+  const plTeams = useLeagueTeams('4328');
+  const uclTeams = useLeagueTeams('4480');
   const f1EventsQuery = useF1Events();
 
   const isLoading = plEvents.isLoading || uclEvents.isLoading || f1EventsQuery.isLoading;
@@ -40,12 +42,11 @@ export default function CalendarPage() {
     return [...footballEvents, ...f1Events];
   }, [plEvents.data, uclEvents.data, f1Events]);
 
-  // Build a lookup for API teams by ID (for team chip display)
-  const allTeams = useMemo(() => {
-    // For API events, we have team names embedded in events
-    // For F1/fallback, we use mockTeams
-    return mockTeams;
-  }, []);
+  const allTeams = useMemo<Team[]>(() => {
+    const footballTeams = [...(plTeams.data ?? []), ...(uclTeams.data ?? [])];
+    const f1Teams = mockTeams.filter((team) => team.sport_id === '2');
+    return [...footballTeams, ...f1Teams];
+  }, [plTeams.data, uclTeams.data]);
 
   // Get selected team objects for avatar chips
   const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
