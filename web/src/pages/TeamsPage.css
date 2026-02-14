@@ -347,6 +347,7 @@
 .teams-selected-avatars {
   display: flex;
   align-items: center;
+  gap: 6px;
 }
 
 .teams-selected-actions {
@@ -366,7 +367,6 @@
   font-weight: 700;
   color: var(--text-stat);
   letter-spacing: -0.3px;
-  margin-right: -6px;
   border: 2px solid var(--avatar-border);
 }
 
