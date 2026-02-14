@@ -176,17 +176,17 @@
 }
 
 .scores-league-mlb.active {
-  background: #1d4ed8;
-  border-color: #93c5fd;
+  background: #0f4c81;
+  border-color: #7dd3fc;
   color: #ffffff;
-  box-shadow: 0 0 0 1px rgba(147, 197, 253, 0.24);
+  box-shadow: 0 0 0 1px rgba(125, 211, 252, 0.24);
 }
 
 .scores-league-kbo.active {
-  background: #b91c1c;
-  border-color: #fca5a5;
+  background: #db2777;
+  border-color: #f9a8d4;
   color: #ffffff;
-  box-shadow: 0 0 0 1px rgba(252, 165, 165, 0.24);
+  box-shadow: 0 0 0 1px rgba(249, 168, 212, 0.24);
 }
 
 /* Content */
@@ -577,35 +577,35 @@ td.standings-col-team {
 }
 
 .standings-mlb .standings-table {
-  border-left: 3px solid #1d4ed8;
+  border-left: 3px solid #0f4c81;
 }
 
 .standings-mlb .standings-league-name {
-  color: #93c5fd;
+  color: #7dd3fc;
 }
 
 .standings-mlb .standings-table thead tr {
-  background: rgba(30, 64, 175, 0.15);
+  background: rgba(15, 76, 129, 0.15);
 }
 
 .standings-mlb .standings-table tbody tr.standings-row-alt {
-  background: rgba(30, 64, 175, 0.05);
+  background: rgba(15, 76, 129, 0.05);
 }
 
 .standings-kbo .standings-table {
-  border-left: 3px solid #b91c1c;
+  border-left: 3px solid #db2777;
 }
 
 .standings-kbo .standings-league-name {
-  color: #fca5a5;
+  color: #f9a8d4;
 }
 
 .standings-kbo .standings-table thead tr {
-  background: rgba(185, 28, 28, 0.15);
+  background: rgba(219, 39, 119, 0.15);
 }
 
 .standings-kbo .standings-table tbody tr.standings-row-alt {
-  background: rgba(185, 28, 28, 0.05);
+  background: rgba(219, 39, 119, 0.05);
 }
 
 /* Sport-specific colors — Champions League (blue) */

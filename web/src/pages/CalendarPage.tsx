@@ -40,6 +40,21 @@ function getEventThemeClass(event: SportsEvent): 'premier-league' | 'champions-l
   return 'premier-league';
 }
 
+function getTeamThemeClass(team: Team): string {
+  if (team.sport_id === '2') return 'theme-f1';
+  const league = (team.league ?? '').toLowerCase();
+  if (league.includes('champions')) return 'theme-ucl';
+  if (league.includes('conference')) return 'theme-conference';
+  if (league.includes('europa')) return 'theme-europa';
+  if (league.includes('la liga')) return 'theme-laliga';
+  if (league.includes('bundesliga')) return 'theme-bundesliga';
+  if (league.includes('serie a')) return 'theme-seriea';
+  if (league.includes('ligue 1')) return 'theme-ligue1';
+  if (league.includes('mlb')) return 'theme-mlb';
+  if (league.includes('kbo')) return 'theme-kbo';
+  return 'theme-pl';
+}
+
 export default function CalendarPage() {
   const { t } = useTranslation();
   const location = useLocation();
@@ -303,7 +318,7 @@ export default function CalendarPage() {
         <div className="team-chips-row">
           {selectedTeamObjects.length > 0
             ? selectedTeamObjects.map(team => (
-                <div key={team.id} className="team-chip" title={team.name}>
+                <div key={team.id} className={`team-chip ${getTeamThemeClass(team)}`} title={team.name}>
                   <span className="team-chip-initials">{getTeamInitials(team.name)}</span>
                 </div>
               ))

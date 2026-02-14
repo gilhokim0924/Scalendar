@@ -32,6 +32,21 @@ function uniqueTeamsById(teams: Team[]): Team[] {
   return Array.from(byId.values());
 }
 
+function getTeamThemeClass(team: Team): string {
+  if (team.sport_id === '2') return 'theme-f1';
+  const league = (team.league ?? '').toLowerCase();
+  if (league.includes('champions')) return 'theme-ucl';
+  if (league.includes('conference')) return 'theme-conference';
+  if (league.includes('europa')) return 'theme-europa';
+  if (league.includes('la liga')) return 'theme-laliga';
+  if (league.includes('bundesliga')) return 'theme-bundesliga';
+  if (league.includes('serie a')) return 'theme-seriea';
+  if (league.includes('ligue 1')) return 'theme-ligue1';
+  if (league.includes('mlb')) return 'theme-mlb';
+  if (league.includes('kbo')) return 'theme-kbo';
+  return 'theme-pl';
+}
+
 export default function TeamsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -294,18 +309,18 @@ export default function TeamsPage() {
             {t('filters.football')}
           </button>
           <button
-            className={`teams-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
-            onClick={() => handleSportFilter('2')}
-          >
-            <span className="filter-icon">🏎️</span>
-            {t('filters.motorsport')}
-          </button>
-          <button
             className={`teams-filter-btn ${sportFilter === '3' ? 'active' : ''}`}
             onClick={() => handleSportFilter('3')}
           >
             <span className="filter-icon">⚾</span>
             {t('filters.baseball')}
+          </button>
+          <button
+            className={`teams-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
+            onClick={() => handleSportFilter('2')}
+          >
+            <span className="filter-icon">🏎️</span>
+            {t('filters.motorsport')}
           </button>
         </div>
 
@@ -445,7 +460,7 @@ export default function TeamsPage() {
         <div className="teams-selected-bar-inner">
           <div className="teams-selected-avatars">
             {selectedTeamObjects.slice(0, 6).map(team => (
-              <div key={team.id} className="teams-selected-avatar">{getTeamInitials(team.name)}</div>
+              <div key={team.id} className={`teams-selected-avatar ${getTeamThemeClass(team)}`}>{getTeamInitials(team.name)}</div>
             ))}
             {selectedTeamObjects.length > 6 && (
               <div className="teams-selected-more">+{selectedTeamObjects.length - 6}</div>

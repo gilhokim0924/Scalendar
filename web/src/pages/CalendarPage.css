@@ -71,6 +71,18 @@
   flex-shrink: 0;
 }
 
+.team-chip.theme-pl { border-color: #a78bfa; }
+.team-chip.theme-ucl { border-color: #60a5fa; }
+.team-chip.theme-laliga { border-color: #fb7185; }
+.team-chip.theme-bundesliga { border-color: #f59e0b; }
+.team-chip.theme-seriea { border-color: #2dd4bf; }
+.team-chip.theme-ligue1 { border-color: #67e8f9; }
+.team-chip.theme-europa { border-color: #fdba74; }
+.team-chip.theme-conference { border-color: #86efac; }
+.team-chip.theme-f1 { border-color: #fca5a5; }
+.team-chip.theme-mlb { border-color: #7dd3fc; }
+.team-chip.theme-kbo { border-color: #f9a8d4; }
+
 .team-chip-initials {
   font-size: 11px;
   font-weight: 700;
@@ -391,13 +403,13 @@
 }
 
 .event-card.mlb {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
-  box-shadow: 0 4px 16px rgba(30, 64, 175, 0.34);
+  background: linear-gradient(135deg, #0f4c81 0%, #0b3458 100%);
+  box-shadow: 0 4px 16px rgba(15, 76, 129, 0.34);
 }
 
 .event-card.kbo {
-  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
-  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.34);
+  background: linear-gradient(135deg, #db2777 0%, #9d174d 100%);
+  box-shadow: 0 4px 16px rgba(219, 39, 119, 0.34);
 }
 
 .event-card.la-liga {
@@ -440,11 +452,11 @@
 }
 
 .event-card.mlb:hover {
-  box-shadow: 0 8px 24px rgba(30, 64, 175, 0.45);
+  box-shadow: 0 8px 24px rgba(15, 76, 129, 0.45);
 }
 
 .event-card.kbo:hover {
-  box-shadow: 0 8px 24px rgba(185, 28, 28, 0.45);
+  box-shadow: 0 8px 24px rgba(219, 39, 119, 0.45);
 }
 
 .event-card.la-liga:hover {
@@ -539,13 +551,13 @@
 }
 
 .event-card.past-event.mlb {
-  background: linear-gradient(135deg, #1e2f66 0%, #15234f 100%);
-  box-shadow: 0 4px 16px rgba(30, 47, 102, 0.35);
+  background: linear-gradient(135deg, #213f5a 0%, #172b3e 100%);
+  box-shadow: 0 4px 16px rgba(33, 63, 90, 0.35);
 }
 
 .event-card.past-event.kbo {
-  background: linear-gradient(135deg, #6d1f1f 0%, #4f1717 100%);
-  box-shadow: 0 4px 16px rgba(109, 31, 31, 0.35);
+  background: linear-gradient(135deg, #7a234d 0%, #59183a 100%);
+  box-shadow: 0 4px 16px rgba(122, 35, 77, 0.35);
 }
 
 .event-card.past-event.formula-one:hover {
@@ -553,11 +565,11 @@
 }
 
 .event-card.past-event.mlb:hover {
-  box-shadow: 0 8px 24px rgba(30, 47, 102, 0.45);
+  box-shadow: 0 8px 24px rgba(33, 63, 90, 0.45);
 }
 
 .event-card.past-event.kbo:hover {
-  box-shadow: 0 8px 24px rgba(109, 31, 31, 0.45);
+  box-shadow: 0 8px 24px rgba(122, 35, 77, 0.45);
 }
 
 /* Event Card Pattern */
@@ -806,11 +818,11 @@
 }
 
 .modal-sport-badge.mlb {
-  background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);
+  background: linear-gradient(135deg, #0f4c81 0%, #0b3458 100%);
 }
 
 .modal-sport-badge.kbo {
-  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+  background: linear-gradient(135deg, #db2777 0%, #9d174d 100%);
 }
 
 .modal-close {

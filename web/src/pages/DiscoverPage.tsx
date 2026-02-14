@@ -229,16 +229,6 @@ export default function DiscoverPage() {
           {t('filters.football')}
         </button>
         <button
-          className={`discover-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
-          onClick={() => {
-            setSportFilter('2');
-            setMotorsportSubFilter('all');
-          }}
-        >
-          <span className="filter-icon">🏎️</span>
-          {t('filters.motorsport')}
-        </button>
-        <button
           className={`discover-filter-btn ${sportFilter === '3' ? 'active' : ''}`}
           onClick={() => {
             setSportFilter('3');
@@ -247,6 +237,16 @@ export default function DiscoverPage() {
         >
           <span className="filter-icon">⚾</span>
           {t('filters.baseball')}
+        </button>
+        <button
+          className={`discover-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
+          onClick={() => {
+            setSportFilter('2');
+            setMotorsportSubFilter('all');
+          }}
+        >
+          <span className="filter-icon">🏎️</span>
+          {t('filters.motorsport')}
         </button>
       </div>
 

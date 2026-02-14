@@ -32,6 +32,7 @@ type LeagueFilter =
   | 'Ligue 1';
 type CompetitionPhase = 'league' | 'tournament';
 type F1Mode = 'driver' | 'constructor';
+type MlbLeagueMode = 'AL' | 'NL';
 
 interface F1StandingRow {
   driver: string;
@@ -43,6 +44,57 @@ interface F1ConstructorStandingRow {
   team: string;
   pts: number;
 }
+
+const MLB_AMERICAN_LEAGUE_TEAMS = new Set([
+  'Baltimore Orioles',
+  'Boston Red Sox',
+  'New York Yankees',
+  'Tampa Bay Rays',
+  'Toronto Blue Jays',
+  'Chicago White Sox',
+  'Cleveland Guardians',
+  'Detroit Tigers',
+  'Kansas City Royals',
+  'Minnesota Twins',
+  'Houston Astros',
+  'Los Angeles Angels',
+  'Athletics',
+  'Oakland Athletics',
+  'Seattle Mariners',
+  'Texas Rangers',
+]);
+
+const MLB_NATIONAL_LEAGUE_TEAMS = new Set([
+  'Atlanta Braves',
+  'Miami Marlins',
+  'New York Mets',
+  'Philadelphia Phillies',
+  'Washington Nationals',
+  'Chicago Cubs',
+  'Cincinnati Reds',
+  'Milwaukee Brewers',
+  'Pittsburgh Pirates',
+  'St. Louis Cardinals',
+  'Arizona Diamondbacks',
+  'Colorado Rockies',
+  'Los Angeles Dodgers',
+  'San Diego Padres',
+  'San Francisco Giants',
+]);
+
+const MLB_TEAM_ALIASES: Record<string, string> = {
+  'LA Angels': 'Los Angeles Angels',
+  'LA Dodgers': 'Los Angeles Dodgers',
+  'NY Yankees': 'New York Yankees',
+  'NY Mets': 'New York Mets',
+  'Chi White Sox': 'Chicago White Sox',
+  'Chi Cubs': 'Chicago Cubs',
+  'SD Padres': 'San Diego Padres',
+  'SF Giants': 'San Francisco Giants',
+  'KC Royals': 'Kansas City Royals',
+  'TB Rays': 'Tampa Bay Rays',
+  'St Louis Cardinals': 'St. Louis Cardinals',
+};
 
 function zeroStandingsFromTeams(teamRows: Array<{ id: string; name: string }>): FootballStanding[] {
   return teamRows
@@ -61,6 +113,13 @@ function zeroStandingsFromTeams(teamRows: Array<{ id: string; name: string }>): 
     }))
     .sort((a, b) => a.team.localeCompare(b.team))
     .map((row, idx) => ({ ...row, rank: idx + 1 }));
+}
+
+function getMlbLeagueForTeam(teamName: string): 'AL' | 'NL' | null {
+  const canonical = MLB_TEAM_ALIASES[teamName] ?? teamName;
+  if (MLB_AMERICAN_LEAGUE_TEAMS.has(canonical)) return 'AL';
+  if (MLB_NATIONAL_LEAGUE_TEAMS.has(canonical)) return 'NL';
+  return null;
 }
 
 function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll, onToggleExpand }: {
@@ -159,7 +218,9 @@ export default function ScoresPage() {
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
   const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
   const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
-  const [mlbExpanded, setMlbExpanded] = useState(false);
+  const [mlbAlExpanded, setMlbAlExpanded] = useState(false);
+  const [mlbNlExpanded, setMlbNlExpanded] = useState(false);
+  const [mlbLeagueMode, setMlbLeagueMode] = useState<MlbLeagueMode>('AL');
   const [kboExpanded, setKboExpanded] = useState(false);
 
   const plStandings = usePLStandings();
@@ -208,6 +269,14 @@ export default function ScoresPage() {
       ? mlbStandings.data
       : zeroStandingsFromTeams((mlbTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
     [mlbStandings.data, mlbTeams.data],
+  );
+  const mlbAlRows = useMemo(
+    () => mlbRows.filter((row) => getMlbLeagueForTeam(row.team) === 'AL'),
+    [mlbRows],
+  );
+  const mlbNlRows = useMemo(
+    () => mlbRows.filter((row) => getMlbLeagueForTeam(row.team) === 'NL'),
+    [mlbRows],
   );
   const kboRows = useMemo(
     () => (kboStandings.data && kboStandings.data.length > 0)
@@ -264,18 +333,18 @@ export default function ScoresPage() {
           {t('filters.football')}
         </button>
         <button
-          className={`scores-filter-btn ${sportFilter === 'motorsport' ? 'active' : ''}`}
-          onClick={() => handleSportFilter('motorsport')}
-        >
-          <span className="filter-icon">🏎️</span>
-          {t('filters.motorsport')}
-        </button>
-        <button
           className={`scores-filter-btn ${sportFilter === 'baseball' ? 'active' : ''}`}
           onClick={() => handleSportFilter('baseball')}
         >
           <span className="filter-icon">⚾</span>
           {t('filters.baseball')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'motorsport' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('motorsport')}
+        >
+          <span className="filter-icon">🏎️</span>
+          {t('filters.motorsport')}
         </button>
       </div>
 
@@ -607,17 +676,40 @@ export default function ScoresPage() {
         )}
 
         {showMlb && (
-          <StandingsTable
-            data={mlbRows}
-            isLoading={mlbStandings.isLoading || mlbTeams.isLoading}
-            error={(mlbStandings.error ?? mlbTeams.error) as Error | null}
-            refetch={() => { mlbStandings.refetch(); mlbTeams.refetch(); }}
-            accentClass="standings-mlb"
-            title={BASEBALL_LEAGUES.mlb.name}
-            defaultVisibleRows={5}
-            expandAll={mlbExpanded}
-            onToggleExpand={() => setMlbExpanded((v) => !v)}
-          />
+          <div className="standings-section standings-mlb">
+            <div className="standings-header-row">
+              <h2 className="standings-league-name">{BASEBALL_LEAGUES.mlb.name}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${mlbLeagueMode === 'AL' ? 'active' : ''}`}
+                  onClick={() => setMlbLeagueMode('AL')}
+                >
+                  AL
+                </button>
+                <button
+                  className={`ucl-phase-btn ${mlbLeagueMode === 'NL' ? 'active' : ''}`}
+                  onClick={() => setMlbLeagueMode('NL')}
+                >
+                  NL
+                </button>
+              </div>
+            </div>
+            <StandingsTable
+              data={mlbLeagueMode === 'AL' ? mlbAlRows : mlbNlRows}
+              isLoading={mlbStandings.isLoading || mlbTeams.isLoading}
+              error={(mlbStandings.error ?? mlbTeams.error) as Error | null}
+              refetch={() => { mlbStandings.refetch(); mlbTeams.refetch(); }}
+              accentClass="standings-mlb"
+              title=""
+              defaultVisibleRows={5}
+              expandAll={mlbLeagueMode === 'AL' ? mlbAlExpanded : mlbNlExpanded}
+              onToggleExpand={() => (
+                mlbLeagueMode === 'AL'
+                  ? setMlbAlExpanded((v) => !v)
+                  : setMlbNlExpanded((v) => !v)
+              )}
+            />
+          </div>
         )}
 
         {showKbo && (
