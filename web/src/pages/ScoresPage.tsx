@@ -23,16 +23,19 @@ const fallbackF1Standings: F1StandingRow[] = [
   { driver: 'F. Alonso', team: 'Aston Martin', pts: 22 },
 ];
 
-function StandingsTable({ data, isLoading, error, refetch, accentClass, title }: {
+function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll }: {
   data: FootballStanding[] | undefined;
   isLoading: boolean;
   error: Error | null;
   refetch: () => void;
   accentClass: string;
   title: string;
+  defaultVisibleRows: number;
+  expandAll: boolean;
 }) {
   const { t } = useTranslation();
   const rows = data ?? [];
+  const visibleRows = expandAll ? rows : rows.slice(0, defaultVisibleRows);
 
   return (
     <div className={`standings-section ${accentClass}`}>
@@ -61,7 +64,7 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title }:
             </tr>
           </thead>
           <tbody>
-            {rows.map((row, i) => (
+            {visibleRows.map((row, i) => (
               <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                 <td className="standings-col-pos">{row.rank}</td>
                 <td className="standings-col-team">
@@ -88,6 +91,7 @@ export default function ScoresPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
+  const [expandAll, setExpandAll] = useState(false);
 
   const plStandings = usePLStandings();
   const uclStandings = useUCLStandings();
@@ -105,6 +109,7 @@ export default function ScoresPage() {
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showChampionsLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Champions League');
+  const showExpandControl = showPremierLeague || showChampionsLeague || showMotorsport;
 
   return (
     <div className="scores-page">
@@ -161,6 +166,14 @@ export default function ScoresPage() {
       )}
 
       <div className="scores-content">
+        {showExpandControl && (
+          <div className="scores-table-controls">
+            <button className="scores-expand-btn" onClick={() => setExpandAll(v => !v)}>
+              {expandAll ? 'Collapse all' : 'Expand all'}
+            </button>
+          </div>
+        )}
+
         {showPremierLeague && (
           <StandingsTable
             data={plStandings.data}
@@ -169,6 +182,8 @@ export default function ScoresPage() {
             refetch={() => plStandings.refetch()}
             accentClass="standings-football"
             title={t('filters.premierLeague')}
+            defaultVisibleRows={10}
+            expandAll={expandAll}
           />
         )}
 
@@ -180,6 +195,8 @@ export default function ScoresPage() {
             refetch={() => uclStandings.refetch()}
             accentClass="standings-ucl"
             title={t('filters.championsLeague')}
+            defaultVisibleRows={12}
+            expandAll={expandAll}
           />
         )}
 
@@ -196,7 +213,7 @@ export default function ScoresPage() {
                 </tr>
               </thead>
               <tbody>
-                {f1Standings.map((row, i) => (
+                {(expandAll ? f1Standings : f1Standings.slice(0, 3)).map((row, i) => (
                   <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
                     <td className="standings-col-pos">{i + 1}</td>
                     <td className="standings-col-team">{row.driver}</td>
