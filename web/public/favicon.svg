@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <rect x="7" y="10" width="45" height="45" rx="11" fill="#FFFFFF"/>
+  <rect x="7" y="10" width="45" height="13" rx="11" fill="#2563EB"/>
+  <rect x="16" y="8" width="7" height="11" rx="3.5" fill="#0F172A"/>
+  <rect x="36" y="8" width="7" height="11" rx="3.5" fill="#0F172A"/>
+  <circle cx="18" cy="33" r="2.1" fill="#9CA3AF"/>
+  <circle cx="29.5" cy="33" r="2.1" fill="#9CA3AF"/>
+  <circle cx="41" cy="33" r="2.1" fill="#9CA3AF"/>
+  <circle cx="18" cy="42" r="2.1" fill="#9CA3AF"/>
+  <circle cx="29.5" cy="42" r="2.1" fill="#9CA3AF"/>
+  <circle cx="41" cy="42" r="2.1" fill="#9CA3AF"/>
+  <g transform="translate(50,50) scale(1.08)">
+    <defs>
+      <clipPath id="ballClip">
+        <circle r="9"/>
+      </clipPath>
+    </defs>
+    <circle r="9" fill="#FFFFFF" stroke="#0F172A" stroke-width="2"/>
+    <g clip-path="url(#ballClip)" fill="#0F172A">
+      <polygon points="0.00,-3.20 3.04,-0.99 1.88,2.59 -1.88,2.59 -3.04,-0.99"/>
+      <polygon points="-1.80,-6.00 -0.56,-7.71 1.46,-7.06 1.46,-4.94 -0.56,-4.29"/>
+      <polygon points="5.15,-3.57 7.16,-2.91 7.16,-0.80 5.15,-0.14 3.91,-1.85"/>
+      <polygon points="5.14,3.58 5.14,5.69 3.13,6.35 1.89,4.65 3.13,2.94"/>
+      <polygon points="-1.89,5.69 -3.90,6.35 -5.14,4.65 -3.90,2.94 -1.89,3.58"/>
+      <polygon points="-6.39,-0.14 -7.64,-1.85 -6.39,-3.57 -4.38,-2.91 -4.38,-0.80"/>
+    </g>
+  </g>
+</svg>
