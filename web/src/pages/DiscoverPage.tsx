@@ -111,6 +111,11 @@ export default function DiscoverPage() {
     },
   ];
 
+  const featuredCompetitions = useMemo(() => {
+    const shuffled = [...competitions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [footballEventCount, f1EventCount, uclEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data]);
+
   const recentlyUpdated = mockSports.map(sport => ({
     ...sport,
     eventCount: allEvents.filter(e => e.sport_id === sport.id).length,
@@ -176,8 +181,8 @@ export default function DiscoverPage() {
       <section className="discover-section">
         <h2 className="discover-section-title">{t('discover.whatsOn')}</h2>
         <div className="competition-grid">
-          {competitions.map(comp => (
-            <div key={comp.sportId} className={`competition-card ${comp.accent}`}>
+          {featuredCompetitions.map(comp => (
+            <div key={comp.name} className={`competition-card ${comp.accent}`}>
               <div className="competition-icon">{comp.icon}</div>
               <div className="competition-name">{comp.name}</div>
               <div className="competition-count">{t('discover.events', { count: comp.eventCount })}</div>
