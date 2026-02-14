@@ -168,6 +168,13 @@
   box-shadow: 0 0 0 1px rgba(134, 239, 172, 0.26);
 }
 
+.scores-league-f1.active {
+  background: #dc2626;
+  border-color: #fca5a5;
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(252, 165, 165, 0.24);
+}
+
 /* Content */
 .scores-content {
   max-width: 600px;

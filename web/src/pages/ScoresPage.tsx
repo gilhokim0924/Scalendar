@@ -17,6 +17,7 @@ import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
 type SportFilter = 'all' | 'football' | 'motorsport';
+type MotorsportSubFilter = 'all' | 'Formula 1';
 type LeagueFilter =
   | 'all'
   | 'Premier League'
@@ -143,6 +144,7 @@ export default function ScoresPage() {
   const [f1Expanded, setF1Expanded] = useState(false);
   const [f1Mode, setF1Mode] = useState<F1Mode>('driver');
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
+  const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
 
   const plStandings = usePLStandings();
   const laLigaStandings = useLaLigaStandings();
@@ -169,10 +171,12 @@ export default function ScoresPage() {
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
     setLeagueFilter('all');
+    setMotorsportSubFilter('all');
   };
 
   const showFootball = sportFilter === 'all' || sportFilter === 'football';
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
+  const showF1 = showMotorsport && (motorsportSubFilter === 'all' || motorsportSubFilter === 'Formula 1');
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showLaLiga = showFootball && (leagueFilter === 'all' || leagueFilter === 'La Liga');
   const showBundesliga = showFootball && (leagueFilter === 'all' || leagueFilter === 'Bundesliga');
@@ -274,6 +278,25 @@ export default function ScoresPage() {
               onClick={() => setLeagueFilter('Europa Conference League')}
             >
               {t('filters.europaConferenceLeague')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sportFilter === 'motorsport' && (
+        <div className="scores-league-filters">
+          <div className="scores-league-row">
+            <button
+              className={`scores-filter-btn scores-league-btn ${motorsportSubFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setMotorsportSubFilter('all')}
+            >
+              {t('filters.all')}
+            </button>
+            <button
+              className={`scores-filter-btn scores-league-btn scores-league-f1 ${motorsportSubFilter === 'Formula 1' ? 'active' : ''}`}
+              onClick={() => setMotorsportSubFilter('Formula 1')}
+            >
+              Formula 1
             </button>
           </div>
         </div>
@@ -433,7 +456,7 @@ export default function ScoresPage() {
           </div>
         )}
 
-        {showMotorsport && (
+        {showF1 && (
           <div className="standings-section standings-f1">
             <div className="standings-header-row">
               <h2 className="standings-league-name">Formula 1</h2>
