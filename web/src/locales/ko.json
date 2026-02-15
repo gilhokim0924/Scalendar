@@ -61,6 +61,7 @@
     "dataManagement": "데이터 관리",
     "clearAllData": "모든 데이터 삭제",
     "clear": "삭제",
+    "signOut": "로그아웃",
     "clearConfirm": "정말로 모든 데이터를 삭제하시겠습니까? 모든 팀 선택과 설정이 제거됩니다.",
     "about": "정보",
     "version": "버전",

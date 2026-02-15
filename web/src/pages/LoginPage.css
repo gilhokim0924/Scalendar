@@ -5,6 +5,7 @@
   align-items: center;
   justify-content: center;
   padding: 24px;
+  animation: login-page-fade-in 420ms ease-out both;
 }
 
 .login-card {
@@ -14,7 +15,10 @@
   border-radius: 24px;
   box-shadow: 0 18px 42px var(--shadow-color);
   backdrop-filter: var(--glass-blur);
-  padding: 30px 24px;
+  padding: 18px 24px 6px;
+  display: flex;
+  flex-direction: column;
+  animation: login-card-enter 520ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .login-title {
@@ -22,16 +26,20 @@
   font-size: 32px;
   font-weight: 800;
   letter-spacing: -0.03em;
-  margin: 0;
+  margin: 0 0 10px;
   color: var(--text-primary);
+  opacity: 0;
+  animation: login-content-in 420ms ease-out 140ms forwards;
 }
 
 .login-subtitle {
-  margin: 10px 0 22px;
+  margin: 0 0 22px;
   text-align: center;
   color: var(--text-secondary);
   font-size: 15px;
   line-height: 1.5;
+  opacity: 0;
+  animation: login-content-in 420ms ease-out 220ms forwards;
 }
 
 .oauth-btn {
@@ -49,10 +57,20 @@
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+  opacity: 0;
+  animation: login-content-in 420ms ease-out forwards;
 }
 
 .oauth-btn + .oauth-btn {
   margin-top: 10px;
+}
+
+.oauth-btn.oauth-google {
+  animation-delay: 320ms;
+}
+
+.oauth-btn.oauth-github {
+  animation-delay: 420ms;
 }
 
 .oauth-btn:hover {
@@ -90,4 +108,85 @@
   font-size: 13px;
   line-height: 1.45;
   color: #ef4444;
+}
+
+.guest-link-btn {
+  margin: 0;
+  display: block;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  opacity: 0;
+  animation: login-content-in 420ms ease-out 520ms forwards;
+}
+
+.guest-slot {
+  flex: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  margin-bottom: 20px;
+}
+
+.guest-link-btn:hover {
+  color: var(--text-primary);
+}
+
+.guest-link-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.guest-link-btn + .login-error {
+  margin-top: 2px;
+}
+
+@keyframes login-page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes login-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes login-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-page,
+  .login-card,
+  .login-title,
+  .login-subtitle,
+  .oauth-btn,
+  .guest-link-btn {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }

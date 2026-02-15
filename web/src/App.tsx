@@ -8,6 +8,7 @@ import DiscoverPage from './pages/DiscoverPage';
 import TeamsPage from './pages/TeamsPage';
 import ScoresPage from './pages/ScoresPage';
 import SettingsPage from './pages/SettingsPage';
+import AccountSettingsPage from './pages/AccountSettingsPage';
 import LoginPage from './pages/LoginPage';
 import './App.css';
 
@@ -38,12 +39,14 @@ function App() {
           )}
         />
         <Route
+          path="/settings/account"
           element={(
             <ProtectedRoute>
-              <Layout />
+              <AccountSettingsPage />
             </ProtectedRoute>
           )}
-        >
+        />
+        <Route element={<Layout />}>
           <Route path="/" element={<CalendarPage />} />
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/tables" element={<ScoresPage />} />

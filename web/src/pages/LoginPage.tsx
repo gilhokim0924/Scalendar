@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import './LoginPage.css';
 
 export default function LoginPage() {
   const { user, isLoading, signInWithOAuth } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [pendingProvider, setPendingProvider] = useState<'google' | 'github' | null>(null);
 
@@ -31,16 +32,27 @@ export default function LoginPage() {
     return <Navigate to={from || '/'} replace />;
   }
 
+  const from = (location.state as { from?: string } | null)?.from;
+  if (!from) {
+    return <Navigate to="/" replace />;
+  }
+
   const startOAuth = async (provider: 'google' | 'github') => {
     try {
       setError(null);
       setPendingProvider(provider);
+      window.localStorage.removeItem('guestMode');
       await signInWithOAuth(provider);
     } catch (err) {
       console.error(err);
       setError('Login failed. Please check OAuth provider settings in Supabase and try again.');
       setPendingProvider(null);
     }
+  };
+
+  const handleContinueAsGuest = () => {
+    window.localStorage.setItem('guestMode', 'true');
+    navigate(from || '/', { replace: true });
   };
 
   return (
@@ -66,6 +78,16 @@ export default function LoginPage() {
           <span className="oauth-icon">{'{ }'}</span>
           <span>{pendingProvider === 'github' ? 'Redirecting...' : 'Continue with GitHub'}</span>
         </button>
+
+        <div className="guest-slot">
+          <button
+            className="guest-link-btn"
+            onClick={handleContinueAsGuest}
+            disabled={pendingProvider !== null}
+          >
+            Continue as guest
+          </button>
+        </div>
 
         {error && <p className="login-error">{error}</p>}
       </div>

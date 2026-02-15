@@ -38,15 +38,19 @@
 
 /* Profile Card */
 .settings-profile-card {
+  width: 100%;
   display: flex;
   align-items: center;
   gap: 14px;
   background: var(--bg-card);
+  border: none;
   border-radius: 16px;
   padding: 16px 18px;
   margin-bottom: 24px;
   cursor: pointer;
   transition: background 0.2s ease;
+  text-align: left;
+  color: inherit;
 }
 
 .settings-profile-card:hover {

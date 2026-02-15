@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
+import { useAuth } from '../contexts/AuthContext';
+import { addUserSelectedTeam, clearUserSelectedTeams, fetchUserSelectedTeams, removeUserSelectedTeam } from '../services/userPreferences';
 import { useNavigate } from 'react-router-dom';
 import type { Team } from '../types';
 import './TeamsPage.css';
@@ -50,6 +52,7 @@ function getTeamThemeClass(team: Team): string {
 export default function TeamsPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [selectedTeams, setSelectedTeams] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
@@ -218,16 +221,43 @@ export default function TeamsPage() {
   const hasError = plTeams.error && uclTeams.error && europaTeams.error && conferenceTeams.error && laLigaTeams.error && bundesligaTeams.error && serieATeams.error && ligue1Teams.error && mlbTeams.error && kboTeams.error;
 
   useEffect(() => {
-    const saved = localStorage.getItem('selectedTeams');
-    if (saved) {
-      const parsed: string[] = JSON.parse(saved);
-      const normalized = Array.from(new Set(parsed.map((id) => (
-        LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
-      ))));
-      setSelectedTeams(normalized);
-      localStorage.setItem('selectedTeams', JSON.stringify(normalized));
-    }
-  }, []);
+    let cancelled = false;
+
+    const loadSelectedTeams = async () => {
+      try {
+        if (user?.id) {
+          const teamIds = await fetchUserSelectedTeams(user.id);
+          const normalized = Array.from(new Set(teamIds.map((id) => (
+            LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+          ))));
+          if (!cancelled) {
+            setSelectedTeams(normalized);
+            localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+          }
+          return;
+        }
+
+        const saved = localStorage.getItem('selectedTeams');
+        if (!saved) return;
+        const parsed: string[] = JSON.parse(saved);
+        const normalized = Array.from(new Set(parsed.map((id) => (
+          LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+        ))));
+        if (!cancelled) {
+          setSelectedTeams(normalized);
+          localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+        }
+      } catch (error) {
+        console.error('Failed to load selected teams', error);
+      }
+    };
+
+    void loadSelectedTeams();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
@@ -236,12 +266,22 @@ export default function TeamsPage() {
   };
 
   const toggleTeam = (teamId: string) => {
+    const isSelected = selectedTeams.includes(teamId);
     const newSelection = selectedTeams.includes(teamId)
       ? selectedTeams.filter(id => id !== teamId)
       : [...selectedTeams, teamId];
 
     setSelectedTeams(newSelection);
     localStorage.setItem('selectedTeams', JSON.stringify(newSelection));
+
+    if (user?.id) {
+      const op = isSelected
+        ? removeUserSelectedTeam(user.id, teamId)
+        : addUserSelectedTeam(user.id, teamId);
+      void op.catch((error) => {
+        console.error('Failed to sync selected team', error);
+      });
+    }
   };
 
   const handleDone = () => {
@@ -251,6 +291,11 @@ export default function TeamsPage() {
   const clearAllTeams = () => {
     setSelectedTeams([]);
     localStorage.removeItem('selectedTeams');
+    if (user?.id) {
+      void clearUserSelectedTeams(user.id).catch((error) => {
+        console.error('Failed to clear selected teams', error);
+      });
+    }
   };
 
   let filteredTeams = allTeams;

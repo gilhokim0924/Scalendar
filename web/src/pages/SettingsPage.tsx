@@ -1,12 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { useUserPreferences } from '../hooks/useUserPreferences';
+import { clearUserSelectedTeams } from '../services/userPreferences';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
   const { use24HourTime, hideScores, setUse24HourTime, setHideScores } = useUserPreferences();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
@@ -52,10 +57,37 @@ export default function SettingsPage() {
   };
 
   const clearAllData = () => {
-    if (confirm(t('settings.clearConfirm'))) {
-      localStorage.clear();
-      window.location.reload();
+    if (!confirm(t('settings.clearConfirm'))) return;
+
+    const run = async () => {
+      try {
+        if (user?.id) {
+          await clearUserSelectedTeams(user.id);
+        }
+      } catch (error) {
+        console.error('Failed to clear user selected teams', error);
+      } finally {
+        localStorage.clear();
+        window.location.reload();
+      }
+    };
+
+    void run();
+  };
+
+  const userName = user?.user_metadata?.full_name
+    || user?.user_metadata?.name
+    || user?.email?.split('@')[0]
+    || 'Scalendar User';
+  const userSub = user?.email || t('settings.manageAccount');
+  const avatarSource = String(userName || 'S').trim();
+  const avatarLetter = avatarSource.charAt(0).toUpperCase() || 'S';
+  const openAccountSettings = () => {
+    if (user?.id) {
+      navigate('/settings/account');
+      return;
     }
+    navigate('/login', { state: { from: '/settings/account' } });
   };
 
   return (
@@ -66,16 +98,16 @@ export default function SettingsPage() {
 
       <div className="settings-content">
         {/* Profile Card */}
-        <div className="settings-profile-card">
-          <div className="settings-profile-avatar">S</div>
+        <button className="settings-profile-card" onClick={openAccountSettings}>
+          <div className="settings-profile-avatar">{avatarLetter}</div>
           <div className="settings-profile-info">
-            <div className="settings-profile-name">Scalendar User</div>
-            <div className="settings-profile-sub">{t('settings.manageAccount')}</div>
+            <div className="settings-profile-name">{userName}</div>
+            <div className="settings-profile-sub">{userSub}</div>
           </div>
           <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
             <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-        </div>
+        </button>
 
         {/* Calendar Sync */}
         <div className="settings-section">

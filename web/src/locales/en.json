@@ -61,6 +61,7 @@
     "dataManagement": "Data Management",
     "clearAllData": "Clear All Data",
     "clear": "Clear",
+    "signOut": "Sign Out",
     "clearConfirm": "Are you sure you want to clear all your data? This will remove all your team selections and preferences.",
     "about": "About",
     "version": "Version",
