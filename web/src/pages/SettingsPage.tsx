@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '../contexts/ThemeContext';
+import { useUserPreferences } from '../hooks/useUserPreferences';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
   const { t, i18n } = useTranslation();
   const { theme, setTheme } = useTheme();
+  const { use24HourTime, hideScores, setUse24HourTime, setHideScores } = useUserPreferences();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [timezone, setTimezone] = useState('UTC');
   const [eventReminders, setEventReminders] = useState(true);
-  const [use24HourTime, setUse24HourTime] = useState(false);
-  const [hideScores, setHideScores] = useState(false);
 
   useEffect(() => {
     const savedTz = localStorage.getItem('timezone');
@@ -23,10 +23,6 @@ export default function SettingsPage() {
     }
     const savedReminders = localStorage.getItem('eventReminders');
     if (savedReminders !== null) setEventReminders(savedReminders === 'true');
-    const saved24Hour = localStorage.getItem('use24HourTime');
-    if (saved24Hour !== null) setUse24HourTime(saved24Hour === 'true');
-    const savedHideScores = localStorage.getItem('hideScores');
-    if (savedHideScores !== null) setHideScores(savedHideScores === 'true');
   }, []);
 
   const handleTimezoneChange = (value: string) => {
@@ -43,13 +39,11 @@ export default function SettingsPage() {
   const toggleUse24HourTime = () => {
     const next = !use24HourTime;
     setUse24HourTime(next);
-    localStorage.setItem('use24HourTime', String(next));
   };
 
   const toggleHideScores = () => {
     const next = !hideScores;
     setHideScores(next);
-    localStorage.setItem('hideScores', String(next));
   };
 
   const handleLanguageChange = (lang: string) => {

@@ -5,6 +5,7 @@ import { mockEvents, getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
+import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { SportsEvent, Team } from '../types';
 import { Link, useLocation } from 'react-router-dom';
 import './CalendarPage.css';
@@ -58,6 +59,7 @@ function getTeamThemeClass(team: Team): string {
 export default function CalendarPage() {
   const { t } = useTranslation();
   const location = useLocation();
+  const { use24HourTime, hideScores } = useUserPreferences();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
   const [selectedTeams, setSelectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
@@ -402,7 +404,7 @@ export default function CalendarPage() {
                       const homeDisplay = getTeamDisplay(event, 'home');
                       const awayDisplay = getTeamDisplay(event, 'away');
                       const eventDate = parseISO(event.datetime_utc);
-                      const time = format(eventDate, 'HH:mm');
+                      const time = formatPreferenceTime(eventDate, use24HourTime);
                       const isPast = dateKey < todayStr;
 
                       const eventThemeClass = getEventThemeClass(event);
@@ -423,7 +425,7 @@ export default function CalendarPage() {
                                 <div className="team-info">
                                   <span className="team-initials-badge">{homeDisplay.initials}</span>
                                   <span className="team-name">{homeDisplay.name}</span>
-                                  {isPast && event.home_score != null && (
+                                  {!hideScores && isPast && event.home_score != null && (
                                     <span className="team-score">{event.home_score}</span>
                                   )}
                                 </div>
@@ -432,7 +434,7 @@ export default function CalendarPage() {
                                 <div className="team-info">
                                   <span className="team-initials-badge">{awayDisplay.initials}</span>
                                   <span className="team-name">{awayDisplay.name}</span>
-                                  {isPast && event.away_score != null && (
+                                  {!hideScores && isPast && event.away_score != null && (
                                     <span className="team-score">{event.away_score}</span>
                                   )}
                                 </div>
@@ -444,7 +446,7 @@ export default function CalendarPage() {
                             <div className="event-competition">{event.competition}</div>
                           </div>
 
-                          {isPast && event.result && (
+                          {!hideScores && isPast && event.result && (
                             <div className="event-result">
                               {event.result.split('  ').map((line, i) => (
                                 <div key={i} className="result-line">
@@ -489,7 +491,7 @@ export default function CalendarPage() {
             </div>
             <h2 className="modal-title">{selectedEvent.title}</h2>
 
-            {isEventPast && selectedEvent.home_score != null && homeDisplay && awayDisplay && (
+            {!hideScores && isEventPast && selectedEvent.home_score != null && homeDisplay && awayDisplay && (
               <div className="modal-score">
                 <div className="modal-score-team">
                   <span className="modal-score-initials">{homeDisplay.initials}</span>
@@ -504,7 +506,7 @@ export default function CalendarPage() {
               </div>
             )}
 
-            {isEventPast && selectedEvent.result && (
+            {!hideScores && isEventPast && selectedEvent.result && (
               <div className="modal-standings">
                 {selectedEvent.result.split('  ').map((line, i) => (
                   <div key={i} className="modal-standing-row">
@@ -526,7 +528,7 @@ export default function CalendarPage() {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M10 5v5l3.333 1.667M17.5 10a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>{isEventPast ? t('calendar.fullTime') : format(parseISO(selectedEvent.datetime_utc), 'h:mm a')}</span>
+                <span>{isEventPast ? t('calendar.fullTime') : formatPreferenceTime(parseISO(selectedEvent.datetime_utc), use24HourTime)}</span>
               </div>
               <div className="detail-row">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">

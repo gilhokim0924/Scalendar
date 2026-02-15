@@ -6,6 +6,7 @@ import { getTeamInitials, mockEvents } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents } from '../hooks/useBaseballData';
+import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { SportsEvent } from '../types';
 import './DiscoverPage.css';
 
@@ -68,6 +69,7 @@ function shuffleCards<T>(items: T[]): T[] {
 export default function DiscoverPage() {
   const { t } = useTranslation();
   const location = useLocation();
+  const { use24HourTime, hideScores } = useUserPreferences();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [footballSubFilter, setFootballSubFilter] = useState<FootballSubFilter>('all');
@@ -216,7 +218,7 @@ export default function DiscoverPage() {
         .sort((a, b) => b - a)[0];
 
       const lastUpdatedLabel = latestPastTimestamp
-        ? t('discover.lastUpdated', { date: format(new Date(latestPastTimestamp), 'MMM d, yyyy HH:mm') })
+        ? t('discover.lastUpdated', { date: `${format(new Date(latestPastTimestamp), 'MMM d, yyyy')} ${formatPreferenceTime(new Date(latestPastTimestamp), use24HourTime)}` })
         : t('discover.noData');
 
       return {
@@ -225,7 +227,7 @@ export default function DiscoverPage() {
         lastUpdatedLabel,
       };
     });
-  }, [allEvents, t]);
+  }, [allEvents, t, use24HourTime]);
 
   return (
     <div className="discover-page">
@@ -368,7 +370,7 @@ export default function DiscoverPage() {
                 <div className="upcoming-card-title">{event.title}</div>
                 <div className="upcoming-card-venue">{event.venue}</div>
                 <div className="upcoming-card-time">
-                  {format(parseISO(event.datetime_utc), 'HH:mm')}
+                  {formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}
                 </div>
               </div>
             ))
@@ -430,14 +432,14 @@ export default function DiscoverPage() {
                   <div className="modal-score-team">
                     <span className="modal-score-initials">{getTeamInitials(selectedUpcomingEvent.home_team_name)}</span>
                     <span className="modal-score-name">{selectedUpcomingEvent.home_team_name}</span>
-                    {selectedUpcomingEvent.home_score != null && <span className="modal-score-value">{selectedUpcomingEvent.home_score}</span>}
+                    {!hideScores && selectedUpcomingEvent.home_score != null && <span className="modal-score-value">{selectedUpcomingEvent.home_score}</span>}
                   </div>
                 )}
                 {selectedUpcomingEvent.away_team_name && (
                   <div className="modal-score-team">
                     <span className="modal-score-initials">{getTeamInitials(selectedUpcomingEvent.away_team_name)}</span>
                     <span className="modal-score-name">{selectedUpcomingEvent.away_team_name}</span>
-                    {selectedUpcomingEvent.away_score != null && <span className="modal-score-value">{selectedUpcomingEvent.away_score}</span>}
+                    {!hideScores && selectedUpcomingEvent.away_score != null && <span className="modal-score-value">{selectedUpcomingEvent.away_score}</span>}
                   </div>
                 )}
               </div>
@@ -453,7 +455,7 @@ export default function DiscoverPage() {
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                   <path d="M10 5v5l3.333 1.667M17.5 10a7.5 7.5 0 11-15 0 7.5 7.5 0 0115 0z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>{format(parseISO(selectedUpcomingEvent.datetime_utc), 'h:mm a')}</span>
+                <span>{formatPreferenceTime(parseISO(selectedUpcomingEvent.datetime_utc), use24HourTime)}</span>
               </div>
               <div className="detail-row">
                 <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -494,7 +496,7 @@ export default function DiscoverPage() {
                     <div className="discover-league-game-content">
                       <div className="discover-league-game-title">{event.title}</div>
                       <div className="discover-league-game-meta">
-                        <span>{format(parseISO(event.datetime_utc), 'HH:mm')}</span>
+                        <span>{formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}</span>
                         <span>{event.venue}</span>
                       </div>
                     </div>

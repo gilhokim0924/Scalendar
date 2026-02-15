@@ -32,6 +32,7 @@
     "team": "팀",
     "driver": "드라이버",
     "pts": "점수",
+    "hiddenByPreference": "설정에서 점수/승자 표시가 숨김 처리되었습니다.",
     "f1DriverStandings": "F1 드라이버 순위"
   },
   "teams": {

@@ -32,6 +32,7 @@
     "team": "Team",
     "driver": "Driver",
     "pts": "Pts",
+    "hiddenByPreference": "Scores and winners are hidden in Settings.",
     "f1DriverStandings": "F1 Driver Standings"
   },
   "teams": {

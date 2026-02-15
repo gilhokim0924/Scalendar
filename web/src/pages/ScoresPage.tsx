@@ -14,6 +14,7 @@ import {
 } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueTeams, useKBOStandings, useMLBStandings } from '../hooks/useBaseballData';
 import { useF1Constructors, useF1DriverStandings, useF1Drivers } from '../hooks/useF1Data';
+import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
@@ -203,6 +204,7 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
 
 export default function ScoresPage() {
   const { t } = useTranslation();
+  const { hideScores, use24HourTime } = useUserPreferences();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
@@ -456,6 +458,12 @@ export default function ScoresPage() {
       )}
 
       <div className="scores-content">
+        {hideScores ? (
+          <div className="standings-section">
+            <div className="standings-loading">{t('scores.hiddenByPreference')}</div>
+          </div>
+        ) : (
+          <>
         {showPremierLeague && (
           <StandingsTable
             data={plStandings.data}
@@ -576,7 +584,7 @@ export default function ScoresPage() {
                         <div className="ucl-tournament-round">Knockout Round</div>
                         <div className="ucl-tournament-title">{event.title}</div>
                         <div className="ucl-tournament-meta">
-                          <span>{format(parseISO(event.datetime_utc), 'MMM d, HH:mm')}</span>
+                          <span>{`${format(parseISO(event.datetime_utc), 'MMM d')}, ${formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}`}</span>
                           <span>{event.venue}</span>
                         </div>
                       </div>
@@ -724,6 +732,8 @@ export default function ScoresPage() {
             expandAll={kboExpanded}
             onToggleExpand={() => setKboExpanded((v) => !v)}
           />
+        )}
+          </>
         )}
       </div>
     </div>
