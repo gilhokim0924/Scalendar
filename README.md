@@ -1,39 +1,106 @@
 # Scalendar
 
-A cross-platform sports calendar application for Premier League and Formula 1 schedules.
+Scalendar is a multi-sport calendar and tables app with a React web client, Expo mobile app, and Supabase-backed data pipeline.
 
-## 🚧 Work in Progress
+## Current Scope
 
-This project is currently under development as part of a portfolio build.
+- Football: Premier League, Champions League, Europa League, Europa Conference League, La Liga, Bundesliga, Serie A, Ligue 1
+- Motorsport: Formula 1 (race weekend sessions + driver/constructor standings)
+- Baseball: MLB, KBO
+
+The web app reads from Supabase, not direct client calls to external sports APIs.
 
 ## Tech Stack
 
-- **Mobile:** React Native (Expo) + TypeScript
-- **Web:** React (Vite) + TypeScript
-- **Backend:** Supabase (PostgreSQL + Auth)
-- **State Management:** React Query
+- Web: React + TypeScript + Vite
+- Mobile: React Native (Expo) + TypeScript
+- Data/API: Supabase (Postgres + RLS + JS client)
+- Fetch/cache: React Query
 
-## Project Structure
+## Repository Structure
 
+```text
+/web                 React web app
+/mobile              Expo app
+/web/scripts          Manual sync scripts
+/.github/workflows    Scheduled sync jobs
+/docs                 Product and planning docs
 ```
-/mobile    - React Native (Expo) app
-/web       - React (Vite) web app
-/docs      - Documentation and planning
+
+## Data Sources
+
+- Football + Baseball: TheSportsDB (server-side sync scripts)
+- F1: Jolpica Ergast-compatible API (`api.jolpi.ca`)
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js 22.x recommended
+- npm
+- Supabase project with required tables/policies
+
+### 1) Install dependencies
+
+```bash
+cd web
+npm ci
 ```
 
-## Development Status
+### 2) Environment variables
 
-- [x] Project planning and architecture
-- [ ] Project initialization (Expo + Vite)
-- [ ] Supabase setup
-- [ ] API integration
-- [ ] Core features development
-- [ ] Testing and deployment
+Copy `web/.env.example` to `web/.env` and set:
 
-## Setup Instructions
+```env
+VITE_SUPABASE_URL=...
+VITE_SUPABASE_ANON_KEY=...
+SUPABASE_URL=...
+SUPABASE_SERVICE_ROLE_KEY=...
+```
 
-Coming soon...
+`SUPABASE_SERVICE_ROLE_KEY` is required for sync scripts.
 
----
+### 3) Run web app
 
-*Last updated: 2026-02-09*
+```bash
+cd web
+npm run dev
+```
+
+## Manual Data Sync
+
+From repository root:
+
+```bash
+npm --prefix web run sync:football
+npm --prefix web run sync:f1
+npm --prefix web run sync:baseball
+```
+
+Or from `web/`:
+
+```bash
+npm run sync:football
+npm run sync:f1
+npm run sync:baseball
+```
+
+## Automated Sync (GitHub Actions)
+
+Workflows:
+
+- `football-sync.yml` every 30 minutes
+- `baseball-sync.yml` every 30 minutes
+- `f1-sync.yml` every 15 minutes
+
+Required repository secrets:
+
+- `SUPABASE_URL`
+- `SUPABASE_SERVICE_ROLE_KEY`
+
+Each workflow can also be run manually via `workflow_dispatch`.
+
+## Notes
+
+- Sync upserts by conflict keys, so existing rows are updated and new rows are inserted.
+- Current app preferences include 24-hour time and hide scores/winners, applied globally in web UI.

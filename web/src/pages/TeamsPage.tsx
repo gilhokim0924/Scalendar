@@ -56,6 +56,10 @@ export default function TeamsPage() {
   const [leagueFilter, setLeagueFilter] = useState<LeagueFilter>('all');
   const [baseballLeagueFilter, setBaseballLeagueFilter] = useState<BaseballLeagueFilter>('all');
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, []);
+
   const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
   const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
   const europaTeams = useLeagueTeams(FOOTBALL_LEAGUES.europaLeague.id);
