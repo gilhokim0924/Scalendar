@@ -19,9 +19,13 @@
     "title": "탐색",
     "upcomingEvents": "다가오는 이벤트",
     "whatsOn": "이번 달 일정",
+    "whatsLeftThisMonth": "이번 달 남은 경기",
     "recentlyUpdated": "최근 업데이트",
     "events": "{{count}}개 이벤트",
-    "upcoming": "{{count}}개 예정"
+    "upcoming": "{{count}}개 예정",
+    "lastUpdated": "최근 업데이트: {{date}}",
+    "noData": "데이터 없음",
+    "gamesLeftThisMonth": "이번 달 남은 경기"
   },
   "scores": {
     "title": "순위표",

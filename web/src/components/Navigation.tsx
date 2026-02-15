@@ -41,7 +41,7 @@ export default function Navigation() {
         </svg>
         <span>{t('nav.discover')}</span>
       </Link>
-      <Link to="/scores" className={`nav-tab ${location.pathname === '/scores' ? 'active' : ''}`}>
+      <Link to="/tables" className={`nav-tab ${location.pathname === '/tables' ? 'active' : ''}`}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
           <rect x="3" y="3" width="18" height="18" rx="2" />
           <line x1="3" y1="9" x2="21" y2="9" />

@@ -19,9 +19,13 @@
     "title": "Discover",
     "upcomingEvents": "Upcoming Events",
     "whatsOn": "What's on this month",
+    "whatsLeftThisMonth": "What's left this month",
     "recentlyUpdated": "Recently Updated",
     "events": "{{count}} events",
-    "upcoming": "{{count}} upcoming"
+    "upcoming": "{{count}} upcoming",
+    "lastUpdated": "Last updated: {{date}}",
+    "noData": "No data yet",
+    "gamesLeftThisMonth": "Games left this month"
   },
   "scores": {
     "title": "Tables",
