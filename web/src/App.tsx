@@ -38,19 +38,19 @@ function App() {
             </ProtectedRoute>
           )}
         />
-        <Route
-          path="/settings/account"
-          element={(
-            <ProtectedRoute>
-              <AccountSettingsPage />
-            </ProtectedRoute>
-          )}
-        />
         <Route element={<Layout />}>
           <Route path="/" element={<CalendarPage />} />
           <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/tables" element={<ScoresPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route
+            path="/settings/account"
+            element={(
+              <ProtectedRoute>
+                <AccountSettingsPage />
+              </ProtectedRoute>
+            )}
+          />
         </Route>
       </Routes>
     </Router>

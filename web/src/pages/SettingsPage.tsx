@@ -5,6 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserPreferences } from '../hooks/useUserPreferences';
 import { clearUserSelectedTeams } from '../services/userPreferences';
+import { fetchUserProfile } from '../services/userProfile';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
@@ -17,6 +18,8 @@ export default function SettingsPage() {
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [timezone, setTimezone] = useState('UTC');
   const [eventReminders, setEventReminders] = useState(true);
+  const [profileName, setProfileName] = useState<string | null>(null);
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const savedTz = localStorage.getItem('timezone');
@@ -29,6 +32,25 @@ export default function SettingsPage() {
     const savedReminders = localStorage.getItem('eventReminders');
     if (savedReminders !== null) setEventReminders(savedReminders === 'true');
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadProfile = async () => {
+      if (!user?.id) return;
+      try {
+        const profile = await fetchUserProfile(user.id);
+        if (cancelled) return;
+        setProfileName(profile?.display_name ?? null);
+        setProfileAvatarUrl(profile?.avatar_url ?? null);
+      } catch (error) {
+        console.error('Failed to load user profile', error);
+      }
+    };
+    void loadProfile();
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id]);
 
   const handleTimezoneChange = (value: string) => {
     setTimezone(value);
@@ -68,6 +90,7 @@ export default function SettingsPage() {
         console.error('Failed to clear user selected teams', error);
       } finally {
         localStorage.clear();
+        window.sessionStorage.removeItem('guestMode');
         window.location.reload();
       }
     };
@@ -75,15 +98,17 @@ export default function SettingsPage() {
     void run();
   };
 
-  const userName = user?.user_metadata?.full_name
+  const isGuestMode = window.sessionStorage.getItem('guestMode') === 'true';
+  const userName = profileName
+    || user?.user_metadata?.full_name
     || user?.user_metadata?.name
     || user?.email?.split('@')[0]
-    || 'Scalendar User';
-  const userSub = user?.email || t('settings.manageAccount');
+    || (isGuestMode ? t('settings.guest') : 'Scalendar User');
+  const userSub = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const avatarSource = String(userName || 'S').trim();
   const avatarLetter = avatarSource.charAt(0).toUpperCase() || 'S';
   const openAccountSettings = () => {
-    if (user?.id) {
+    if (user?.id || isGuestMode) {
       navigate('/settings/account');
       return;
     }
@@ -99,7 +124,13 @@ export default function SettingsPage() {
       <div className="settings-content">
         {/* Profile Card */}
         <button className="settings-profile-card" onClick={openAccountSettings}>
-          <div className="settings-profile-avatar">{avatarLetter}</div>
+          <div className="settings-profile-avatar">
+            {profileAvatarUrl ? (
+              <img src={profileAvatarUrl} alt={userName} className="settings-profile-avatar-img" />
+            ) : (
+              avatarLetter
+            )}
+          </div>
           <div className="settings-profile-info">
             <div className="settings-profile-name">{userName}</div>
             <div className="settings-profile-sub">{userSub}</div>

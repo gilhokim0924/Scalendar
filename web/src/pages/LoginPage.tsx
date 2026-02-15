@@ -41,7 +41,7 @@ export default function LoginPage() {
     try {
       setError(null);
       setPendingProvider(provider);
-      window.localStorage.removeItem('guestMode');
+      window.sessionStorage.removeItem('guestMode');
       await signInWithOAuth(provider);
     } catch (err) {
       console.error(err);
@@ -51,7 +51,7 @@ export default function LoginPage() {
   };
 
   const handleContinueAsGuest = () => {
-    window.localStorage.setItem('guestMode', 'true');
+    window.sessionStorage.setItem('guestMode', 'true');
     navigate(from || '/', { replace: true });
   };
 

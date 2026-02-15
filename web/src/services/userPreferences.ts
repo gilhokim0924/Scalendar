@@ -39,3 +39,32 @@ export async function clearUserSelectedTeams(userId: string): Promise<void> {
 
   if (error) throw error;
 }
+
+export async function fetchSelectedTeamNames(teamIds: string[]): Promise<Record<string, string>> {
+  const ids = Array.from(new Set(teamIds.filter(Boolean)));
+  if (ids.length === 0) return {};
+
+  const result: Record<string, string> = {};
+  if (ids.includes('f1')) {
+    result.f1 = 'Formula 1';
+  }
+
+  const dbIds = ids.filter((id) => id !== 'f1');
+  if (dbIds.length === 0) return result;
+
+  const { data, error } = await supabase
+    .from('teams')
+    .select('id, name')
+    .in('id', dbIds);
+
+  if (error) throw error;
+
+  for (const row of data ?? []) {
+    const id = row.id as string;
+    if (!result[id]) {
+      result[id] = row.name as string;
+    }
+  }
+
+  return result;
+}
