@@ -9,8 +9,9 @@ export default function SettingsPage() {
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [timezone, setTimezone] = useState('UTC');
-  const [morningDigest, setMorningDigest] = useState(true);
   const [eventReminders, setEventReminders] = useState(true);
+  const [use24HourTime, setUse24HourTime] = useState(false);
+  const [hideScores, setHideScores] = useState(false);
 
   useEffect(() => {
     const savedTz = localStorage.getItem('timezone');
@@ -20,10 +21,12 @@ export default function SettingsPage() {
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
       setTimezone(detected);
     }
-    const savedDigest = localStorage.getItem('morningDigest');
-    if (savedDigest !== null) setMorningDigest(savedDigest === 'true');
     const savedReminders = localStorage.getItem('eventReminders');
     if (savedReminders !== null) setEventReminders(savedReminders === 'true');
+    const saved24Hour = localStorage.getItem('use24HourTime');
+    if (saved24Hour !== null) setUse24HourTime(saved24Hour === 'true');
+    const savedHideScores = localStorage.getItem('hideScores');
+    if (savedHideScores !== null) setHideScores(savedHideScores === 'true');
   }, []);
 
   const handleTimezoneChange = (value: string) => {
@@ -31,16 +34,22 @@ export default function SettingsPage() {
     localStorage.setItem('timezone', value);
   };
 
-  const toggleMorningDigest = () => {
-    const next = !morningDigest;
-    setMorningDigest(next);
-    localStorage.setItem('morningDigest', String(next));
-  };
-
   const toggleEventReminders = () => {
     const next = !eventReminders;
     setEventReminders(next);
     localStorage.setItem('eventReminders', String(next));
+  };
+
+  const toggleUse24HourTime = () => {
+    const next = !use24HourTime;
+    setUse24HourTime(next);
+    localStorage.setItem('use24HourTime', String(next));
+  };
+
+  const toggleHideScores = () => {
+    const next = !hideScores;
+    setHideScores(next);
+    localStorage.setItem('hideScores', String(next));
   };
 
   const handleLanguageChange = (lang: string) => {
@@ -93,15 +102,6 @@ export default function SettingsPage() {
         {/* Notifications */}
         <div className="settings-section">
           <h2 className="settings-section-title">{t('settings.notifications')}</h2>
-          <div className="settings-row">
-            <div className="settings-row-label">{t('settings.morningDigest')}</div>
-            <button
-              className={`settings-toggle ${morningDigest ? 'on' : ''}`}
-              onClick={toggleMorningDigest}
-            >
-              <div className="settings-toggle-knob" />
-            </button>
-          </div>
           <div className="settings-row">
             <div className="settings-row-label">{t('settings.eventReminders')}</div>
             <button
@@ -161,6 +161,24 @@ export default function SettingsPage() {
               <option value="Australia/Sydney">Sydney</option>
             </select>
           </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.twentyFourHourTime')}</div>
+            <button
+              className={`settings-toggle ${use24HourTime ? 'on' : ''}`}
+              onClick={toggleUse24HourTime}
+            >
+              <div className="settings-toggle-knob" />
+            </button>
+          </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.hideScoresOrWinners')}</div>
+            <button
+              className={`settings-toggle ${hideScores ? 'on' : ''}`}
+              onClick={toggleHideScores}
+            >
+              <div className="settings-toggle-knob" />
+            </button>
+          </div>
         </div>
 
         {/* Data Management */}
@@ -184,6 +202,18 @@ export default function SettingsPage() {
           <div className="settings-row">
             <div className="settings-row-label">{t('settings.dataSources')}</div>
             <div className="settings-row-value">TheSportsDB & OpenF1</div>
+          </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.termsOfService')}</div>
+            <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </div>
+          <div className="settings-row">
+            <div className="settings-row-label">{t('settings.privacyPolicy')}</div>
+            <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
+              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </div>
         </div>
       </div>

@@ -43,10 +43,11 @@
     "calendarSync": "캘린더 동기화",
     "exportCalendar": "캘린더 피드 내보내기",
     "notifications": "알림",
-    "morningDigest": "아침 요약",
     "eventReminders": "이벤트 알림",
     "preferences": "환경설정",
     "timezone": "시간대",
+    "twentyFourHourTime": "24시간 표기",
+    "hideScoresOrWinners": "점수 또는 승자 숨기기",
     "appearance": "테마",
     "system": "시스템",
     "light": "라이트",
@@ -58,7 +59,9 @@
     "clearConfirm": "정말로 모든 데이터를 삭제하시겠습니까? 모든 팀 선택과 설정이 제거됩니다.",
     "about": "정보",
     "version": "버전",
-    "dataSources": "데이터 소스"
+    "dataSources": "데이터 소스",
+    "termsOfService": "서비스 이용약관",
+    "privacyPolicy": "개인정보 처리방침"
   },
   "filters": {
     "all": "전체",

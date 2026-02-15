@@ -43,10 +43,11 @@
     "calendarSync": "Calendar Sync",
     "exportCalendar": "Export Calendar Feed",
     "notifications": "Notifications",
-    "morningDigest": "Morning Digest",
     "eventReminders": "Event Reminders",
     "preferences": "Preferences",
     "timezone": "Timezone",
+    "twentyFourHourTime": "24-hour time",
+    "hideScoresOrWinners": "Hide scores or winners",
     "appearance": "Appearance",
     "system": "System",
     "light": "Light",
@@ -58,7 +59,9 @@
     "clearConfirm": "Are you sure you want to clear all your data? This will remove all your team selections and preferences.",
     "about": "About",
     "version": "Version",
-    "dataSources": "Data Sources"
+    "dataSources": "Data Sources",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy"
   },
   "filters": {
     "all": "All",
