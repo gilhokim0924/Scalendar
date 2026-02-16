@@ -16,22 +16,17 @@ export default function SettingsPage() {
   const { use24HourTime, hideScores, setUse24HourTime, setHideScores } = useUserPreferences();
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
-  const [timezone, setTimezone] = useState('UTC');
-  const [eventReminders, setEventReminders] = useState(true);
+  const [timezone, setTimezone] = useState(() => {
+    const savedTz = localStorage.getItem('timezone');
+    if (savedTz) return savedTz;
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
+  });
+  const [eventReminders, setEventReminders] = useState(() => {
+    const savedReminders = localStorage.getItem('eventReminders');
+    return savedReminders === null ? true : savedReminders === 'true';
+  });
   const [profileName, setProfileName] = useState<string | null>(null);
   const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    const savedTz = localStorage.getItem('timezone');
-    if (savedTz) {
-      setTimezone(savedTz);
-    } else {
-      const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      setTimezone(detected);
-    }
-    const savedReminders = localStorage.getItem('eventReminders');
-    if (savedReminders !== null) setEventReminders(savedReminders === 'true');
-  }, []);
 
   useEffect(() => {
     let cancelled = false;

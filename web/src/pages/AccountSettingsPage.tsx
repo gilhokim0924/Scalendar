@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchUserProfile, upsertUserProfile } from '../services/userProfile';
 import { clearUserSelectedTeams } from '../services/userPreferences';
@@ -8,6 +9,7 @@ import './AccountSettingsPage.css';
 
 export default function AccountSettingsPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isGuestMode = window.sessionStorage.getItem('guestMode') === 'true';
   const [displayName, setDisplayName] = useState('');
@@ -87,7 +89,10 @@ export default function AccountSettingsPage() {
   }, [selectedTeams.join(',')]);
 
   const handleSaveProfile = () => {
-    if (!user?.id || isGuestMode) return;
+    if (!user?.id || isGuestMode) {
+      navigate('/settings');
+      return;
+    }
 
     const run = async () => {
       try {
@@ -98,7 +103,7 @@ export default function AccountSettingsPage() {
           display_name: displayName.trim() || null,
           avatar_url: avatarUrl.trim() || null,
         });
-        setStatusMessage(t('settings.profileSaved'));
+        navigate('/settings');
       } catch (error) {
         console.error('Failed to save profile', error);
         setStatusMessage(t('settings.profileSaveFailed'));
@@ -205,7 +210,7 @@ export default function AccountSettingsPage() {
             </label>
           </div>
         <div className="account-action-list">
-          <button className="account-action-item save" onClick={handleSaveProfile} disabled={!canEditProfile || isSaving}>
+          <button className="account-action-item save" onClick={handleSaveProfile} disabled={isSaving}>
             <span className="account-action-icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h8.793a2.5 2.5 0 0 1 1.768.732l2.207 2.207A2.5 2.5 0 0 1 20 8.707V17.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
