@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { fetchUserProfile, upsertUserProfile } from '../services/userProfile';
 import { clearUserSelectedTeams } from '../services/userPreferences';
-import { fetchSelectedTeamNames } from '../services/userPreferences';
 import './AccountSettingsPage.css';
 
 export default function AccountSettingsPage() {
@@ -16,7 +15,6 @@ export default function AccountSettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
-  const [selectedTeamNames, setSelectedTeamNames] = useState<string[]>([]);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -55,38 +53,6 @@ export default function AccountSettingsPage() {
   const avatarLetter = String(userName).trim().charAt(0).toUpperCase() || 'S';
   const subLabel = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const canEditProfile = Boolean(user?.id) && !isGuestMode;
-  const selectedTeams = (() => {
-    try {
-      const raw = window.localStorage.getItem('selectedTeams');
-      if (!raw) return [];
-      const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  })();
-
-  useEffect(() => {
-    let cancelled = false;
-    const loadSelectedTeamNames = async () => {
-      try {
-        const map = await fetchSelectedTeamNames(selectedTeams);
-        if (cancelled) return;
-        const names = selectedTeams.map((id) => map[id] ?? id);
-        setSelectedTeamNames(names);
-      } catch (error) {
-        console.error('Failed to load selected team names', error);
-        if (!cancelled) {
-          setSelectedTeamNames(selectedTeams);
-        }
-      }
-    };
-
-    void loadSelectedTeamNames();
-    return () => {
-      cancelled = true;
-    };
-  }, [selectedTeams.join(',')]);
 
   const handleSaveProfile = () => {
     if (!user?.id || isGuestMode) {
@@ -193,21 +159,6 @@ export default function AccountSettingsPage() {
                 />
               </label>
             </div>
-          </div>
-
-          <div className="account-section account-section-myteams">
-            <label className="account-label">
-              {t('settings.myTeams')}
-              {selectedTeamNames.length > 0 ? (
-                <div className="account-selected-list">
-                  {selectedTeamNames.map((name, idx) => (
-                    <span key={`${name}-${idx}`} className="account-selected-chip">{name}</span>
-                  ))}
-                </div>
-              ) : (
-                <span className="account-selected-empty">{t('settings.selectYourTeams')}</span>
-              )}
-            </label>
           </div>
         <div className="account-action-list">
           <button className="account-action-item save" onClick={handleSaveProfile} disabled={isSaving}>
