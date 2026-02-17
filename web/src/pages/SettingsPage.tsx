@@ -5,7 +5,7 @@ import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useUserPreferences } from '../hooks/useUserPreferences';
 import { clearUserSelectedTeams } from '../services/userPreferences';
-import { fetchUserProfile } from '../services/userProfile';
+import { fetchUserProfile, readCachedUserProfile } from '../services/userProfile';
 import './SettingsPage.css';
 
 export default function SettingsPage() {
@@ -25,8 +25,24 @@ export default function SettingsPage() {
     const savedReminders = localStorage.getItem('eventReminders');
     return savedReminders === null ? true : savedReminders === 'true';
   });
-  const [profileName, setProfileName] = useState<string | null>(null);
-  const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState<string | null>(() => (
+    user?.id ? readCachedUserProfile(user.id)?.display_name ?? null : null
+  ));
+  const [profileAvatarUrl, setProfileAvatarUrl] = useState<string | null>(() => (
+    user?.id ? readCachedUserProfile(user.id)?.avatar_url ?? null : null
+  ));
+
+  useEffect(() => {
+    if (!user?.id) {
+      setProfileName(null);
+      setProfileAvatarUrl(null);
+      return;
+    }
+    const cached = readCachedUserProfile(user.id);
+    if (!cached) return;
+    setProfileName(cached.display_name);
+    setProfileAvatarUrl(cached.avatar_url);
+  }, [user?.id]);
 
   useEffect(() => {
     let cancelled = false;

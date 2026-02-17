@@ -10,10 +10,17 @@ import ScoresPage from './pages/ScoresPage';
 import SettingsPage from './pages/SettingsPage';
 import AccountSettingsPage from './pages/AccountSettingsPage';
 import LoginPage from './pages/LoginPage';
+import { useAuth } from './contexts/AuthContext';
+import { runSupabaseReadDiagnostics } from './diagnostics/supabaseReadDiagnostics';
 import './App.css';
+
+type DiagnosticWindow = Window & {
+  __scalendar_supabase_diag_ran__?: boolean;
+};
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
+  const { user, isLoading } = useAuth();
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -21,6 +28,18 @@ function App() {
     }, 3400);
     return () => window.clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    if (!import.meta.env.DEV || isLoading) return;
+    const diagnosticWindow = window as DiagnosticWindow;
+    if (diagnosticWindow.__scalendar_supabase_diag_ran__) return;
+    diagnosticWindow.__scalendar_supabase_diag_ran__ = true;
+
+    const roleLabel = user ? 'authenticated' : 'anon';
+    void runSupabaseReadDiagnostics(roleLabel).catch((error: unknown) => {
+      console.warn('[Scalendar DIAG] Failed to run diagnostics:', error);
+    });
+  }, [isLoading, user]);
 
   if (showSplash) {
     return <SplashScreen />;

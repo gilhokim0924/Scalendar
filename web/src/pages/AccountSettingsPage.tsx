@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchUserProfile, upsertUserProfile } from '../services/userProfile';
+import { fetchUserProfile, readCachedUserProfile, upsertUserProfile } from '../services/userProfile';
 import { clearUserSelectedTeams } from '../services/userPreferences';
 import './AccountSettingsPage.css';
 
@@ -11,14 +11,26 @@ export default function AccountSettingsPage() {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
   const isGuestMode = window.sessionStorage.getItem('guestMode') === 'true';
-  const [displayName, setDisplayName] = useState('');
-  const [avatarUrl, setAvatarUrl] = useState('');
+  const [displayName, setDisplayName] = useState(() => (
+    user?.id ? readCachedUserProfile(user.id)?.display_name ?? '' : ''
+  ));
+  const [avatarUrl, setAvatarUrl] = useState(() => (
+    user?.id ? readCachedUserProfile(user.id)?.avatar_url ?? '' : ''
+  ));
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+    if (!user?.id || isGuestMode) return;
+    const cached = readCachedUserProfile(user.id);
+    if (!cached) return;
+    setDisplayName(cached.display_name ?? '');
+    setAvatarUrl(cached.avatar_url ?? '');
+  }, [isGuestMode, user?.id]);
 
   useEffect(() => {
     let cancelled = false;

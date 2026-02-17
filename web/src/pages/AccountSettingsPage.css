@@ -235,7 +235,7 @@
 }
 
 .account-action-item.danger {
-  color: #ffffff;
+  color: #dc2626;
 }
 
 .account-action-item.save:hover:not(:disabled) {
