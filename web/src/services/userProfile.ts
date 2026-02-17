@@ -7,6 +7,7 @@ export interface UserProfile {
 }
 
 const PROFILE_CACHE_PREFIX = 'scalendar:profile:';
+const AVATAR_BUCKET = 'avatars';
 
 function getProfileCacheKey(userId: string) {
   return `${PROFILE_CACHE_PREFIX}${userId}`;
@@ -64,4 +65,25 @@ export async function upsertUserProfile(profile: {
     display_name: profile.display_name,
     avatar_url: profile.avatar_url,
   });
+}
+
+export async function uploadUserAvatar(userId: string, file: File): Promise<string> {
+  const rawExt = file.name.split('.').pop()?.toLowerCase() ?? 'jpg';
+  const ext = /^[a-z0-9]+$/.test(rawExt) ? rawExt : 'jpg';
+  const filePath = `${userId}/avatar-${Date.now()}.${ext}`;
+
+  const { error } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .upload(filePath, file, {
+      cacheControl: '3600',
+      upsert: true,
+    });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage
+    .from(AVATAR_BUCKET)
+    .getPublicUrl(filePath);
+
+  return data.publicUrl;
 }

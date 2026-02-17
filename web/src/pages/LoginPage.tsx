@@ -67,7 +67,7 @@ export default function LoginPage() {
       await signInWithOAuth(provider);
     } catch (err) {
       console.error(err);
-      setError('Login failed. Please check OAuth provider settings in Supabase and try again.');
+      setError('Login failed. Please check your Supabase auth provider settings and try again.');
       setPendingProvider(null);
     }
   };

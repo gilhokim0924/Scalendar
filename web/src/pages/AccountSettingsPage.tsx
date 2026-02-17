@@ -1,10 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchUserProfile, readCachedUserProfile, upsertUserProfile } from '../services/userProfile';
+import { fetchUserProfile, readCachedUserProfile, upsertUserProfile, uploadUserAvatar } from '../services/userProfile';
 import { clearUserSelectedTeams } from '../services/userPreferences';
 import './AccountSettingsPage.css';
+
+const MAX_AVATAR_FILE_SIZE_BYTES = 2 * 1024 * 1024;
 
 export default function AccountSettingsPage() {
   const { t } = useTranslation();
@@ -17,8 +20,12 @@ export default function AccountSettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState(() => (
     user?.id ? readCachedUserProfile(user.id)?.avatar_url ?? '' : ''
   ));
+  const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
+  const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -31,6 +38,14 @@ export default function AccountSettingsPage() {
     setDisplayName(cached.display_name ?? '');
     setAvatarUrl(cached.avatar_url ?? '');
   }, [isGuestMode, user?.id]);
+
+  useEffect(() => (
+    () => {
+      if (avatarPreviewUrl) {
+        URL.revokeObjectURL(avatarPreviewUrl);
+      }
+    }
+  ), [avatarPreviewUrl]);
 
   useEffect(() => {
     let cancelled = false;
@@ -65,6 +80,47 @@ export default function AccountSettingsPage() {
   const avatarLetter = String(userName).trim().charAt(0).toUpperCase() || 'S';
   const subLabel = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const canEditProfile = Boolean(user?.id) && !isGuestMode;
+  const effectiveAvatarUrl = avatarPreviewUrl || avatarUrl;
+
+  const openPhotoPicker = () => {
+    if (!canEditProfile || isSaving || isUploadingAvatar) return;
+    avatarInputRef.current?.click();
+  };
+
+  const handleAvatarFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setStatusMessage(t('settings.invalidPhotoType'));
+      return;
+    }
+
+    if (file.size > MAX_AVATAR_FILE_SIZE_BYTES) {
+      setStatusMessage(t('settings.photoTooLarge', { sizeMb: 2 }));
+      return;
+    }
+
+    if (avatarPreviewUrl) {
+      URL.revokeObjectURL(avatarPreviewUrl);
+    }
+
+    setAvatarPreviewUrl(URL.createObjectURL(file));
+    setPendingAvatarFile(file);
+    setStatusMessage(null);
+  };
+
+  const handleRemovePhoto = () => {
+    if (!canEditProfile || isSaving || isUploadingAvatar) return;
+    if (avatarPreviewUrl) {
+      URL.revokeObjectURL(avatarPreviewUrl);
+    }
+    setAvatarPreviewUrl(null);
+    setPendingAvatarFile(null);
+    setAvatarUrl('');
+    setStatusMessage(null);
+  };
 
   const handleSaveProfile = () => {
     if (!user?.id || isGuestMode) {
@@ -76,16 +132,30 @@ export default function AccountSettingsPage() {
       try {
         setIsSaving(true);
         setStatusMessage(null);
+        let nextAvatarUrl = avatarUrl.trim() || null;
+
+        if (pendingAvatarFile) {
+          setIsUploadingAvatar(true);
+          nextAvatarUrl = await uploadUserAvatar(user.id, pendingAvatarFile);
+        }
+
         await upsertUserProfile({
           id: user.id,
           display_name: displayName.trim() || null,
-          avatar_url: avatarUrl.trim() || null,
+          avatar_url: nextAvatarUrl,
         });
+        setAvatarUrl(nextAvatarUrl ?? '');
+        if (avatarPreviewUrl) {
+          URL.revokeObjectURL(avatarPreviewUrl);
+        }
+        setAvatarPreviewUrl(null);
+        setPendingAvatarFile(null);
         navigate('/settings');
       } catch (error) {
         console.error('Failed to save profile', error);
         setStatusMessage(t('settings.profileSaveFailed'));
       } finally {
+        setIsUploadingAvatar(false);
         setIsSaving(false);
       }
     };
@@ -148,13 +218,34 @@ export default function AccountSettingsPage() {
           <div className="account-section account-section-plain">
             <div className="account-picture-section">
               <div className="account-avatar account-avatar-large">
-                {avatarUrl ? <img src={avatarUrl} alt={userName} className="account-avatar-img" /> : avatarLetter}
+                {effectiveAvatarUrl ? <img src={effectiveAvatarUrl} alt={userName} className="account-avatar-img" /> : avatarLetter}
               </div>
               <div className="account-name account-name-large">{userName}</div>
               <div className="account-email">{subLabel}</div>
-              <button className="account-photo-btn" disabled={!canEditProfile}>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="account-photo-input"
+                onChange={handleAvatarFileChange}
+                disabled={!canEditProfile}
+              />
+              <button
+                className="account-photo-btn"
+                onClick={openPhotoPicker}
+                disabled={!canEditProfile || isSaving || isUploadingAvatar}
+              >
                 {t('settings.changePhoto')}
               </button>
+              {(avatarUrl || avatarPreviewUrl) && (
+                <button
+                  className="account-photo-btn account-photo-btn-danger"
+                  onClick={handleRemovePhoto}
+                  disabled={!canEditProfile || isSaving || isUploadingAvatar}
+                >
+                  {t('settings.delete')}
+                </button>
+              )}
             </div>
           </div>
 
@@ -173,7 +264,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
         <div className="account-action-list">
-          <button className="account-action-item save" onClick={handleSaveProfile} disabled={isSaving}>
+          <button className="account-action-item save" onClick={handleSaveProfile} disabled={isSaving || isUploadingAvatar}>
             <span className="account-action-icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h8.793a2.5 2.5 0 0 1 1.768.732l2.207 2.207A2.5 2.5 0 0 1 20 8.707V17.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -181,7 +272,7 @@ export default function AccountSettingsPage() {
                 <path d="M9 16h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
             </span>
-            <span>{isSaving ? t('settings.saving') : t('settings.saveProfile')}</span>
+            <span>{(isSaving || isUploadingAvatar) ? t('settings.saving') : t('settings.saveProfile')}</span>
           </button>
           <button className="account-action-item signout" onClick={handleSignOut}>
             <span className="account-action-icon" aria-hidden="true">
