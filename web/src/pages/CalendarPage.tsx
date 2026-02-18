@@ -296,10 +296,6 @@ export default function CalendarPage() {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
   }, [location.pathname]);
 
-  useEffect(() => {
-    todayRef.current?.scrollIntoView({ block: 'center' });
-  }, [isLoading]);
-
   // Track months for separators and today marker insertion
   let lastMonth = '';
   let todayMarkerInserted = false;

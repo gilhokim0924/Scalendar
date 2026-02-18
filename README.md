@@ -15,6 +15,7 @@ The web app reads from Supabase, not direct client calls to external sports APIs
 ## Tech Stack
 
 - Web: React + TypeScript + Vite
+- Desktop: Tauri (macOS app wrapper for web client)
 - Mobile: React Native (Expo) + TypeScript
 - Data/API: Supabase (Postgres + RLS + JS client)
 - Fetch/cache: React Query
@@ -72,6 +73,14 @@ SUPABASE_SERVICE_ROLE_KEY=...
 ```bash
 cd web
 npm run dev
+```
+
+### 4) Run desktop app (macOS, Tauri)
+
+```bash
+cd web
+cargo install tauri-cli --version "^2.0.0"
+npm run tauri:dev
 ```
 
 ## Manual Data Sync

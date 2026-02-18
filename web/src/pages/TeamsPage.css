@@ -38,7 +38,7 @@
 .teams-search-wrapper {
   max-width: 600px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0;
 }
 
 .teams-search-bar {
@@ -80,7 +80,7 @@
 .teams-filters {
   max-width: 600px;
   margin: 16px auto 0;
-  padding: 0 20px;
+  padding: 0;
   display: flex;
   gap: 12px;
   overflow-x: auto;
@@ -139,14 +139,17 @@
 .teams-league-filters {
   max-width: 600px;
   margin: 12px auto 0;
-  padding: 0 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
 .teams-league-row {
-  display: flex;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(120px, 1fr);
+  width: 100%;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -160,6 +163,8 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
+  width: 100%;
+  justify-content: center;
 }
 
 .teams-league-ucl.active {
@@ -229,7 +234,7 @@
 .teams-list {
   max-width: 600px;
   margin: 0 auto;
-  padding: 8px 20px 120px;
+  padding: 8px 0 120px;
 }
 
 .teams-list-row {
@@ -456,19 +461,23 @@
   }
 
   .teams-search-wrapper {
-    padding: 0 16px;
+    max-width: calc(100% - 32px);
+    padding: 0;
   }
 
   .teams-filters {
-    padding: 0 16px;
+    max-width: calc(100% - 32px);
+    padding: 0;
   }
 
   .teams-league-filters {
-    padding: 0 16px;
+    max-width: calc(100% - 32px);
+    padding: 0;
   }
 
   .teams-list {
-    padding: 8px 16px 120px;
+    max-width: calc(100% - 32px);
+    padding: 8px 0 120px;
   }
 
   .teams-bar-tab {
