@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
 import { getTeamInitials, mockEvents } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
@@ -68,7 +67,6 @@ function shuffleCards<T>(items: T[]): T[] {
 
 export default function DiscoverPage() {
   const { t } = useTranslation();
-  const location = useLocation();
   const { use24HourTime, hideScores } = useUserPreferences();
   useEffect(() => { window.scrollTo(0, 0); }, []);
   const [sportFilter, setSportFilter] = useState<SportFilter>('all');
@@ -77,8 +75,7 @@ export default function DiscoverPage() {
   const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
   const [selectedUpcomingEvent, setSelectedUpcomingEvent] = useState<SportsEvent | null>(null);
   const [selectedLeagueName, setSelectedLeagueName] = useState<string | null>(null);
-  const visitSeed = useMemo(() => Math.random(), [location.key]);
-  const referenceNowTs = useMemo(() => Date.now(), [location.key]);
+  const [referenceNowTs] = useState(() => Date.now());
 
   const plEvents = usePLEvents();
   const uclEvents = useUCLEvents();
@@ -118,7 +115,7 @@ export default function DiscoverPage() {
   const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
 
   const upcomingEvents = [...allEvents]
-    .filter((event) => parseISO(event.datetime_utc).getTime() >= Date.now())
+    .filter((event) => parseISO(event.datetime_utc).getTime() >= referenceNowTs)
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime())
     .filter((event) => {
       if (sportFilter === 'all') return true;
@@ -181,7 +178,7 @@ export default function DiscoverPage() {
 
   const shuffledLeaguesThisMonth = useMemo<LeagueThisMonthCard[]>(
     () => shuffleCards(leaguesThisMonth),
-    [leaguesThisMonth, visitSeed],
+    [leaguesThisMonth],
   );
 
   const selectedLeagueGames = useMemo(() => {
@@ -214,7 +211,7 @@ export default function DiscoverPage() {
       const eventsForSport = allEvents.filter((event) => event.sport_id === sport.id);
       const latestPastTimestamp = eventsForSport
         .map((event) => parseISO(event.datetime_utc).getTime())
-        .filter((ts) => Number.isFinite(ts) && ts <= Date.now())
+        .filter((ts) => Number.isFinite(ts) && ts <= referenceNowTs)
         .sort((a, b) => b - a)[0];
 
       const lastUpdatedLabel = latestPastTimestamp
@@ -227,7 +224,7 @@ export default function DiscoverPage() {
         lastUpdatedLabel,
       };
     });
-  }, [allEvents, t, use24HourTime]);
+  }, [allEvents, t, use24HourTime, referenceNowTs]);
 
   return (
     <div className="discover-page">

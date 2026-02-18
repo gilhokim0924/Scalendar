@@ -61,7 +61,7 @@ export default function CalendarPage() {
   const location = useLocation();
   const { use24HourTime, hideScores } = useUserPreferences();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
-  const [selectedTeams, setSelectedTeams] = useState<string[]>(() => {
+  const [selectedTeams] = useState<string[]>(() => {
     const saved = localStorage.getItem('selectedTeams');
     if (!saved) return [];
     const parsed: string[] = JSON.parse(saved);
@@ -291,12 +291,6 @@ export default function CalendarPage() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    const saved = localStorage.getItem('selectedTeams');
-    const parsed: string[] = saved ? JSON.parse(saved) : [];
-    const normalized = Array.from(new Set(parsed.map((id) => (
-      LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
-    ))));
-    setSelectedTeams(normalized);
   }, [location.pathname]);
 
   useEffect(() => {

@@ -62,10 +62,6 @@
   object-fit: cover;
 }
 
-.account-info {
-  min-width: 0;
-}
-
 .account-name {
   font-size: 16px;
   font-weight: 700;
@@ -206,15 +202,6 @@
   justify-content: center;
   text-align: center;
   min-height: 150px;
-}
-
-.account-actions {
-  display: flex;
-  gap: 10px;
-  padding: 0 18px 18px;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .account-action-list {

@@ -3,7 +3,13 @@ import type { ChangeEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { fetchUserProfile, readCachedUserProfile, upsertUserProfile, uploadUserAvatar } from '../services/userProfile';
+import {
+  fetchUserProfile,
+  readCachedUserProfile,
+  removeUserAvatarByPublicUrl,
+  upsertUserProfile,
+  uploadUserAvatar,
+} from '../services/userProfile';
 import { clearUserSelectedTeams } from '../services/userPreferences';
 import './AccountSettingsPage.css';
 
@@ -20,10 +26,12 @@ export default function AccountSettingsPage() {
   const [avatarUrl, setAvatarUrl] = useState(() => (
     user?.id ? readCachedUserProfile(user.id)?.avatar_url ?? '' : ''
   ));
+  const [savedAvatarUrl, setSavedAvatarUrl] = useState(() => (
+    user?.id ? readCachedUserProfile(user.id)?.avatar_url ?? '' : ''
+  ));
   const [avatarPreviewUrl, setAvatarPreviewUrl] = useState<string | null>(null);
   const [pendingAvatarFile, setPendingAvatarFile] = useState<File | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -37,6 +45,7 @@ export default function AccountSettingsPage() {
     if (!cached) return;
     setDisplayName(cached.display_name ?? '');
     setAvatarUrl(cached.avatar_url ?? '');
+    setSavedAvatarUrl(cached.avatar_url ?? '');
   }, [isGuestMode, user?.id]);
 
   useEffect(() => (
@@ -61,6 +70,7 @@ export default function AccountSettingsPage() {
           || '';
         setDisplayName(profile?.display_name ?? defaultName);
         setAvatarUrl(profile?.avatar_url ?? '');
+        setSavedAvatarUrl(profile?.avatar_url ?? '');
       } catch (error) {
         console.error('Failed to load profile', error);
       }
@@ -81,9 +91,10 @@ export default function AccountSettingsPage() {
   const subLabel = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const canEditProfile = Boolean(user?.id) && !isGuestMode;
   const effectiveAvatarUrl = avatarPreviewUrl || avatarUrl;
+  const isBusy = isSaving;
 
   const openPhotoPicker = () => {
-    if (!canEditProfile || isSaving || isUploadingAvatar) return;
+    if (!canEditProfile || isBusy) return;
     avatarInputRef.current?.click();
   };
 
@@ -112,7 +123,7 @@ export default function AccountSettingsPage() {
   };
 
   const handleRemovePhoto = () => {
-    if (!canEditProfile || isSaving || isUploadingAvatar) return;
+    if (!canEditProfile || isBusy) return;
     if (avatarPreviewUrl) {
       URL.revokeObjectURL(avatarPreviewUrl);
     }
@@ -132,10 +143,10 @@ export default function AccountSettingsPage() {
       try {
         setIsSaving(true);
         setStatusMessage(null);
+        const previousAvatarUrl = savedAvatarUrl.trim() || null;
         let nextAvatarUrl = avatarUrl.trim() || null;
 
         if (pendingAvatarFile) {
-          setIsUploadingAvatar(true);
           nextAvatarUrl = await uploadUserAvatar(user.id, pendingAvatarFile);
         }
 
@@ -144,7 +155,15 @@ export default function AccountSettingsPage() {
           display_name: displayName.trim() || null,
           avatar_url: nextAvatarUrl,
         });
+
+        if (previousAvatarUrl && previousAvatarUrl !== nextAvatarUrl) {
+          void removeUserAvatarByPublicUrl(previousAvatarUrl).catch((error) => {
+            console.warn('Failed to remove old avatar from storage', error);
+          });
+        }
+
         setAvatarUrl(nextAvatarUrl ?? '');
+        setSavedAvatarUrl(nextAvatarUrl ?? '');
         if (avatarPreviewUrl) {
           URL.revokeObjectURL(avatarPreviewUrl);
         }
@@ -155,7 +174,6 @@ export default function AccountSettingsPage() {
         console.error('Failed to save profile', error);
         setStatusMessage(t('settings.profileSaveFailed'));
       } finally {
-        setIsUploadingAvatar(false);
         setIsSaving(false);
       }
     };
@@ -185,6 +203,7 @@ export default function AccountSettingsPage() {
 
     const run = async () => {
       try {
+        const previousAvatarUrl = savedAvatarUrl.trim() || null;
         if (user?.id) {
           await clearUserSelectedTeams(user.id);
           await upsertUserProfile({
@@ -193,9 +212,15 @@ export default function AccountSettingsPage() {
             avatar_url: null,
           });
         }
+        if (previousAvatarUrl) {
+          void removeUserAvatarByPublicUrl(previousAvatarUrl).catch((error) => {
+            console.warn('Failed to remove avatar from storage', error);
+          });
+        }
         window.localStorage.removeItem('selectedTeams');
         setDisplayName('');
         setAvatarUrl('');
+        setSavedAvatarUrl('');
         setStatusMessage(t('settings.deleted'));
       } catch (error) {
         console.error('Failed to delete account data', error);
@@ -233,7 +258,7 @@ export default function AccountSettingsPage() {
               <button
                 className="account-photo-btn"
                 onClick={openPhotoPicker}
-                disabled={!canEditProfile || isSaving || isUploadingAvatar}
+                disabled={!canEditProfile || isBusy}
               >
                 {t('settings.changePhoto')}
               </button>
@@ -241,7 +266,7 @@ export default function AccountSettingsPage() {
                 <button
                   className="account-photo-btn account-photo-btn-danger"
                   onClick={handleRemovePhoto}
-                  disabled={!canEditProfile || isSaving || isUploadingAvatar}
+                  disabled={!canEditProfile || isBusy}
                 >
                   {t('settings.delete')}
                 </button>
@@ -264,7 +289,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
         <div className="account-action-list">
-          <button className="account-action-item save" onClick={handleSaveProfile} disabled={isSaving || isUploadingAvatar}>
+          <button className="account-action-item save" onClick={handleSaveProfile} disabled={isBusy}>
             <span className="account-action-icon" aria-hidden="true">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4h8.793a2.5 2.5 0 0 1 1.768.732l2.207 2.207A2.5 2.5 0 0 1 20 8.707V17.5a2.5 2.5 0 0 1-2.5 2.5h-11A2.5 2.5 0 0 1 4 17.5z" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -272,7 +297,7 @@ export default function AccountSettingsPage() {
                 <path d="M9 16h6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
             </span>
-            <span>{(isSaving || isUploadingAvatar) ? t('settings.saving') : t('settings.saveProfile')}</span>
+            <span>{isBusy ? t('settings.saving') : t('settings.saveProfile')}</span>
           </button>
           <button className="account-action-item signout" onClick={handleSignOut}>
             <span className="account-action-icon" aria-hidden="true">

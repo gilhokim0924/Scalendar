@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 type Theme = 'system' | 'dark' | 'light';
@@ -20,7 +21,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const saved = localStorage.getItem('theme');
     return (saved as Theme) || 'system';
   });
-  const [resolved, setResolved] = useState<'dark' | 'light'>(() => getResolved(theme));
+  const [systemResolved, setSystemResolved] = useState<'dark' | 'light'>(() => getResolved('system'));
+  const resolved: 'dark' | 'light' = theme === 'system' ? systemResolved : theme;
 
   const setTheme = (t: Theme) => {
     setThemeState(t);
@@ -28,30 +30,21 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    const r = getResolved(theme);
-    setResolved(r);
-    if (r === 'dark') {
+    if (resolved === 'dark') {
       document.documentElement.removeAttribute('data-theme');
     } else {
       document.documentElement.setAttribute('data-theme', 'light');
     }
-  }, [theme]);
+  }, [resolved]);
 
   useEffect(() => {
-    if (theme !== 'system') return;
     const mq = window.matchMedia('(prefers-color-scheme: dark)');
     const handler = () => {
-      const r = getResolved('system');
-      setResolved(r);
-      if (r === 'dark') {
-        document.documentElement.removeAttribute('data-theme');
-      } else {
-        document.documentElement.setAttribute('data-theme', 'light');
-      }
+      setSystemResolved(mq.matches ? 'dark' : 'light');
     };
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, [theme]);
+  }, []);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme, resolved }}>

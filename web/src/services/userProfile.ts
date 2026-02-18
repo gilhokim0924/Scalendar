@@ -87,3 +87,27 @@ export async function uploadUserAvatar(userId: string, file: File): Promise<stri
 
   return data.publicUrl;
 }
+
+function getAvatarPathFromPublicUrl(publicUrl: string): string | null {
+  try {
+    const url = new URL(publicUrl);
+    const marker = `/storage/v1/object/public/${AVATAR_BUCKET}/`;
+    const markerIndex = url.pathname.indexOf(marker);
+    if (markerIndex < 0) return null;
+    return decodeURIComponent(url.pathname.slice(markerIndex + marker.length));
+  } catch {
+    return null;
+  }
+}
+
+export async function removeUserAvatarByPublicUrl(publicUrl: string | null | undefined): Promise<void> {
+  if (!publicUrl) return;
+  const path = getAvatarPathFromPublicUrl(publicUrl);
+  if (!path) return;
+
+  const { error } = await supabase.storage
+    .from(AVATAR_BUCKET)
+    .remove([path]);
+
+  if (error) throw error;
+}
