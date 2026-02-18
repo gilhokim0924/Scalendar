@@ -25,6 +25,8 @@ type MotorsportSubFilter = 'all' | 'Formula 1';
 type BaseballSubFilter = 'all' | 'MLB' | 'KBO';
 type BasketballSubFilter = 'all' | 'NBA';
 type AmericanFootballSubFilter = 'all' | 'NFL';
+type NbaConferenceMode = 'East' | 'West';
+type NflConferenceMode = 'AFC' | 'NFC';
 type LeagueFilter =
   | 'all'
   | 'Premier League'
@@ -101,6 +103,80 @@ const MLB_TEAM_ALIASES: Record<string, string> = {
   'St Louis Cardinals': 'St. Louis Cardinals',
 };
 
+const NBA_EAST_TEAMS = new Set([
+  'Atlanta Hawks',
+  'Boston Celtics',
+  'Brooklyn Nets',
+  'Charlotte Hornets',
+  'Chicago Bulls',
+  'Cleveland Cavaliers',
+  'Detroit Pistons',
+  'Indiana Pacers',
+  'Miami Heat',
+  'Milwaukee Bucks',
+  'New York Knicks',
+  'Orlando Magic',
+  'Philadelphia 76ers',
+  'Toronto Raptors',
+  'Washington Wizards',
+]);
+
+const NBA_WEST_TEAMS = new Set([
+  'Dallas Mavericks',
+  'Denver Nuggets',
+  'Golden State Warriors',
+  'Houston Rockets',
+  'LA Clippers',
+  'Los Angeles Lakers',
+  'Memphis Grizzlies',
+  'Minnesota Timberwolves',
+  'New Orleans Pelicans',
+  'Oklahoma City Thunder',
+  'Phoenix Suns',
+  'Portland Trail Blazers',
+  'Sacramento Kings',
+  'San Antonio Spurs',
+  'Utah Jazz',
+]);
+
+const NFL_AFC_TEAMS = new Set([
+  'Baltimore Ravens',
+  'Buffalo Bills',
+  'Cincinnati Bengals',
+  'Cleveland Browns',
+  'Denver Broncos',
+  'Houston Texans',
+  'Indianapolis Colts',
+  'Jacksonville Jaguars',
+  'Kansas City Chiefs',
+  'Las Vegas Raiders',
+  'Los Angeles Chargers',
+  'Miami Dolphins',
+  'New England Patriots',
+  'New York Jets',
+  'Pittsburgh Steelers',
+  'Tennessee Titans',
+]);
+
+const NFL_NFC_TEAMS = new Set([
+  'Arizona Cardinals',
+  'Atlanta Falcons',
+  'Carolina Panthers',
+  'Chicago Bears',
+  'Dallas Cowboys',
+  'Detroit Lions',
+  'Green Bay Packers',
+  'Los Angeles Rams',
+  'Minnesota Vikings',
+  'New Orleans Saints',
+  'New York Giants',
+  'Philadelphia Eagles',
+  'San Francisco 49ers',
+  'Seattle Seahawks',
+  'Tampa Bay Buccaneers',
+  'Washington Commanders',
+]);
+
 function zeroStandingsFromTeams(teamRows: Array<{ id: string; name: string }>): FootballStanding[] {
   return teamRows
     .map((team) => ({
@@ -124,6 +200,24 @@ function getMlbLeagueForTeam(teamName: string): 'AL' | 'NL' | null {
   const canonical = MLB_TEAM_ALIASES[teamName] ?? teamName;
   if (MLB_AMERICAN_LEAGUE_TEAMS.has(canonical)) return 'AL';
   if (MLB_NATIONAL_LEAGUE_TEAMS.has(canonical)) return 'NL';
+  return null;
+}
+
+function normalizeNbaTeamName(teamName: string): string {
+  if (teamName === 'LA Clippers') return 'LA Clippers';
+  return teamName;
+}
+
+function getNbaConferenceForTeam(teamName: string): 'East' | 'West' | null {
+  const canonical = normalizeNbaTeamName(teamName);
+  if (NBA_EAST_TEAMS.has(canonical)) return 'East';
+  if (NBA_WEST_TEAMS.has(canonical)) return 'West';
+  return null;
+}
+
+function getNflConferenceForTeam(teamName: string): 'AFC' | 'NFC' | null {
+  if (NFL_AFC_TEAMS.has(teamName)) return 'AFC';
+  if (NFL_NFC_TEAMS.has(teamName)) return 'NFC';
   return null;
 }
 
@@ -230,6 +324,10 @@ export default function ScoresPage() {
   const [mlbNlExpanded, setMlbNlExpanded] = useState(false);
   const [mlbLeagueMode, setMlbLeagueMode] = useState<MlbLeagueMode>('AL');
   const [kboExpanded, setKboExpanded] = useState(false);
+  const [nbaExpanded, setNbaExpanded] = useState(false);
+  const [nflExpanded, setNflExpanded] = useState(false);
+  const [nbaConferenceMode, setNbaConferenceMode] = useState<NbaConferenceMode>('East');
+  const [nflConferenceMode, setNflConferenceMode] = useState<NflConferenceMode>('AFC');
 
   const plStandings = usePLStandings();
   const laLigaStandings = useLaLigaStandings();
@@ -296,17 +394,44 @@ export default function ScoresPage() {
       : zeroStandingsFromTeams((kboTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
     [kboStandings.data, kboTeams.data],
   );
-  const nbaRows = useMemo(
-    () => (nbaStandings.data && nbaStandings.data.length > 0)
-      ? nbaStandings.data
-      : zeroStandingsFromTeams((nbaTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
-    [nbaStandings.data, nbaTeams.data],
+  const nbaRows = useMemo(() => {
+    const fallback = zeroStandingsFromTeams((nbaTeams.data ?? []).map((team) => ({ id: team.id, name: team.name })));
+    const live = nbaStandings.data ?? [];
+    if (live.length === 0) return fallback;
+
+    const existingIds = new Set(live.map((row) => row.teamId));
+    const missing = fallback
+      .filter((row) => !existingIds.has(row.teamId))
+      .map((row, idx) => ({ ...row, rank: live.length + idx + 1 }));
+    return [...live, ...missing];
+  }, [nbaStandings.data, nbaTeams.data]);
+
+  const nflRows = useMemo(() => {
+    const fallback = zeroStandingsFromTeams((nflTeams.data ?? []).map((team) => ({ id: team.id, name: team.name })));
+    const live = nflStandings.data ?? [];
+    if (live.length === 0) return fallback;
+
+    const existingIds = new Set(live.map((row) => row.teamId));
+    const missing = fallback
+      .filter((row) => !existingIds.has(row.teamId))
+      .map((row, idx) => ({ ...row, rank: live.length + idx + 1 }));
+    return [...live, ...missing];
+  }, [nflStandings.data, nflTeams.data]);
+  const nbaEastRows = useMemo(
+    () => nbaRows.filter((row) => getNbaConferenceForTeam(row.team) === 'East'),
+    [nbaRows],
   );
-  const nflRows = useMemo(
-    () => (nflStandings.data && nflStandings.data.length > 0)
-      ? nflStandings.data
-      : zeroStandingsFromTeams((nflTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
-    [nflStandings.data, nflTeams.data],
+  const nbaWestRows = useMemo(
+    () => nbaRows.filter((row) => getNbaConferenceForTeam(row.team) === 'West'),
+    [nbaRows],
+  );
+  const nflAfcRows = useMemo(
+    () => nflRows.filter((row) => getNflConferenceForTeam(row.team) === 'AFC'),
+    [nflRows],
+  );
+  const nflNfcRows = useMemo(
+    () => nflRows.filter((row) => getNflConferenceForTeam(row.team) === 'NFC'),
+    [nflRows],
   );
 
   const handleSportFilter = (filter: SportFilter) => {
@@ -815,31 +940,69 @@ export default function ScoresPage() {
         )}
 
         {showNba && (
-          <StandingsTable
-            data={nbaRows}
-            isLoading={nbaStandings.isLoading || nbaTeams.isLoading}
-            error={(nbaStandings.error ?? nbaTeams.error) as Error | null}
-            refetch={() => { nbaStandings.refetch(); nbaTeams.refetch(); }}
-            accentClass="standings-mlb"
-            title={BASKETBALL_LEAGUES.nba.name}
-            defaultVisibleRows={999}
-            expandAll={false}
-            onToggleExpand={() => {}}
-          />
+          <div className="standings-section standings-mlb">
+            <div className="standings-header-row">
+              <h2 className="standings-league-name">{BASKETBALL_LEAGUES.nba.name}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${nbaConferenceMode === 'East' ? 'active' : ''}`}
+                  onClick={() => setNbaConferenceMode('East')}
+                >
+                  East
+                </button>
+                <button
+                  className={`ucl-phase-btn ${nbaConferenceMode === 'West' ? 'active' : ''}`}
+                  onClick={() => setNbaConferenceMode('West')}
+                >
+                  West
+                </button>
+              </div>
+            </div>
+            <StandingsTable
+              data={nbaConferenceMode === 'East' ? nbaEastRows : nbaWestRows}
+              isLoading={nbaStandings.isLoading || nbaTeams.isLoading}
+              error={(nbaStandings.error ?? nbaTeams.error) as Error | null}
+              refetch={() => { nbaStandings.refetch(); nbaTeams.refetch(); }}
+              accentClass="standings-mlb"
+              title=""
+              defaultVisibleRows={8}
+              expandAll={nbaExpanded}
+              onToggleExpand={() => setNbaExpanded((v) => !v)}
+            />
+          </div>
         )}
 
         {showNfl && (
-          <StandingsTable
-            data={nflRows}
-            isLoading={nflStandings.isLoading || nflTeams.isLoading}
-            error={(nflStandings.error ?? nflTeams.error) as Error | null}
-            refetch={() => { nflStandings.refetch(); nflTeams.refetch(); }}
-            accentClass="standings-kbo"
-            title={AMERICAN_FOOTBALL_LEAGUES.nfl.name}
-            defaultVisibleRows={999}
-            expandAll={false}
-            onToggleExpand={() => {}}
-          />
+          <div className="standings-section standings-kbo">
+            <div className="standings-header-row">
+              <h2 className="standings-league-name">{AMERICAN_FOOTBALL_LEAGUES.nfl.name}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${nflConferenceMode === 'AFC' ? 'active' : ''}`}
+                  onClick={() => setNflConferenceMode('AFC')}
+                >
+                  AFC
+                </button>
+                <button
+                  className={`ucl-phase-btn ${nflConferenceMode === 'NFC' ? 'active' : ''}`}
+                  onClick={() => setNflConferenceMode('NFC')}
+                >
+                  NFC
+                </button>
+              </div>
+            </div>
+            <StandingsTable
+              data={nflConferenceMode === 'AFC' ? nflAfcRows : nflNfcRows}
+              isLoading={nflStandings.isLoading || nflTeams.isLoading}
+              error={(nflStandings.error ?? nflTeams.error) as Error | null}
+              refetch={() => { nflStandings.refetch(); nflTeams.refetch(); }}
+              accentClass="standings-kbo"
+              title=""
+              defaultVisibleRows={8}
+              expandAll={nflExpanded}
+              onToggleExpand={() => setNflExpanded((v) => !v)}
+            />
+          </div>
         )}
           </>
         )}
