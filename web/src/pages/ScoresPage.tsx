@@ -13,14 +13,18 @@ import {
   useUCLStandings,
 } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueTeams, useKBOStandings, useMLBStandings } from '../hooks/useBaseballData';
+import { AMERICAN_FOOTBALL_LEAGUES, useAmericanFootballLeagueTeams, useNFLStandings } from '../hooks/useAmericanFootballData';
+import { BASKETBALL_LEAGUES, useBasketballLeagueTeams, useNBAStandings } from '../hooks/useBasketballData';
 import { useF1Constructors, useF1DriverStandings, useF1Drivers } from '../hooks/useF1Data';
 import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { FootballStanding } from '../hooks/useFootballData';
 import './ScoresPage.css';
 
-type SportFilter = 'all' | 'football' | 'motorsport' | 'baseball';
+type SportFilter = 'all' | 'football' | 'motorsport' | 'baseball' | 'basketball' | 'americanFootball';
 type MotorsportSubFilter = 'all' | 'Formula 1';
 type BaseballSubFilter = 'all' | 'MLB' | 'KBO';
+type BasketballSubFilter = 'all' | 'NBA';
+type AmericanFootballSubFilter = 'all' | 'NFL';
 type LeagueFilter =
   | 'all'
   | 'Premier League'
@@ -220,6 +224,8 @@ export default function ScoresPage() {
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
   const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
   const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
+  const [basketballSubFilter, setBasketballSubFilter] = useState<BasketballSubFilter>('all');
+  const [americanFootballSubFilter, setAmericanFootballSubFilter] = useState<AmericanFootballSubFilter>('all');
   const [mlbAlExpanded, setMlbAlExpanded] = useState(false);
   const [mlbNlExpanded, setMlbNlExpanded] = useState(false);
   const [mlbLeagueMode, setMlbLeagueMode] = useState<MlbLeagueMode>('AL');
@@ -234,8 +240,12 @@ export default function ScoresPage() {
   const uclEvents = useUCLEvents();
   const mlbStandings = useMLBStandings();
   const kboStandings = useKBOStandings();
+  const nbaStandings = useNBAStandings();
+  const nflStandings = useNFLStandings();
   const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
   const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
+  const nbaTeams = useBasketballLeagueTeams(BASKETBALL_LEAGUES.nba.id);
+  const nflTeams = useAmericanFootballLeagueTeams(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
   const f1StandingsQuery = useF1DriverStandings();
   const f1Drivers = useF1Drivers();
   const f1Constructors = useF1Constructors();
@@ -286,20 +296,38 @@ export default function ScoresPage() {
       : zeroStandingsFromTeams((kboTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
     [kboStandings.data, kboTeams.data],
   );
+  const nbaRows = useMemo(
+    () => (nbaStandings.data && nbaStandings.data.length > 0)
+      ? nbaStandings.data
+      : zeroStandingsFromTeams((nbaTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
+    [nbaStandings.data, nbaTeams.data],
+  );
+  const nflRows = useMemo(
+    () => (nflStandings.data && nflStandings.data.length > 0)
+      ? nflStandings.data
+      : zeroStandingsFromTeams((nflTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
+    [nflStandings.data, nflTeams.data],
+  );
 
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
     setLeagueFilter('all');
     setMotorsportSubFilter('all');
     setBaseballSubFilter('all');
+    setBasketballSubFilter('all');
+    setAmericanFootballSubFilter('all');
   };
 
   const showFootball = sportFilter === 'all' || sportFilter === 'football';
   const showMotorsport = sportFilter === 'all' || sportFilter === 'motorsport';
   const showBaseball = sportFilter === 'all' || sportFilter === 'baseball';
+  const showBasketball = sportFilter === 'all' || sportFilter === 'basketball';
+  const showAmericanFootball = sportFilter === 'all' || sportFilter === 'americanFootball';
   const showF1 = showMotorsport && (motorsportSubFilter === 'all' || motorsportSubFilter === 'Formula 1');
   const showMlb = showBaseball && (baseballSubFilter === 'all' || baseballSubFilter === 'MLB');
   const showKbo = showBaseball && (baseballSubFilter === 'all' || baseballSubFilter === 'KBO');
+  const showNba = showBasketball && (basketballSubFilter === 'all' || basketballSubFilter === 'NBA');
+  const showNfl = showAmericanFootball && (americanFootballSubFilter === 'all' || americanFootballSubFilter === 'NFL');
   const showPremierLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Premier League');
   const showLaLiga = showFootball && (leagueFilter === 'all' || leagueFilter === 'La Liga');
   const showBundesliga = showFootball && (leagueFilter === 'all' || leagueFilter === 'Bundesliga');
@@ -340,6 +368,20 @@ export default function ScoresPage() {
         >
           <span className="filter-icon">⚾</span>
           {t('filters.baseball')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'basketball' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('basketball')}
+        >
+          <span className="filter-icon">🏀</span>
+          {t('filters.basketball')}
+        </button>
+        <button
+          className={`scores-filter-btn ${sportFilter === 'americanFootball' ? 'active' : ''}`}
+          onClick={() => handleSportFilter('americanFootball')}
+        >
+          <span className="filter-icon">🏈</span>
+          {t('filters.americanFootball')}
         </button>
         <button
           className={`scores-filter-btn ${sportFilter === 'motorsport' ? 'active' : ''}`}
@@ -452,6 +494,44 @@ export default function ScoresPage() {
               onClick={() => setBaseballSubFilter('KBO')}
             >
               {t('filters.kbo')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sportFilter === 'basketball' && (
+        <div className="scores-league-filters">
+          <div className="scores-league-row">
+            <button
+              className={`scores-filter-btn scores-league-btn ${basketballSubFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setBasketballSubFilter('all')}
+            >
+              {t('filters.all')}
+            </button>
+            <button
+              className={`scores-filter-btn scores-league-btn ${basketballSubFilter === 'NBA' ? 'active' : ''}`}
+              onClick={() => setBasketballSubFilter('NBA')}
+            >
+              {t('filters.nba')}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {sportFilter === 'americanFootball' && (
+        <div className="scores-league-filters">
+          <div className="scores-league-row">
+            <button
+              className={`scores-filter-btn scores-league-btn ${americanFootballSubFilter === 'all' ? 'active' : ''}`}
+              onClick={() => setAmericanFootballSubFilter('all')}
+            >
+              {t('filters.all')}
+            </button>
+            <button
+              className={`scores-filter-btn scores-league-btn ${americanFootballSubFilter === 'NFL' ? 'active' : ''}`}
+              onClick={() => setAmericanFootballSubFilter('NFL')}
+            >
+              {t('filters.nfl')}
             </button>
           </div>
         </div>
@@ -731,6 +811,34 @@ export default function ScoresPage() {
             defaultVisibleRows={5}
             expandAll={kboExpanded}
             onToggleExpand={() => setKboExpanded((v) => !v)}
+          />
+        )}
+
+        {showNba && (
+          <StandingsTable
+            data={nbaRows}
+            isLoading={nbaStandings.isLoading || nbaTeams.isLoading}
+            error={(nbaStandings.error ?? nbaTeams.error) as Error | null}
+            refetch={() => { nbaStandings.refetch(); nbaTeams.refetch(); }}
+            accentClass="standings-mlb"
+            title={BASKETBALL_LEAGUES.nba.name}
+            defaultVisibleRows={999}
+            expandAll={false}
+            onToggleExpand={() => {}}
+          />
+        )}
+
+        {showNfl && (
+          <StandingsTable
+            data={nflRows}
+            isLoading={nflStandings.isLoading || nflTeams.isLoading}
+            error={(nflStandings.error ?? nflTeams.error) as Error | null}
+            refetch={() => { nflStandings.refetch(); nflTeams.refetch(); }}
+            accentClass="standings-kbo"
+            title={AMERICAN_FOOTBALL_LEAGUES.nfl.name}
+            defaultVisibleRows={999}
+            expandAll={false}
+            onToggleExpand={() => {}}
           />
         )}
           </>

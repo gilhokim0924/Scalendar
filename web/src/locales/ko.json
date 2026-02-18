@@ -101,8 +101,10 @@
   "filters": {
     "all": "전체",
     "football": "축구",
+    "americanFootball": "미식축구",
     "motorsport": "모터스포츠",
     "baseball": "야구",
+    "basketball": "농구",
     "allLeagues": "전체 리그",
     "premierLeague": "프리미어리그",
     "championsLeague": "챔피언스리그",
@@ -113,6 +115,8 @@
     "serieA": "세리에 A",
     "ligue1": "리그 1",
     "mlb": "MLB",
-    "kbo": "KBO"
+    "kbo": "KBO",
+    "nba": "NBA",
+    "nfl": "NFL"
   }
 }

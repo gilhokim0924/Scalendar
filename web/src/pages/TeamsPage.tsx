@@ -3,13 +3,15 @@ import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
+import { BASKETBALL_LEAGUES, useBasketballLeagueEvents, useBasketballLeagueTeams } from '../hooks/useBasketballData';
+import { AMERICAN_FOOTBALL_LEAGUES, useAmericanFootballLeagueEvents, useAmericanFootballLeagueTeams } from '../hooks/useAmericanFootballData';
 import { useAuth } from '../contexts/AuthContext';
 import { addUserSelectedTeam, clearUserSelectedTeams, fetchUserSelectedTeams, removeUserSelectedTeam } from '../services/userPreferences';
 import { useNavigate } from 'react-router-dom';
 import type { Team } from '../types';
 import './TeamsPage.css';
 
-type SportFilter = 'all' | '1' | '2' | '3';
+type SportFilter = 'all' | '1' | '2' | '3' | '4' | '5';
 type LeagueFilter =
   | 'all'
   | 'Premier League'
@@ -46,6 +48,8 @@ function getTeamThemeClass(team: Team): string {
   if (league.includes('ligue 1')) return 'theme-ligue1';
   if (league.includes('mlb')) return 'theme-mlb';
   if (league.includes('kbo')) return 'theme-kbo';
+  if (league.includes('nba')) return 'theme-mlb';
+  if (league.includes('nfl')) return 'theme-kbo';
   return 'theme-pl';
 }
 
@@ -73,6 +77,8 @@ export default function TeamsPage() {
   const ligue1Teams = useLeagueTeams(FOOTBALL_LEAGUES.ligue1.id);
   const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
   const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
+  const nbaTeams = useBasketballLeagueTeams(BASKETBALL_LEAGUES.nba.id);
+  const nflTeams = useAmericanFootballLeagueTeams(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
 
   const plEvents = useLeagueEvents(FOOTBALL_LEAGUES.premierLeague.id);
   const uclEvents = useLeagueEvents(FOOTBALL_LEAGUES.championsLeague.id);
@@ -84,6 +90,8 @@ export default function TeamsPage() {
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
   const mlbEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.mlb.id);
   const kboEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.kbo.id);
+  const nbaEvents = useBasketballLeagueEvents(BASKETBALL_LEAGUES.nba.id);
+  const nflEvents = useAmericanFootballLeagueEvents(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
 
   const eventDerivedFootballTeams = useMemo<Team[]>(() => {
     const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
@@ -165,6 +173,42 @@ export default function TeamsPage() {
     return [...mlb, ...kbo];
   }, [mlbEvents.data, kboEvents.data]);
 
+  const eventDerivedBasketballTeams = useMemo<Team[]>(() => {
+    const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
+      if (!id || !name) return null;
+      return {
+        id,
+        sport_id: '4',
+        name,
+        external_api_id: id,
+        league,
+      };
+    };
+
+    return (nbaEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'NBA'),
+      toTeam(event.away_team_id, event.away_team_name, 'NBA'),
+    ])).filter((team): team is Team => Boolean(team));
+  }, [nbaEvents.data]);
+
+  const eventDerivedAmericanFootballTeams = useMemo<Team[]>(() => {
+    const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
+      if (!id || !name) return null;
+      return {
+        id,
+        sport_id: '5',
+        name,
+        external_api_id: id,
+        league,
+      };
+    };
+
+    return (nflEvents.data ?? []).flatMap((event) => ([
+      toTeam(event.home_team_id, event.home_team_name, 'NFL'),
+      toTeam(event.away_team_id, event.away_team_name, 'NFL'),
+    ])).filter((team): team is Team => Boolean(team));
+  }, [nflEvents.data]);
+
   const f1Teams = useMemo<Team[]>(() => ([
     {
       id: F1_SELECTION_ID,
@@ -186,6 +230,8 @@ export default function TeamsPage() {
     const apiLigue1 = ligue1Teams.data ?? [];
     const apiMlb = mlbTeams.data ?? [];
     const apiKbo = kboTeams.data ?? [];
+    const apiNba = nbaTeams.data ?? [];
+    const apiNfl = nflTeams.data ?? [];
     return uniqueTeamsById([
       ...apiPl,
       ...apiUcl,
@@ -197,8 +243,12 @@ export default function TeamsPage() {
       ...apiLigue1,
       ...apiMlb,
       ...apiKbo,
+      ...apiNba,
+      ...apiNfl,
       ...eventDerivedFootballTeams,
       ...eventDerivedBaseballTeams,
+      ...eventDerivedBasketballTeams,
+      ...eventDerivedAmericanFootballTeams,
       ...f1Teams,
     ]);
   }, [
@@ -212,13 +262,17 @@ export default function TeamsPage() {
     ligue1Teams.data,
     mlbTeams.data,
     kboTeams.data,
+    nbaTeams.data,
+    nflTeams.data,
     eventDerivedFootballTeams,
     eventDerivedBaseballTeams,
+    eventDerivedBasketballTeams,
+    eventDerivedAmericanFootballTeams,
     f1Teams,
   ]);
 
-  const isLoading = plTeams.isLoading || uclTeams.isLoading || europaTeams.isLoading || conferenceTeams.isLoading || laLigaTeams.isLoading || bundesligaTeams.isLoading || serieATeams.isLoading || ligue1Teams.isLoading || mlbTeams.isLoading || kboTeams.isLoading;
-  const hasError = plTeams.error && uclTeams.error && europaTeams.error && conferenceTeams.error && laLigaTeams.error && bundesligaTeams.error && serieATeams.error && ligue1Teams.error && mlbTeams.error && kboTeams.error;
+  const isLoading = plTeams.isLoading || uclTeams.isLoading || europaTeams.isLoading || conferenceTeams.isLoading || laLigaTeams.isLoading || bundesligaTeams.isLoading || serieATeams.isLoading || ligue1Teams.isLoading || mlbTeams.isLoading || kboTeams.isLoading || nbaTeams.isLoading || nflTeams.isLoading;
+  const hasError = plTeams.error && uclTeams.error && europaTeams.error && conferenceTeams.error && laLigaTeams.error && bundesligaTeams.error && serieATeams.error && ligue1Teams.error && mlbTeams.error && kboTeams.error && nbaTeams.error && nflTeams.error;
 
   useEffect(() => {
     let cancelled = false;
@@ -365,6 +419,20 @@ export default function TeamsPage() {
             {t('filters.baseball')}
           </button>
           <button
+            className={`teams-filter-btn ${sportFilter === '4' ? 'active' : ''}`}
+            onClick={() => handleSportFilter('4')}
+          >
+            <span className="filter-icon">🏀</span>
+            {t('filters.basketball')}
+          </button>
+          <button
+            className={`teams-filter-btn ${sportFilter === '5' ? 'active' : ''}`}
+            onClick={() => handleSportFilter('5')}
+          >
+            <span className="filter-icon">🏈</span>
+            {t('filters.americanFootball')}
+          </button>
+          <button
             className={`teams-filter-btn ${sportFilter === '2' ? 'active' : ''}`}
             onClick={() => handleSportFilter('2')}
           >
@@ -475,7 +543,7 @@ export default function TeamsPage() {
         ) : hasError ? (
           <div className="teams-loading">
             <p>Couldn't load teams</p>
-            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); europaTeams.refetch(); conferenceTeams.refetch(); laLigaTeams.refetch(); bundesligaTeams.refetch(); serieATeams.refetch(); ligue1Teams.refetch(); mlbTeams.refetch(); kboTeams.refetch(); }} className="retry-btn">Retry</button>
+            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); europaTeams.refetch(); conferenceTeams.refetch(); laLigaTeams.refetch(); bundesligaTeams.refetch(); serieATeams.refetch(); ligue1Teams.refetch(); mlbTeams.refetch(); kboTeams.refetch(); nbaTeams.refetch(); nflTeams.refetch(); }} className="retry-btn">Retry</button>
           </div>
         ) : (
           <>

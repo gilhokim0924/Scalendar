@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "sync:football": "node scripts/sync-football.mjs",
     "sync:f1": "node scripts/sync-f1-seed.mjs",
-    "sync:baseball": "node scripts/sync-baseball.mjs"
+    "sync:baseball": "node scripts/sync-baseball.mjs",
+    "sync:basketball": "node scripts/sync-basketball.mjs",
+    "sync:american-football": "node scripts/sync-american-football.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.95.3",

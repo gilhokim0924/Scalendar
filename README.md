@@ -5,6 +5,8 @@ Scalendar is a multi-sport calendar and tables app with a React web client, Expo
 ## Current Scope
 
 - Football: Premier League, Champions League, Europa League, Europa Conference League, La Liga, Bundesliga, Serie A, Ligue 1
+- American Football: NFL
+- Basketball: NBA
 - Motorsport: Formula 1 (race weekend sessions + driver/constructor standings)
 - Baseball: MLB, KBO
 
@@ -29,7 +31,7 @@ The web app reads from Supabase, not direct client calls to external sports APIs
 
 ## Data Sources
 
-- Football + Baseball: TheSportsDB (server-side sync scripts)
+- Football + Baseball + Basketball + American Football: TheSportsDB (server-side sync scripts)
 - F1: Jolpica Ergast-compatible API (`api.jolpi.ca`)
 
 ## Local Setup
@@ -75,6 +77,8 @@ From repository root:
 npm --prefix web run sync:football
 npm --prefix web run sync:f1
 npm --prefix web run sync:baseball
+npm --prefix web run sync:basketball
+npm --prefix web run sync:american-football
 ```
 
 Or from `web/`:
@@ -83,6 +87,8 @@ Or from `web/`:
 npm run sync:football
 npm run sync:f1
 npm run sync:baseball
+npm run sync:basketball
+npm run sync:american-football
 ```
 
 ## Automated Sync (GitHub Actions)
@@ -91,6 +97,8 @@ Workflows:
 
 - `football-sync.yml` every 30 minutes
 - `baseball-sync.yml` every 30 minutes
+- `basketball-sync.yml` every 30 minutes
+- `american-football-sync.yml` every 30 minutes
 - `f1-sync.yml` every 15 minutes
 
 Required repository secrets:

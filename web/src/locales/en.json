@@ -101,8 +101,10 @@
   "filters": {
     "all": "All",
     "football": "Football",
+    "americanFootball": "American Football",
     "motorsport": "Motorsport",
     "baseball": "Baseball",
+    "basketball": "Basketball",
     "allLeagues": "All Leagues",
     "premierLeague": "Premier League",
     "championsLeague": "Champions League",
@@ -113,6 +115,8 @@
     "serieA": "Serie A",
     "ligue1": "Ligue 1",
     "mlb": "MLB",
-    "kbo": "KBO"
+    "kbo": "KBO",
+    "nba": "NBA",
+    "nfl": "NFL"
   }
 }
