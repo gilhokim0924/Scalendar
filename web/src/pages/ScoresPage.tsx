@@ -324,8 +324,6 @@ export default function ScoresPage() {
   const [mlbNlExpanded, setMlbNlExpanded] = useState(false);
   const [mlbLeagueMode, setMlbLeagueMode] = useState<MlbLeagueMode>('AL');
   const [kboExpanded, setKboExpanded] = useState(false);
-  const [nbaExpanded, setNbaExpanded] = useState(false);
-  const [nflExpanded, setNflExpanded] = useState(false);
   const [nbaConferenceMode, setNbaConferenceMode] = useState<NbaConferenceMode>('East');
   const [nflConferenceMode, setNflConferenceMode] = useState<NflConferenceMode>('AFC');
 
@@ -811,14 +809,18 @@ export default function ScoresPage() {
         {showEuropaLeague && (
           <div className="standings-section standings-europa">
             <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
-            <div className="standings-loading">Work in progress</div>
+            <div className="standings-loading">
+              Work in progress ({nbaConferenceMode === 'East' ? nbaEastRows.length : nbaWestRows.length} teams previewed)
+            </div>
           </div>
         )}
 
         {showConferenceLeague && (
           <div className="standings-section standings-conference">
             <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
-            <div className="standings-loading">Work in progress</div>
+            <div className="standings-loading">
+              Work in progress ({nflConferenceMode === 'AFC' ? nflAfcRows.length : nflNfcRows.length} teams previewed)
+            </div>
           </div>
         )}
 
@@ -958,17 +960,7 @@ export default function ScoresPage() {
                 </button>
               </div>
             </div>
-            <StandingsTable
-              data={nbaConferenceMode === 'East' ? nbaEastRows : nbaWestRows}
-              isLoading={nbaStandings.isLoading || nbaTeams.isLoading}
-              error={(nbaStandings.error ?? nbaTeams.error) as Error | null}
-              refetch={() => { nbaStandings.refetch(); nbaTeams.refetch(); }}
-              accentClass="standings-mlb"
-              title=""
-              defaultVisibleRows={8}
-              expandAll={nbaExpanded}
-              onToggleExpand={() => setNbaExpanded((v) => !v)}
-            />
+            <div className="standings-loading">Work in progress</div>
           </div>
         )}
 
@@ -991,17 +983,7 @@ export default function ScoresPage() {
                 </button>
               </div>
             </div>
-            <StandingsTable
-              data={nflConferenceMode === 'AFC' ? nflAfcRows : nflNfcRows}
-              isLoading={nflStandings.isLoading || nflTeams.isLoading}
-              error={(nflStandings.error ?? nflTeams.error) as Error | null}
-              refetch={() => { nflStandings.refetch(); nflTeams.refetch(); }}
-              accentClass="standings-kbo"
-              title=""
-              defaultVisibleRows={8}
-              expandAll={nflExpanded}
-              onToggleExpand={() => setNflExpanded((v) => !v)}
-            />
+            <div className="standings-loading">Work in progress</div>
           </div>
         )}
           </>

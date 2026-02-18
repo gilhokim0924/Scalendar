@@ -5,8 +5,6 @@ import { mockEvents, getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
-import { AMERICAN_FOOTBALL_LEAGUES, useAmericanFootballLeagueEvents, useAmericanFootballLeagueTeams } from '../hooks/useAmericanFootballData';
-import { BASKETBALL_LEAGUES, useBasketballLeagueEvents, useBasketballLeagueTeams } from '../hooks/useBasketballData';
 import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { SportsEvent, Team } from '../types';
 import { Link, useLocation } from 'react-router-dom';
@@ -79,7 +77,6 @@ export default function CalendarPage() {
     }
     return normalized;
   });
-  const hasSelectedTeams = selectedTeams.length > 0;
 
   // Fetch live football events
   const plEvents = usePLEvents();
@@ -92,8 +89,6 @@ export default function CalendarPage() {
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
   const mlbEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.mlb.id);
   const kboEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.kbo.id);
-  const nbaEvents = useBasketballLeagueEvents(BASKETBALL_LEAGUES.nba.id);
-  const nflEvents = useAmericanFootballLeagueEvents(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
   const plTeams = useLeagueTeams(FOOTBALL_LEAGUES.premierLeague.id);
   const uclTeams = useLeagueTeams(FOOTBALL_LEAGUES.championsLeague.id);
   const europaTeams = useLeagueTeams(FOOTBALL_LEAGUES.europaLeague.id);
@@ -104,12 +99,10 @@ export default function CalendarPage() {
   const ligue1Teams = useLeagueTeams(FOOTBALL_LEAGUES.ligue1.id);
   const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
   const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
-  const nbaTeams = useBasketballLeagueTeams(BASKETBALL_LEAGUES.nba.id);
-  const nflTeams = useAmericanFootballLeagueTeams(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
   const f1EventsQuery = useF1Events();
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || nbaEvents.isLoading || nflEvents.isLoading || f1EventsQuery.isLoading;
-  const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error && mlbEvents.error && kboEvents.error && nbaEvents.error && nflEvents.error;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
+  const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error && mlbEvents.error && kboEvents.error;
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
   const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
@@ -132,11 +125,8 @@ export default function CalendarPage() {
       ...(mlbEvents.data ?? []),
       ...(kboEvents.data ?? []),
     ];
-    const basketballRows = [...(nbaEvents.data ?? [])];
-    const americanFootballRows = [...(nflEvents.data ?? [])];
-
-    return [...footballEvents, ...baseballEvents, ...basketballRows, ...americanFootballRows, ...f1Events];
-  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, nbaEvents.data, nflEvents.data, f1Events]);
+    return [...footballEvents, ...baseballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, f1Events]);
 
   const allTeams = useMemo<Team[]>(() => {
     const toTeam = (id: string | undefined, name: string | undefined, league: string): Team | null => {
@@ -208,20 +198,6 @@ export default function CalendarPage() {
         toTeam(event.away_team_id, event.away_team_name, 'KBO'),
       ]))),
     ].filter((team): team is Team => Boolean(team)).map((team) => ({ ...team, sport_id: '3' as const }));
-    const basketballTeams = [
-      ...(nbaTeams.data ?? []),
-      ...((nbaEvents.data ?? []).flatMap((event) => ([
-        toTeam(event.home_team_id, event.home_team_name, 'NBA'),
-        toTeam(event.away_team_id, event.away_team_name, 'NBA'),
-      ]))),
-    ].filter((team): team is Team => Boolean(team)).map((team) => ({ ...team, sport_id: '4' as const }));
-    const americanFootballTeams = [
-      ...(nflTeams.data ?? []),
-      ...((nflEvents.data ?? []).flatMap((event) => ([
-        toTeam(event.home_team_id, event.home_team_name, 'NFL'),
-        toTeam(event.away_team_id, event.away_team_name, 'NFL'),
-      ]))),
-    ].filter((team): team is Team => Boolean(team)).map((team) => ({ ...team, sport_id: '5' as const }));
     const f1Teams: Team[] = [{
       id: F1_SELECTION_ID,
       sport_id: '2',
@@ -229,7 +205,7 @@ export default function CalendarPage() {
       external_api_id: 'f1',
       league: 'Formula 1',
     }];
-    return uniqueTeamsById([...footballTeams, ...baseballTeams, ...basketballTeams, ...americanFootballTeams, ...f1Teams]);
+    return uniqueTeamsById([...footballTeams, ...baseballTeams, ...f1Teams]);
   }, [
     plTeams.data,
     uclTeams.data,
@@ -249,16 +225,13 @@ export default function CalendarPage() {
     ligue1Events.data,
     mlbTeams.data,
     kboTeams.data,
-    nbaTeams.data,
-    nflTeams.data,
     mlbEvents.data,
     kboEvents.data,
-    nbaEvents.data,
-    nflEvents.data,
   ]);
 
   // Get selected team objects for avatar chips
   const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
+  const hasSelectedTeams = selectedTeamObjects.length > 0;
 
   // Filter events by selected teams
   let filteredEvents = selectedTeams.length > 0
@@ -370,7 +343,7 @@ export default function CalendarPage() {
         ) : hasError ? (
           <div className="calendar-error">
             <p>Couldn't load events</p>
-            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); laLigaEvents.refetch(); bundesligaEvents.refetch(); serieAEvents.refetch(); ligue1Events.refetch(); mlbEvents.refetch(); kboEvents.refetch(); nbaEvents.refetch(); nflEvents.refetch(); f1EventsQuery.refetch(); }} className="retry-btn">Retry</button>
+            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); laLigaEvents.refetch(); bundesligaEvents.refetch(); serieAEvents.refetch(); ligue1Events.refetch(); mlbEvents.refetch(); kboEvents.refetch(); f1EventsQuery.refetch(); }} className="retry-btn">Retry</button>
           </div>
         ) : !hasSelectedTeams ? (
           <div className="calendar-empty-selection">

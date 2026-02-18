@@ -5,8 +5,8 @@ Scalendar is a multi-sport calendar and tables app with a React web client, Expo
 ## Current Scope
 
 - Football: Premier League, Champions League, Europa League, Europa Conference League, La Liga, Bundesliga, Serie A, Ligue 1
-- American Football: NFL
-- Basketball: NBA
+- American Football: NFL (Work in progress)
+- Basketball: NBA (Work in progress)
 - Motorsport: Formula 1 (race weekend sessions + driver/constructor standings)
 - Baseball: MLB, KBO
 
@@ -33,6 +33,11 @@ The web app reads from Supabase, not direct client calls to external sports APIs
 
 - Football + Baseball + Basketball + American Football: TheSportsDB (server-side sync scripts)
 - F1: Jolpica Ergast-compatible API (`api.jolpi.ca`)
+
+### Data Availability Note
+
+- On TheSportsDB free tier, NBA/NFL season coverage is currently partial.
+- In the app, NBA and NFL are intentionally marked as `Work in progress` until full/consistent coverage is available.
 
 ## Local Setup
 

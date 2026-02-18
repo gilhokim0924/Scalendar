@@ -5,8 +5,6 @@ import { getTeamInitials, mockEvents } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents } from '../hooks/useBaseballData';
-import { BASKETBALL_LEAGUES, useBasketballLeagueEvents } from '../hooks/useBasketballData';
-import { AMERICAN_FOOTBALL_LEAGUES, useAmericanFootballLeagueEvents } from '../hooks/useAmericanFootballData';
 import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { SportsEvent } from '../types';
 import './DiscoverPage.css';
@@ -97,8 +95,6 @@ export default function DiscoverPage() {
   const ligue1Events = useLeagueEvents(FOOTBALL_LEAGUES.ligue1.id);
   const mlbEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.mlb.id);
   const kboEvents = useBaseballLeagueEvents(BASEBALL_LEAGUES.kbo.id);
-  const nbaEvents = useBasketballLeagueEvents(BASKETBALL_LEAGUES.nba.id);
-  const nflEvents = useAmericanFootballLeagueEvents(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
   const f1EventsQuery = useF1Events();
 
   const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
@@ -121,12 +117,11 @@ export default function DiscoverPage() {
       ...(mlbEvents.data ?? []),
       ...(kboEvents.data ?? []),
     ];
-    const basketballRows = [...(nbaEvents.data ?? [])];
-    const americanFootballRows = [...(nflEvents.data ?? [])];
-    return [...footballEvents, ...baseballEvents, ...basketballRows, ...americanFootballRows, ...f1Events];
-  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, nbaEvents.data, nflEvents.data, f1Events]);
+    return [...footballEvents, ...baseballEvents, ...f1Events];
+  }, [plEvents.data, uclEvents.data, europaEvents.data, conferenceEvents.data, laLigaEvents.data, bundesligaEvents.data, serieAEvents.data, ligue1Events.data, mlbEvents.data, kboEvents.data, f1Events]);
 
-  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || nbaEvents.isLoading || nflEvents.isLoading || f1EventsQuery.isLoading;
+  const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
+  const isWipSportSelected = sportFilter === '4' || sportFilter === '5';
 
   const upcomingEvents = [...allEvents]
     .filter((event) => parseISO(event.datetime_utc).getTime() >= referenceNowTs)
@@ -430,7 +425,9 @@ export default function DiscoverPage() {
       <section className="discover-section">
         <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
         <div className="upcoming-scroll">
-          {isLoading ? (
+          {isWipSportSelected ? (
+            <div className="discover-loading">Work in progress</div>
+          ) : isLoading ? (
             <div className="discover-loading">
               <span className="loading-with-spinner">
                 <span className="loading-spinner" aria-hidden="true" />
