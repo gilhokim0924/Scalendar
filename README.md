@@ -1,128 +1,65 @@
 # Scalendar
 
-Scalendar is a multi-sport calendar and tables app with a React web client, Expo mobile app, and Supabase-backed data pipeline.
+Scalendar is a multi-sport app that helps you track schedules and standings in one place.
 
-## Current Scope
+## Features
 
-- Football: Premier League, Champions League, Europa League, Europa Conference League, La Liga, Bundesliga, Serie A, Ligue 1
-- American Football: NFL (Work in progress)
-- Basketball: NBA (Work in progress)
-- Motorsport: Formula 1 (race weekend sessions + driver/constructor standings)
-- Baseball: MLB, KBO
+### Calendar Page
 
-The web app reads from Supabase, not direct client calls to external sports APIs.
+![Calendar Page](docs/images/calendar-page.png)
 
-## Tech Stack
+- Starts centered on today
+- Shows your personalized schedule based on selected teams
+- Supports football, F1, baseball (NBA/NFL marked as Work in progress)
 
-- Web: React + TypeScript + Vite
-- Desktop: Tauri (macOS app wrapper for web client)
-- Mobile: React Native (Expo) + TypeScript
-- Data/API: Supabase (Postgres + RLS + JS client)
-- Fetch/cache: React Query
+### Discover Page
 
-## Repository Structure
+![Discover Page](docs/images/discover-page.png)
 
-```text
-/web                 React web app
-/mobile              Expo app
-/web/scripts          Manual sync scripts
-/.github/workflows    Scheduled sync jobs
-/docs                 Product and planning docs
-```
+- Highlights upcoming events
+- Shows what is left this month
+- Includes recently updated sections by sport
 
-## Data Sources
+### Tables Page
 
-- Football + Baseball + Basketball + American Football: TheSportsDB (server-side sync scripts)
-- F1: Jolpica Ergast-compatible API (`api.jolpi.ca`)
+![Tables Page](docs/images/tables-page.png)
 
-### Data Availability Note
+- League standings and rankings by sport
+- Filter by sport and league
+- Includes dedicated views such as F1 standings
 
-- On TheSportsDB free tier, NBA/NFL season coverage is currently partial.
-- In the app, NBA and NFL are intentionally marked as `Work in progress` until full/consistent coverage is available.
+### Platform + Language Support
 
-## Local Setup
+- Web app + macOS desktop app
+- Multi-language support: English, Korean, Spanish, Thai
 
-### Prerequisites
+## Open Scalendar (Web)
 
-- Node.js 22.x recommended
-- npm
-- Supabase project with required tables/policies
+- `https://scalendar-five.vercel.app/`
 
-### 1) Install dependencies
+## Build and Install on macOS (.dmg)
 
-```bash
-cd web
-npm ci
-```
+1. Clone the repo:
+   - `git clone https://github.com/gilhokim0924/Scalendar.git`
+   - `cd Scalendar/web`
+2. Install dependencies:
+   - `npm ci`
+3. Build the macOS installer:
+   - `npm run tauri:build:dmg`
+4. Open the generated file:
+   - `src-tauri/target/release/bundle/dmg/*.dmg`
+5. Drag `Scalendar.app` to `Applications`.
+6. Open `Applications` and launch `Scalendar`.
+7. If macOS blocks first launch:
+   - `System Settings -> Privacy & Security`
+   - Click `Open Anyway` for Scalendar.
 
-### 2) Environment variables
+## Updates
 
-Copy `web/.env.example` to `web/.env` and set:
+### v1.0.0
 
-```env
-VITE_SUPABASE_URL=...
-VITE_SUPABASE_ANON_KEY=...
-SUPABASE_URL=...
-SUPABASE_SERVICE_ROLE_KEY=...
-```
-
-`SUPABASE_SERVICE_ROLE_KEY` is required for sync scripts.
-
-### 3) Run web app
-
-```bash
-cd web
-npm run dev
-```
-
-### 4) Run desktop app (macOS, Tauri)
-
-```bash
-cd web
-cargo install tauri-cli --version "^2.0.0"
-npm run tauri:dev
-```
-
-## Manual Data Sync
-
-From repository root:
-
-```bash
-npm --prefix web run sync:football
-npm --prefix web run sync:f1
-npm --prefix web run sync:baseball
-npm --prefix web run sync:basketball
-npm --prefix web run sync:american-football
-```
-
-Or from `web/`:
-
-```bash
-npm run sync:football
-npm run sync:f1
-npm run sync:baseball
-npm run sync:basketball
-npm run sync:american-football
-```
-
-## Automated Sync (GitHub Actions)
-
-Workflows:
-
-- `football-sync.yml` every 30 minutes
-- `baseball-sync.yml` every 30 minutes
-- `basketball-sync.yml` every 30 minutes
-- `american-football-sync.yml` every 30 minutes
-- `f1-sync.yml` every 15 minutes
-
-Required repository secrets:
-
-- `SUPABASE_URL`
-- `SUPABASE_SERVICE_ROLE_KEY`
-
-Each workflow can also be run manually via `workflow_dispatch`.
+- Initial public launch
 
 ## Notes
 
-- Sync upserts by conflict keys, so existing rows are updated and new rows are inserted.
-- Current app preferences include 24-hour time and hide scores/winners, applied globally in web UI.
+- `Export Calendar`, `Event Reminders`, and `GitHub Login` are currently marked as Work in progress.

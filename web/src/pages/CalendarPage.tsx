@@ -233,42 +233,46 @@ export default function CalendarPage() {
   const selectedTeamObjects = allTeams.filter(t => selectedTeams.includes(t.id));
   const hasSelectedTeams = selectedTeamObjects.length > 0;
 
-  // Filter events by selected teams
-  let filteredEvents = selectedTeams.length > 0
-    ? allEvents.filter(event => {
-        if (event.home_team_id || event.away_team_id) {
-          return selectedTeams.includes(event.home_team_id || '') ||
-                 selectedTeams.includes(event.away_team_id || '');
-        }
-        if (event.sport_id === '2') {
-          return selectedTeams.some(teamId => {
-            const team = allTeams.find(t => t.id === teamId);
-            return team && team.sport_id === '2';
-          });
-        }
-        return false;
-      })
-    : [];
+  // Filter + sort events by selected teams
+  const filteredEvents = useMemo(() => {
+    const events = selectedTeams.length > 0
+      ? allEvents.filter(event => {
+          if (event.home_team_id || event.away_team_id) {
+            return selectedTeams.includes(event.home_team_id || '')
+              || selectedTeams.includes(event.away_team_id || '');
+          }
+          if (event.sport_id === '2') {
+            return selectedTeams.some(teamId => {
+              const team = allTeams.find(t => t.id === teamId);
+              return team && team.sport_id === '2';
+            });
+          }
+          return false;
+        })
+      : [];
 
-  // Sort all events ascending
-  filteredEvents = [...filteredEvents].sort((a, b) => {
-    const dateA = parseISO(a.datetime_utc).getTime();
-    const dateB = parseISO(b.datetime_utc).getTime();
-    return dateA - dateB;
-  });
+    return [...events].sort((a, b) => {
+      const dateA = parseISO(a.datetime_utc).getTime();
+      const dateB = parseISO(b.datetime_utc).getTime();
+      return dateA - dateB;
+    });
+  }, [selectedTeams, allEvents, allTeams]);
 
   // Find the today marker insertion point
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
   // Group events by date
-  const groupedEvents: { [key: string]: SportsEvent[] } = {};
-  filteredEvents.forEach(event => {
-    const dateKey = format(parseISO(event.datetime_utc), 'yyyy-MM-dd');
-    if (!groupedEvents[dateKey]) {
-      groupedEvents[dateKey] = [];
-    }
-    groupedEvents[dateKey].push(event);
-  });
+  const groupedEvents = useMemo(() => {
+    const grouped: Record<string, SportsEvent[]> = {};
+    filteredEvents.forEach(event => {
+      const dateKey = format(parseISO(event.datetime_utc), 'yyyy-MM-dd');
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(event);
+    });
+    return grouped;
+  }, [filteredEvents]);
 
   const getTeamDisplay = (event: SportsEvent, which: 'home' | 'away') => {
     const teamId = which === 'home' ? event.home_team_id : event.away_team_id;

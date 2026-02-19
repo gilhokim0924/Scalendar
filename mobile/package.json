@@ -1,5 +1,6 @@
 {
-  "name": "mobile",
+  "name": "scalendar-mobile",
+  "description": "Scalendar mobile app",
   "version": "1.0.0",
   "main": "index.ts",
   "scripts": {

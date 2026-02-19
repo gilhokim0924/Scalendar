@@ -1,7 +1,8 @@
 {
-  "name": "web",
+  "name": "scalendar",
+  "description": "Scalendar web and macOS desktop app",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -11,6 +12,9 @@
     "tauri": "cargo tauri",
     "tauri:dev": "cargo tauri dev",
     "tauri:build": "cargo tauri build",
+    "tauri:build:app": "cargo tauri build --bundles app",
+    "tauri:build:dmg": "cargo tauri build --bundles dmg",
+    "tauri:build:mac": "cargo tauri build --bundles app,dmg",
     "sync:football": "node scripts/sync-football.mjs",
     "sync:f1": "node scripts/sync-f1-seed.mjs",
     "sync:baseball": "node scripts/sync-baseball.mjs",
