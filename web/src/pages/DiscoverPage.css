@@ -94,8 +94,8 @@
 .discover-sub-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(120px, 1fr);
-  width: 100%;
+  grid-auto-columns: max-content;
+  width: auto;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -109,7 +109,8 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  width: 100%;
+  width: auto;
+  white-space: nowrap;
   justify-content: center;
 }
 
@@ -737,5 +738,34 @@
     min-width: 170px;
     height: 160px;
     padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .discover-header {
+    padding: 16px 0;
+  }
+
+  .discover-title {
+    font-size: 22px;
+  }
+
+  .discover-filters,
+  .discover-sub-filters,
+  .discover-section {
+    max-width: calc(100% - 24px);
+  }
+
+  .upcoming-card,
+  .competition-card {
+    width: 156px;
+    min-width: 156px;
+    height: 148px;
+    padding: 14px;
+  }
+
+  .modal {
+    width: calc(100% - 24px);
+    padding: 18px 14px;
   }
 }

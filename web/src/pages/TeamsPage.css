@@ -148,8 +148,8 @@
 .teams-league-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(120px, 1fr);
-  width: 100%;
+  grid-auto-columns: max-content;
+  width: auto;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -163,7 +163,8 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  width: 100%;
+  width: auto;
+  white-space: nowrap;
   justify-content: center;
 }
 
@@ -488,5 +489,30 @@
   .teams-bar-tab svg {
     width: 20px;
     height: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .teams-header {
+    padding: 16px 0;
+  }
+
+  .teams-title {
+    font-size: 22px;
+  }
+
+  .teams-search-wrapper,
+  .teams-filters,
+  .teams-league-filters,
+  .teams-list {
+    max-width: calc(100% - 24px);
+  }
+
+  .teams-list-row {
+    padding: 10px 12px;
+  }
+
+  .teams-list-name {
+    font-size: 14px;
   }
 }

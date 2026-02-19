@@ -189,3 +189,22 @@
     transform: none !important;
   }
 }
+
+@media (max-width: 480px) {
+  .login-page {
+    padding: 14px;
+  }
+
+  .login-card {
+    border-radius: 18px;
+    padding: 16px 16px 6px;
+  }
+
+  .login-title {
+    font-size: 28px;
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+  }
+}

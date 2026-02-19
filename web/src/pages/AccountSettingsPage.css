@@ -262,3 +262,46 @@
   align-items: center;
   justify-content: center;
 }
+
+@media (max-width: 768px) {
+  .account-title {
+    font-size: 24px;
+  }
+
+  .account-content {
+    padding: 16px 16px 40px;
+  }
+
+  .account-panel,
+  .account-section,
+  .account-status,
+  .account-action-list {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .account-header {
+    padding: 16px 0;
+  }
+
+  .account-header-inner {
+    padding: 0 16px;
+  }
+
+  .account-title {
+    font-size: 22px;
+  }
+
+  .account-content {
+    padding: 12px 12px 36px;
+  }
+
+  .account-section {
+    padding: 14px 14px;
+  }
+
+  .account-action-list {
+    padding: 0 14px 14px;
+  }
+}

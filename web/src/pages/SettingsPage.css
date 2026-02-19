@@ -371,3 +371,35 @@
     padding: 16px 16px 40px;
   }
 }
+
+@media (max-width: 480px) {
+  .settings-header {
+    padding: 16px 0;
+  }
+
+  .settings-title {
+    font-size: 22px;
+  }
+
+  .settings-content {
+    padding: 12px 12px 32px;
+  }
+
+  .settings-row {
+    padding: 12px 14px;
+  }
+
+  .settings-row-label {
+    font-size: 14px;
+  }
+
+  .settings-theme-option {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+  .settings-select {
+    max-width: 150px;
+    font-size: 13px;
+  }
+}

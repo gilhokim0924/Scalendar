@@ -105,8 +105,8 @@
 .scores-league-row {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(120px, 1fr);
-  width: 100%;
+  grid-auto-columns: max-content;
+  width: auto;
   gap: 10px;
   overflow-x: auto;
   scrollbar-width: none;
@@ -120,7 +120,8 @@
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  width: 100%;
+  width: auto;
+  white-space: nowrap;
   justify-content: center;
 }
 
@@ -359,6 +360,13 @@
   overflow: hidden;
   background: var(--bg-card-subtle);
   border: 1px solid var(--border-color);
+}
+
+.standings-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 
 .standings-table thead tr {
@@ -695,5 +703,42 @@ td.standings-col-team {
   .scores-content {
     max-width: calc(100% - 32px);
     padding: 16px 0 120px;
+  }
+
+  .standings-header-row,
+  .ucl-phase-header {
+    flex-wrap: wrap;
+  }
+
+  .standings-table {
+    min-width: 620px;
+  }
+
+  .standings-table thead th,
+  .standings-table td {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .ucl-tournament-meta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .scores-header {
+    padding: 16px 0;
+  }
+
+  .scores-title {
+    padding: 0 16px;
+    font-size: 22px;
+  }
+
+  .scores-filters,
+  .scores-league-filters,
+  .scores-content {
+    max-width: calc(100% - 24px);
   }
 }

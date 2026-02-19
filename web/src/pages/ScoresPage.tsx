@@ -256,37 +256,39 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
         <div className="standings-loading">{t('scores.noStandings')}</div>
       ) : (
         <>
-          <table className="standings-table">
-            <thead>
-              <tr>
-                <th className="standings-col-pos">#</th>
-                <th className="standings-col-team">{t('scores.team')}</th>
-                <th className="standings-col-stat">{t('scores.statPlayed')}</th>
-                <th className="standings-col-stat">{t('scores.statWin')}</th>
-                <th className="standings-col-stat">{t('scores.statDraw')}</th>
-                <th className="standings-col-stat">{t('scores.statLoss')}</th>
-                <th className="standings-col-stat">{t('scores.statGoalDiff')}</th>
-                <th className="standings-col-pts">{t('scores.pts')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visibleRows.map((row, i) => (
-                <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                  <td className="standings-col-pos">{row.rank}</td>
-                  <td className="standings-col-team">
-                    <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
-                    {row.team}
-                  </td>
-                  <td className="standings-col-stat">{row.played}</td>
-                  <td className="standings-col-stat">{row.w}</td>
-                  <td className="standings-col-stat">{row.d}</td>
-                  <td className="standings-col-stat">{row.l}</td>
-                  <td className="standings-col-stat">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
-                  <td className="standings-col-pts">{row.pts}</td>
+          <div className="standings-table-scroll">
+            <table className="standings-table">
+              <thead>
+                <tr>
+                  <th className="standings-col-pos">#</th>
+                  <th className="standings-col-team">{t('scores.team')}</th>
+                  <th className="standings-col-stat">{t('scores.statPlayed')}</th>
+                  <th className="standings-col-stat">{t('scores.statWin')}</th>
+                  <th className="standings-col-stat">{t('scores.statDraw')}</th>
+                  <th className="standings-col-stat">{t('scores.statLoss')}</th>
+                  <th className="standings-col-stat">{t('scores.statGoalDiff')}</th>
+                  <th className="standings-col-pts">{t('scores.pts')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {visibleRows.map((row, i) => (
+                  <tr key={row.teamId} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                    <td className="standings-col-pos">{row.rank}</td>
+                    <td className="standings-col-team">
+                      <span className="standings-team-badge">{getTeamInitials(row.team)}</span>
+                      {row.team}
+                    </td>
+                    <td className="standings-col-stat">{row.played}</td>
+                    <td className="standings-col-stat">{row.w}</td>
+                    <td className="standings-col-stat">{row.d}</td>
+                    <td className="standings-col-stat">{row.l}</td>
+                    <td className="standings-col-stat">{row.gd > 0 ? `+${row.gd}` : row.gd}</td>
+                    <td className="standings-col-pts">{row.pts}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {canExpand && (
             <div className="scores-view-more-row">
               <button className="scores-expand-btn" onClick={onToggleExpand}>
@@ -848,42 +850,44 @@ export default function ScoresPage() {
               </div>
             </div>
 
-            <table className="standings-table">
-              <thead>
-                {f1Mode === 'driver' ? (
-                  <tr>
-                    <th className="standings-col-pos">#</th>
-                    <th className="standings-col-team">{t('scores.driver')}</th>
-                    <th className="standings-col-f1-team">{t('scores.team')}</th>
-                    <th className="standings-col-pts">{t('scores.pts')}</th>
-                  </tr>
-                ) : (
-                  <tr>
-                    <th className="standings-col-pos">#</th>
-                    <th className="standings-col-team">{t('scores.team')}</th>
-                    <th className="standings-col-pts">{t('scores.pts')}</th>
-                  </tr>
-                )}
-              </thead>
-              <tbody>
-                {(f1Mode === 'driver'
-                  ? (f1Expanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
-                    <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                      <td className="standings-col-pos">{i + 1}</td>
-                      <td className="standings-col-team">{row.driver}</td>
-                      <td className="standings-col-f1-team">{row.team}</td>
-                      <td className="standings-col-pts">{row.pts}</td>
+            <div className="standings-table-scroll">
+              <table className="standings-table">
+                <thead>
+                  {f1Mode === 'driver' ? (
+                    <tr>
+                      <th className="standings-col-pos">#</th>
+                      <th className="standings-col-team">{t('scores.driver')}</th>
+                      <th className="standings-col-f1-team">{t('scores.team')}</th>
+                      <th className="standings-col-pts">{t('scores.pts')}</th>
                     </tr>
-                  ))
-                  : (f1Expanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
-                    <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                      <td className="standings-col-pos">{i + 1}</td>
-                      <td className="standings-col-team">{row.team}</td>
-                      <td className="standings-col-pts">{row.pts}</td>
+                  ) : (
+                    <tr>
+                      <th className="standings-col-pos">#</th>
+                      <th className="standings-col-team">{t('scores.team')}</th>
+                      <th className="standings-col-pts">{t('scores.pts')}</th>
                     </tr>
-                  )))}
-              </tbody>
-            </table>
+                  )}
+                </thead>
+                <tbody>
+                  {(f1Mode === 'driver'
+                    ? (f1Expanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
+                      <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                        <td className="standings-col-pos">{i + 1}</td>
+                        <td className="standings-col-team">{row.driver}</td>
+                        <td className="standings-col-f1-team">{row.team}</td>
+                        <td className="standings-col-pts">{row.pts}</td>
+                      </tr>
+                    ))
+                    : (f1Expanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
+                      <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                        <td className="standings-col-pos">{i + 1}</td>
+                        <td className="standings-col-team">{row.team}</td>
+                        <td className="standings-col-pts">{row.pts}</td>
+                      </tr>
+                    )))}
+                </tbody>
+              </table>
+            </div>
             {((f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) > 5) && (
               <div className="scores-view-more-row">
                 <button className="scores-expand-btn" onClick={() => setF1Expanded((v) => !v)}>

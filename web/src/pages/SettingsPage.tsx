@@ -259,7 +259,7 @@ export default function SettingsPage() {
           <h2 className="settings-section-title">{t('settings.about')}</h2>
           <div className="settings-row">
             <div className="settings-row-label">{t('settings.version')}</div>
-            <div className="settings-row-value">1.0.0</div>
+            <div className="settings-row-value">1.1.0</div>
           </div>
           <div className="settings-row">
             <div className="settings-row-label">{t('settings.dataSources')}</div>
