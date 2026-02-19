@@ -8,7 +8,8 @@
   "common": {
     "loading": "กำลังโหลด...",
     "retry": "ลองอีกครั้ง",
-    "close": "ปิด"
+    "close": "ปิด",
+    "workInProgress": "อยู่ระหว่างพัฒนา"
   },
   "login": {
     "title": "Scalendar",

@@ -173,7 +173,8 @@
   "common": {
     "loading": "로딩 중...",
     "retry": "다시 시도",
-    "close": "닫기"
+    "close": "닫기",
+    "workInProgress": "준비 중"
   },
   "login": {
     "title": "Scalendar",

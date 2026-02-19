@@ -173,7 +173,8 @@
   "common": {
     "loading": "Loading...",
     "retry": "Retry",
-    "close": "Close"
+    "close": "Close",
+    "workInProgress": "Work in progress"
   },
   "login": {
     "title": "Scalendar",

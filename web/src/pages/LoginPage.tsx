@@ -33,6 +33,7 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
   const [pendingProvider, setPendingProvider] = useState<'google' | 'github' | null>(null);
+  const isGitHubWip = true;
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -96,11 +97,20 @@ export default function LoginPage() {
 
         <button
           className="oauth-btn oauth-github"
-          onClick={() => startOAuth('github')}
-          disabled={pendingProvider !== null}
+          onClick={() => {
+            if (isGitHubWip) return;
+            void startOAuth('github');
+          }}
+          disabled={pendingProvider !== null || isGitHubWip}
         >
           <span className="oauth-icon" aria-hidden="true"><GitHubLogo /></span>
-          <span>{pendingProvider === 'github' ? t('login.redirecting') : t('login.continueGitHub')}</span>
+          <span>
+            {pendingProvider === 'github'
+              ? t('login.redirecting')
+              : isGitHubWip
+                ? `${t('login.continueGitHub')} (${t('common.workInProgress')})`
+                : t('login.continueGitHub')}
+          </span>
         </button>
 
         <div className="guest-slot">

@@ -21,10 +21,6 @@ export default function SettingsPage() {
     if (savedTz) return savedTz;
     return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   });
-  const [eventReminders, setEventReminders] = useState(() => {
-    const savedReminders = localStorage.getItem('eventReminders');
-    return savedReminders === null ? true : savedReminders === 'true';
-  });
   const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [profileName, setProfileName] = useState<string | null>(() => (
     user?.id ? readCachedUserProfile(user.id)?.display_name ?? null : null
@@ -67,12 +63,6 @@ export default function SettingsPage() {
   const handleTimezoneChange = (value: string) => {
     setTimezone(value);
     localStorage.setItem('timezone', value);
-  };
-
-  const toggleEventReminders = () => {
-    const next = !eventReminders;
-    setEventReminders(next);
-    localStorage.setItem('eventReminders', String(next));
   };
 
   const toggleUse24HourTime = () => {
@@ -157,27 +147,26 @@ export default function SettingsPage() {
         {/* Calendar Sync */}
         <div className="settings-section">
           <h2 className="settings-section-title">{t('settings.calendarSync')}</h2>
-          <div className="settings-row">
+          <div className="settings-row settings-row-disabled">
             <div className="settings-row-icon">
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
                 <path d="M15.833 3.333H4.167C3.247 3.333 2.5 4.08 2.5 5v11.667c0 .92.746 1.666 1.667 1.666h11.666c.92 0 1.667-.746 1.667-1.666V5c0-.92-.746-1.667-1.667-1.667zM13.333 1.667V5M6.667 1.667V5M2.5 8.333h15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </div>
             <div className="settings-row-label">{t('settings.exportCalendar')}</div>
-            <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+            <span className="settings-wip-badge">{t('common.workInProgress')}</span>
           </div>
         </div>
 
         {/* Notifications */}
         <div className="settings-section">
           <h2 className="settings-section-title">{t('settings.notifications')}</h2>
-          <div className="settings-row">
+          <div className="settings-row settings-row-disabled">
             <div className="settings-row-label">{t('settings.eventReminders')}</div>
+            <span className="settings-wip-badge">{t('common.workInProgress')}</span>
             <button
-              className={`settings-toggle ${eventReminders ? 'on' : ''}`}
-              onClick={toggleEventReminders}
+              className="settings-toggle"
+              disabled
             >
               <div className="settings-toggle-knob" />
             </button>
