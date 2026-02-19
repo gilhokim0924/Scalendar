@@ -289,12 +289,51 @@ export default function CalendarPage() {
   };
 
   const hasTodayEvents = !!groupedEvents[todayStr];
+  const groupedDateKeys = Object.keys(groupedEvents);
+  const initialFocusDateKey = groupedDateKeys.find((dateKey) => dateKey >= todayStr)
+    ?? groupedDateKeys[groupedDateKeys.length - 1];
 
   const todayRef = useRef<HTMLDivElement>(null);
+  const hasAutoScrolledToTodayRef = useRef(false);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    hasAutoScrolledToTodayRef.current = false;
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (hasAutoScrolledToTodayRef.current) return;
+    if (isLoading || !hasSelectedTeams || Object.keys(groupedEvents).length === 0) return;
+    if (!todayRef.current) return;
+
+    const scrollTodayToCenter = () => {
+      const root = document.getElementById('root');
+      const anchor = todayRef.current;
+      if (!root || !anchor) return;
+
+      const rootRect = root.getBoundingClientRect();
+      const anchorRect = anchor.getBoundingClientRect();
+      const targetTop = root.scrollTop
+        + (anchorRect.top - rootRect.top)
+        - ((root.clientHeight / 2) - (anchorRect.height / 2));
+
+      root.scrollTo({
+        top: Math.max(0, targetTop),
+        behavior: 'auto',
+      });
+    };
+
+    scrollTodayToCenter();
+    const rafId = window.requestAnimationFrame(scrollTodayToCenter);
+    const timeoutId = window.setTimeout(() => {
+      scrollTodayToCenter();
+      hasAutoScrolledToTodayRef.current = true;
+    }, 180);
+
+    return () => {
+      window.cancelAnimationFrame(rafId);
+      window.clearTimeout(timeoutId);
+    };
+  }, [isLoading, hasSelectedTeams, groupedEvents]);
 
   // Track months for separators and today marker insertion
   let lastMonth = '';
@@ -365,9 +404,11 @@ export default function CalendarPage() {
             // Insert today marker before the first future date if no events today
             const insertTodayMarkerBefore = !todayMarkerInserted && !hasTodayEvents && dateKey > todayStr;
             if (insertTodayMarkerBefore) todayMarkerInserted = true;
+            const attachFallbackAnchor = dateKey === initialFocusDateKey && !isDateToday && !insertTodayMarkerBefore;
 
             return (
               <div key={dateKey}>
+                {attachFallbackAnchor && <div ref={todayRef} />}
                 {insertTodayMarkerBefore && (
                   <div ref={todayRef} className="today-marker">
                     <div className="today-marker-line" />

@@ -6,6 +6,7 @@ export default function Layout() {
   const location = useLocation();
 
   useEffect(() => {
+    if (location.pathname === '/') return;
     const root = document.getElementById('root');
     if (!root) return;
     root.scrollTo({ top: 0, behavior: 'auto' });

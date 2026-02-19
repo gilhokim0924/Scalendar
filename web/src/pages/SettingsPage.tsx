@@ -25,6 +25,7 @@ export default function SettingsPage() {
     const savedReminders = localStorage.getItem('eventReminders');
     return savedReminders === null ? true : savedReminders === 'true';
   });
+  const [legalModal, setLegalModal] = useState<'terms' | 'privacy' | null>(null);
   const [profileName, setProfileName] = useState<string | null>(() => (
     user?.id ? readCachedUserProfile(user.id)?.display_name ?? null : null
   ));
@@ -125,6 +126,8 @@ export default function SettingsPage() {
     }
     navigate('/login', { state: { from: '/settings/account' } });
   };
+  const openTermsOfService = () => setLegalModal('terms');
+  const openPrivacyPolicy = () => setLegalModal('privacy');
 
   return (
     <div className="settings-page">
@@ -271,20 +274,51 @@ export default function SettingsPage() {
             <div className="settings-row-label">{t('settings.dataSources')}</div>
             <div className="settings-row-value">TheSportsDB & OpenF1</div>
           </div>
-          <div className="settings-row">
+          <button className="settings-row settings-link-row" onClick={openTermsOfService}>
             <div className="settings-row-label">{t('settings.termsOfService')}</div>
             <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </div>
-          <div className="settings-row">
+          </button>
+          <button className="settings-row settings-link-row" onClick={openPrivacyPolicy}>
             <div className="settings-row-label">{t('settings.privacyPolicy')}</div>
             <svg className="settings-chevron" width="20" height="20" viewBox="0 0 20 20" fill="none">
               <path d="M7.5 5L12.5 10L7.5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
-          </div>
+          </button>
         </div>
       </div>
+
+      {legalModal && (
+        <div className="legal-modal-overlay" onClick={() => setLegalModal(null)}>
+          <div className="legal-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="legal-modal-header">
+              <h3>{legalModal === 'terms' ? t('settings.termsOfService') : t('settings.privacyPolicy')}</h3>
+              <button className="legal-modal-close" onClick={() => setLegalModal(null)} aria-label="Close">
+                ×
+              </button>
+            </div>
+            <div className="legal-modal-content">
+              {legalModal === 'terms' ? (
+                <>
+                  <p><strong>Use of Service:</strong> Scalendar is provided for personal, non-commercial use.</p>
+                  <p><strong>Accounts:</strong> You are responsible for activity under your account or guest session.</p>
+                  <p><strong>Data Accuracy:</strong> Sports data may be delayed or incomplete due to third-party feeds.</p>
+                  <p><strong>Changes:</strong> Features and terms may be updated over time.</p>
+                </>
+              ) : (
+                <>
+                  <p><strong>Information Collected:</strong> We process sign-in identity, profile fields, and app preferences.</p>
+                  <p><strong>Usage:</strong> Data is used to authenticate users and sync settings across devices.</p>
+                  <p><strong>Sharing:</strong> We do not sell personal data.</p>
+                  <p><strong>Controls:</strong> You can clear local app data in Settings and manage account data in account settings.</p>
+                </>
+              )}
+              <p className="legal-modal-updated">Last updated: February 19, 2026</p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
