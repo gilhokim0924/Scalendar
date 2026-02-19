@@ -71,6 +71,11 @@
   flex-shrink: 0;
 }
 
+/* Selected team chips are rendered as divs; give them extra breathing room. */
+.team-chips-row > div.team-chip {
+  margin: 4px 2px;
+}
+
 .team-chip.theme-pl { border-color: #a78bfa; }
 .team-chip.theme-ucl { border-color: #60a5fa; }
 .team-chip.theme-laliga { border-color: #fb7185; }
@@ -1027,7 +1032,7 @@
 
 @media (max-width: 480px) {
   .header {
-    padding: 12px 0;
+    padding: 16px 0;
   }
 
   .app-title {
@@ -1035,8 +1040,8 @@
   }
 
   .team-chips-bar {
-    top: 50px;
-    padding: 0 0 6px;
+    top: 58px;
+    padding: 4px 0 10px;
     z-index: 100;
   }
 
