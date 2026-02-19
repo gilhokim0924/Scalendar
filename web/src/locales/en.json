@@ -13,7 +13,11 @@
     "noEventsSub": "Try adding teams or check back later",
     "ft": "FT",
     "of": "of",
-    "fullTime": "Full Time"
+    "fullTime": "Full Time",
+    "loadingEvents": "Loading events...",
+    "loadError": "Couldn't load events",
+    "selectTeamsPrompt": "Select teams to see your schedule",
+    "chooseTeams": "Choose teams"
   },
   "discover": {
     "title": "Discover",
@@ -25,7 +29,8 @@
     "upcoming": "{{count}} upcoming",
     "lastUpdated": "Last updated: {{date}}",
     "noData": "No data yet",
-    "gamesLeftThisMonth": "Games left this month"
+    "gamesLeftThisMonth": "Games left this month",
+    "workInProgress": "Work in progress"
   },
   "scores": {
     "title": "Tables",
@@ -33,14 +38,36 @@
     "driver": "Driver",
     "pts": "Pts",
     "hiddenByPreference": "Scores and winners are hidden in Settings.",
-    "f1DriverStandings": "F1 Driver Standings"
+    "f1DriverStandings": "F1 Driver Standings",
+    "constructor": "Constructor",
+    "loadError": "Couldn't load standings",
+    "noStandings": "No standings available",
+    "statPlayed": "P",
+    "statWin": "W",
+    "statDraw": "D",
+    "statLoss": "L",
+    "statGoalDiff": "GD",
+    "viewMore": "View more",
+    "viewLess": "View less",
+    "leaguePhase": "League phase",
+    "tournamentPhase": "Tournament phase",
+    "noTournamentFixtures": "No tournament fixtures available yet.",
+    "knockoutRound": "Knockout Round",
+    "east": "East",
+    "west": "West",
+    "afc": "AFC",
+    "nfc": "NFC",
+    "workInProgress": "Work in progress",
+    "workInProgressWithCount": "Work in progress ({{count}} teams previewed)"
   },
   "teams": {
     "title": "Teams",
     "searchPlaceholder": "Search teams...",
     "noTeams": "No teams found",
     "clear": "Clear",
-    "done": "Done"
+    "done": "Done",
+    "loading": "Loading teams...",
+    "loadError": "Couldn't load teams"
   },
   "settings": {
     "title": "Settings",
@@ -96,7 +123,30 @@
     "version": "Version",
     "dataSources": "Data Sources",
     "termsOfService": "Terms of Service",
-    "privacyPolicy": "Privacy Policy"
+    "privacyPolicy": "Privacy Policy",
+    "defaultUserName": "Scalendar User",
+    "languageEnglish": "English",
+    "languageSpanish": "Español",
+    "languageThai": "ไทย",
+    "legal": {
+      "termsUseTitle": "Use of Service:",
+      "termsUseBody": "Scalendar is provided for personal, non-commercial use.",
+      "termsAccountsTitle": "Accounts:",
+      "termsAccountsBody": "You are responsible for activity under your account or guest session.",
+      "termsDataTitle": "Data Accuracy:",
+      "termsDataBody": "Sports data may be delayed or incomplete due to third-party feeds.",
+      "termsChangesTitle": "Changes:",
+      "termsChangesBody": "Features and terms may be updated over time.",
+      "privacyCollectedTitle": "Information Collected:",
+      "privacyCollectedBody": "We process sign-in identity, profile fields, and app preferences.",
+      "privacyUsageTitle": "Usage:",
+      "privacyUsageBody": "Data is used to authenticate users and sync settings across devices.",
+      "privacySharingTitle": "Sharing:",
+      "privacySharingBody": "We do not sell personal data.",
+      "privacyControlsTitle": "Controls:",
+      "privacyControlsBody": "You can clear local app data in Settings and manage account data in account settings.",
+      "lastUpdated": "Last updated: {{date}}"
+    }
   },
   "filters": {
     "all": "All",
@@ -117,6 +167,21 @@
     "mlb": "MLB",
     "kbo": "KBO",
     "nba": "NBA",
-    "nfl": "NFL"
+    "nfl": "NFL",
+    "formulaOne": "Formula 1"
+  },
+  "common": {
+    "loading": "Loading...",
+    "retry": "Retry",
+    "close": "Close"
+  },
+  "login": {
+    "title": "Scalendar",
+    "subtitle": "Sign in to sync your teams and settings across devices.",
+    "redirecting": "Redirecting...",
+    "continueGoogle": "Continue with Google",
+    "continueGitHub": "Continue with GitHub",
+    "continueGuest": "Continue as guest",
+    "error": "Login failed. Please check your Supabase auth provider settings and try again."
   }
 }

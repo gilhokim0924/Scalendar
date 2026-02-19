@@ -115,7 +115,7 @@ export default function SettingsPage() {
     || user?.user_metadata?.full_name
     || user?.user_metadata?.name
     || user?.email?.split('@')[0]
-    || (isGuestMode ? t('settings.guest') : 'Scalendar User');
+    || (isGuestMode ? t('settings.guest') : t('settings.defaultUserName'));
   const userSub = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const avatarSource = String(userName || 'S').trim();
   const avatarLetter = avatarSource.charAt(0).toUpperCase() || 'S';
@@ -208,8 +208,10 @@ export default function SettingsPage() {
               onChange={e => handleLanguageChange(e.target.value)}
               className="settings-select"
             >
-              <option value="en">English</option>
+              <option value="en">{t('settings.languageEnglish')}</option>
               <option value="ko">한국어</option>
+              <option value="es">{t('settings.languageSpanish')}</option>
+              <option value="th">{t('settings.languageThai')}</option>
             </select>
           </div>
           <div className="settings-row">
@@ -294,27 +296,27 @@ export default function SettingsPage() {
           <div className="legal-modal" onClick={(e) => e.stopPropagation()}>
             <div className="legal-modal-header">
               <h3>{legalModal === 'terms' ? t('settings.termsOfService') : t('settings.privacyPolicy')}</h3>
-              <button className="legal-modal-close" onClick={() => setLegalModal(null)} aria-label="Close">
+              <button className="legal-modal-close" onClick={() => setLegalModal(null)} aria-label={t('common.close')}>
                 ×
               </button>
             </div>
             <div className="legal-modal-content">
               {legalModal === 'terms' ? (
                 <>
-                  <p><strong>Use of Service:</strong> Scalendar is provided for personal, non-commercial use.</p>
-                  <p><strong>Accounts:</strong> You are responsible for activity under your account or guest session.</p>
-                  <p><strong>Data Accuracy:</strong> Sports data may be delayed or incomplete due to third-party feeds.</p>
-                  <p><strong>Changes:</strong> Features and terms may be updated over time.</p>
+                  <p><strong>{t('settings.legal.termsUseTitle')}</strong> {t('settings.legal.termsUseBody')}</p>
+                  <p><strong>{t('settings.legal.termsAccountsTitle')}</strong> {t('settings.legal.termsAccountsBody')}</p>
+                  <p><strong>{t('settings.legal.termsDataTitle')}</strong> {t('settings.legal.termsDataBody')}</p>
+                  <p><strong>{t('settings.legal.termsChangesTitle')}</strong> {t('settings.legal.termsChangesBody')}</p>
                 </>
               ) : (
                 <>
-                  <p><strong>Information Collected:</strong> We process sign-in identity, profile fields, and app preferences.</p>
-                  <p><strong>Usage:</strong> Data is used to authenticate users and sync settings across devices.</p>
-                  <p><strong>Sharing:</strong> We do not sell personal data.</p>
-                  <p><strong>Controls:</strong> You can clear local app data in Settings and manage account data in account settings.</p>
+                  <p><strong>{t('settings.legal.privacyCollectedTitle')}</strong> {t('settings.legal.privacyCollectedBody')}</p>
+                  <p><strong>{t('settings.legal.privacyUsageTitle')}</strong> {t('settings.legal.privacyUsageBody')}</p>
+                  <p><strong>{t('settings.legal.privacySharingTitle')}</strong> {t('settings.legal.privacySharingBody')}</p>
+                  <p><strong>{t('settings.legal.privacyControlsTitle')}</strong> {t('settings.legal.privacyControlsBody')}</p>
                 </>
               )}
-              <p className="legal-modal-updated">Last updated: February 19, 2026</p>
+              <p className="legal-modal-updated">{t('settings.legal.lastUpdated', { date: 'February 19, 2026' })}</p>
             </div>
           </div>
         </div>

@@ -482,18 +482,18 @@ export default function TeamsPage() {
       {/* Team List */}
       <div className="teams-list">
         {sportFilter === '4' || sportFilter === '5' ? (
-          <div className="teams-empty">Work in progress</div>
+          <div className="teams-empty">{t('scores.workInProgress')}</div>
         ) : isLoading ? (
           <div className="teams-loading teams-loading-state">
             <span className="loading-with-spinner">
               <span className="loading-spinner" aria-hidden="true" />
-              <span>Loading teams...</span>
+              <span>{t('teams.loading')}</span>
             </span>
           </div>
         ) : hasError ? (
           <div className="teams-loading">
-            <p>Couldn't load teams</p>
-            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); europaTeams.refetch(); conferenceTeams.refetch(); laLigaTeams.refetch(); bundesligaTeams.refetch(); serieATeams.refetch(); ligue1Teams.refetch(); mlbTeams.refetch(); kboTeams.refetch(); }} className="retry-btn">Retry</button>
+            <p>{t('teams.loadError')}</p>
+            <button onClick={() => { plTeams.refetch(); uclTeams.refetch(); europaTeams.refetch(); conferenceTeams.refetch(); laLigaTeams.refetch(); bundesligaTeams.refetch(); serieATeams.refetch(); ligue1Teams.refetch(); mlbTeams.refetch(); kboTeams.refetch(); }} className="retry-btn">{t('common.retry')}</button>
           </div>
         ) : (
           <>

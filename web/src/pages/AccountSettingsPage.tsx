@@ -86,7 +86,7 @@ export default function AccountSettingsPage() {
     || user?.user_metadata?.full_name
     || user?.user_metadata?.name
     || user?.email?.split('@')[0]
-    || (isGuestMode ? t('settings.guest') : 'Scalendar User');
+    || (isGuestMode ? t('settings.guest') : t('settings.defaultUserName'));
   const avatarLetter = String(userName).trim().charAt(0).toUpperCase() || 'S';
   const subLabel = user?.email || (isGuestMode ? t('settings.guestMode') : t('settings.manageAccount'));
   const canEditProfile = Boolean(user?.id) && !isGuestMode;

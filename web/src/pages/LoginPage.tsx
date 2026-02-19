@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '../contexts/AuthContext';
 import './LoginPage.css';
 
@@ -26,6 +27,7 @@ function GitHubLogo() {
 }
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const { user, isLoading, signInWithOAuth } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
@@ -42,7 +44,7 @@ export default function LoginPage() {
         <div className="login-card">
           <div className="loading-with-spinner">
             <span className="loading-spinner" aria-hidden="true" />
-            <span>Loading...</span>
+            <span>{t('common.loading')}</span>
           </div>
         </div>
       </div>
@@ -67,7 +69,7 @@ export default function LoginPage() {
       await signInWithOAuth(provider);
     } catch (err) {
       console.error(err);
-      setError('Login failed. Please check your Supabase auth provider settings and try again.');
+      setError(t('login.error'));
       setPendingProvider(null);
     }
   };
@@ -80,8 +82,8 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <div className="login-card">
-        <h1 className="login-title">Scalendar</h1>
-        <p className="login-subtitle">Sign in to sync your teams and settings across devices.</p>
+        <h1 className="login-title">{t('login.title')}</h1>
+        <p className="login-subtitle">{t('login.subtitle')}</p>
 
         <button
           className="oauth-btn oauth-google"
@@ -89,7 +91,7 @@ export default function LoginPage() {
           disabled={pendingProvider !== null}
         >
           <span className="oauth-icon" aria-hidden="true"><GoogleLogo /></span>
-          <span>{pendingProvider === 'google' ? 'Redirecting...' : 'Continue with Google'}</span>
+          <span>{pendingProvider === 'google' ? t('login.redirecting') : t('login.continueGoogle')}</span>
         </button>
 
         <button
@@ -98,7 +100,7 @@ export default function LoginPage() {
           disabled={pendingProvider !== null}
         >
           <span className="oauth-icon" aria-hidden="true"><GitHubLogo /></span>
-          <span>{pendingProvider === 'github' ? 'Redirecting...' : 'Continue with GitHub'}</span>
+          <span>{pendingProvider === 'github' ? t('login.redirecting') : t('login.continueGitHub')}</span>
         </button>
 
         <div className="guest-slot">
@@ -107,7 +109,7 @@ export default function LoginPage() {
             onClick={handleContinueAsGuest}
             disabled={pendingProvider !== null}
           >
-            Continue as guest
+            {t('login.continueGuest')}
           </button>
         </div>
 

@@ -244,16 +244,16 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
         <div className="standings-loading">
           <span className="loading-with-spinner">
             <span className="loading-spinner" aria-hidden="true" />
-            <span>Loading...</span>
+            <span>{t('common.loading')}</span>
           </span>
         </div>
       ) : error ? (
         <div className="standings-error">
-          <p>Couldn't load standings</p>
-          <button onClick={refetch} className="retry-btn">Retry</button>
+          <p>{t('scores.loadError')}</p>
+          <button onClick={refetch} className="retry-btn">{t('common.retry')}</button>
         </div>
       ) : rows.length === 0 ? (
-        <div className="standings-loading">No standings available</div>
+        <div className="standings-loading">{t('scores.noStandings')}</div>
       ) : (
         <>
           <table className="standings-table">
@@ -261,11 +261,11 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
               <tr>
                 <th className="standings-col-pos">#</th>
                 <th className="standings-col-team">{t('scores.team')}</th>
-                <th className="standings-col-stat">P</th>
-                <th className="standings-col-stat">W</th>
-                <th className="standings-col-stat">D</th>
-                <th className="standings-col-stat">L</th>
-                <th className="standings-col-stat">GD</th>
+                <th className="standings-col-stat">{t('scores.statPlayed')}</th>
+                <th className="standings-col-stat">{t('scores.statWin')}</th>
+                <th className="standings-col-stat">{t('scores.statDraw')}</th>
+                <th className="standings-col-stat">{t('scores.statLoss')}</th>
+                <th className="standings-col-stat">{t('scores.statGoalDiff')}</th>
                 <th className="standings-col-pts">{t('scores.pts')}</th>
               </tr>
             </thead>
@@ -290,7 +290,7 @@ function StandingsTable({ data, isLoading, error, refetch, accentClass, title, d
           {canExpand && (
             <div className="scores-view-more-row">
               <button className="scores-expand-btn" onClick={onToggleExpand}>
-                {expandAll ? 'View less' : 'View more'}
+                {expandAll ? t('scores.viewLess') : t('scores.viewMore')}
               </button>
             </div>
           )}
@@ -591,7 +591,7 @@ export default function ScoresPage() {
               className={`scores-filter-btn scores-league-btn scores-league-f1 ${motorsportSubFilter === 'Formula 1' ? 'active' : ''}`}
               onClick={() => setMotorsportSubFilter('Formula 1')}
             >
-              Formula 1
+              {t('filters.formulaOne')}
             </button>
           </div>
         </div>
@@ -746,13 +746,13 @@ export default function ScoresPage() {
                   className={`ucl-phase-btn ${uclPhase === 'league' ? 'active' : ''}`}
                   onClick={() => setUclPhase('league')}
                 >
-                  League phase
+                  {t('scores.leaguePhase')}
                 </button>
                 <button
                   className={`ucl-phase-btn ${uclPhase === 'tournament' ? 'active' : ''}`}
                   onClick={() => setUclPhase('tournament')}
                 >
-                  Tournament phase
+                  {t('scores.tournamentPhase')}
                 </button>
               </div>
             </div>
@@ -775,16 +775,16 @@ export default function ScoresPage() {
                   <div className="standings-loading">
                     <span className="loading-with-spinner">
                       <span className="loading-spinner" aria-hidden="true" />
-                      <span>Loading...</span>
+                      <span>{t('common.loading')}</span>
                     </span>
                   </div>
                 ) : uclTournamentFixtures.length === 0 ? (
-                  <div className="standings-loading">No tournament fixtures available yet.</div>
+                  <div className="standings-loading">{t('scores.noTournamentFixtures')}</div>
                 ) : (
                   <>
                     {(uclTournamentExpanded ? uclTournamentFixtures : uclTournamentFixtures.slice(0, 5)).map((event) => (
                       <div key={event.id} className="ucl-tournament-card">
-                        <div className="ucl-tournament-round">Knockout Round</div>
+                        <div className="ucl-tournament-round">{t('scores.knockoutRound')}</div>
                         <div className="ucl-tournament-title">{event.title}</div>
                         <div className="ucl-tournament-meta">
                           <span>{`${format(parseISO(event.datetime_utc), 'MMM d')}, ${formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}`}</span>
@@ -795,7 +795,7 @@ export default function ScoresPage() {
                     {uclTournamentFixtures.length > 5 && (
                       <div className="scores-view-more-row">
                         <button className="scores-expand-btn" onClick={() => setUclTournamentExpanded(v => !v)}>
-                          {uclTournamentExpanded ? 'View less' : 'View more'}
+                          {uclTournamentExpanded ? t('scores.viewLess') : t('scores.viewMore')}
                         </button>
                       </div>
                     )}
@@ -810,7 +810,9 @@ export default function ScoresPage() {
           <div className="standings-section standings-europa">
             <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
             <div className="standings-loading">
-              Work in progress ({nbaConferenceMode === 'East' ? nbaEastRows.length : nbaWestRows.length} teams previewed)
+              {t('scores.workInProgressWithCount', {
+                count: nbaConferenceMode === 'East' ? nbaEastRows.length : nbaWestRows.length,
+              })}
             </div>
           </div>
         )}
@@ -819,7 +821,9 @@ export default function ScoresPage() {
           <div className="standings-section standings-conference">
             <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
             <div className="standings-loading">
-              Work in progress ({nflConferenceMode === 'AFC' ? nflAfcRows.length : nflNfcRows.length} teams previewed)
+              {t('scores.workInProgressWithCount', {
+                count: nflConferenceMode === 'AFC' ? nflAfcRows.length : nflNfcRows.length,
+              })}
             </div>
           </div>
         )}
@@ -827,19 +831,19 @@ export default function ScoresPage() {
         {showF1 && (
           <div className="standings-section standings-f1">
             <div className="standings-header-row">
-              <h2 className="standings-league-name">Formula 1</h2>
+              <h2 className="standings-league-name">{t('filters.formulaOne')}</h2>
               <div className="ucl-phase-toggle">
                 <button
                   className={`ucl-phase-btn ${f1Mode === 'driver' ? 'active' : ''}`}
                   onClick={() => setF1Mode('driver')}
                 >
-                  Driver
+                  {t('scores.driver')}
                 </button>
                 <button
                   className={`ucl-phase-btn ${f1Mode === 'constructor' ? 'active' : ''}`}
                   onClick={() => setF1Mode('constructor')}
                 >
-                  Constructor
+                  {t('scores.constructor')}
                 </button>
               </div>
             </div>
@@ -883,7 +887,7 @@ export default function ScoresPage() {
             {((f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) > 5) && (
               <div className="scores-view-more-row">
                 <button className="scores-expand-btn" onClick={() => setF1Expanded((v) => !v)}>
-                  {f1Expanded ? 'View less' : 'View more'}
+                  {f1Expanded ? t('scores.viewLess') : t('scores.viewMore')}
                 </button>
               </div>
             )}
@@ -950,17 +954,17 @@ export default function ScoresPage() {
                   className={`ucl-phase-btn ${nbaConferenceMode === 'East' ? 'active' : ''}`}
                   onClick={() => setNbaConferenceMode('East')}
                 >
-                  East
+                  {t('scores.east')}
                 </button>
                 <button
                   className={`ucl-phase-btn ${nbaConferenceMode === 'West' ? 'active' : ''}`}
                   onClick={() => setNbaConferenceMode('West')}
                 >
-                  West
+                  {t('scores.west')}
                 </button>
               </div>
             </div>
-            <div className="standings-loading">Work in progress</div>
+            <div className="standings-loading">{t('scores.workInProgress')}</div>
           </div>
         )}
 
@@ -973,17 +977,17 @@ export default function ScoresPage() {
                   className={`ucl-phase-btn ${nflConferenceMode === 'AFC' ? 'active' : ''}`}
                   onClick={() => setNflConferenceMode('AFC')}
                 >
-                  AFC
+                  {t('scores.afc')}
                 </button>
                 <button
                   className={`ucl-phase-btn ${nflConferenceMode === 'NFC' ? 'active' : ''}`}
                   onClick={() => setNflConferenceMode('NFC')}
                 >
-                  NFC
+                  {t('scores.nfc')}
                 </button>
               </div>
             </div>
-            <div className="standings-loading">Work in progress</div>
+            <div className="standings-loading">{t('scores.workInProgress')}</div>
           </div>
         )}
           </>

@@ -373,7 +373,7 @@ export default function DiscoverPage() {
               {t('filters.all')}
             </button>
             <button className={`discover-filter-btn discover-sub-btn discover-sub-f1 ${motorsportSubFilter === 'Formula 1' ? 'active' : ''}`} onClick={() => setMotorsportSubFilter('Formula 1')}>
-              Formula 1
+              {t('filters.formulaOne')}
             </button>
           </div>
         </div>
@@ -426,12 +426,12 @@ export default function DiscoverPage() {
         <h2 className="discover-section-title">{t('discover.upcomingEvents')}</h2>
         <div className="upcoming-scroll">
           {isWipSportSelected ? (
-            <div className="discover-loading">Work in progress</div>
+            <div className="discover-loading">{t('discover.workInProgress')}</div>
           ) : isLoading ? (
             <div className="discover-loading">
               <span className="loading-with-spinner">
                 <span className="loading-spinner" aria-hidden="true" />
-                <span>Loading...</span>
+                <span>{t('common.loading')}</span>
               </span>
             </div>
           ) : (

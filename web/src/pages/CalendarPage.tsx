@@ -372,18 +372,18 @@ export default function CalendarPage() {
           <div className="calendar-loading">
             <span className="loading-with-spinner">
               <span className="loading-spinner" aria-hidden="true" />
-              <span>Loading events...</span>
+              <span>{t('calendar.loadingEvents')}</span>
             </span>
           </div>
         ) : hasError ? (
           <div className="calendar-error">
-            <p>Couldn't load events</p>
-            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); laLigaEvents.refetch(); bundesligaEvents.refetch(); serieAEvents.refetch(); ligue1Events.refetch(); mlbEvents.refetch(); kboEvents.refetch(); f1EventsQuery.refetch(); }} className="retry-btn">Retry</button>
+            <p>{t('calendar.loadError')}</p>
+            <button onClick={() => { plEvents.refetch(); uclEvents.refetch(); europaEvents.refetch(); conferenceEvents.refetch(); laLigaEvents.refetch(); bundesligaEvents.refetch(); serieAEvents.refetch(); ligue1Events.refetch(); mlbEvents.refetch(); kboEvents.refetch(); f1EventsQuery.refetch(); }} className="retry-btn">{t('common.retry')}</button>
           </div>
         ) : !hasSelectedTeams ? (
           <div className="calendar-empty-selection">
-            <p>Select teams to see your schedule</p>
-            <Link to="/teams" className="calendar-select-teams-btn">Choose teams</Link>
+            <p>{t('calendar.selectTeamsPrompt')}</p>
+            <Link to="/teams" className="calendar-select-teams-btn">{t('calendar.chooseTeams')}</Link>
           </div>
         ) : Object.keys(groupedEvents).length === 0 ? (
           <div className="no-events-message">
