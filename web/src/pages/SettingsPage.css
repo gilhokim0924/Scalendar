@@ -252,6 +252,7 @@
 /* Theme Picker (Segmented Control) */
 .settings-theme-picker {
   display: flex;
+  flex-wrap: wrap;
   gap: 2px;
   background: var(--toggle-off);
   border-radius: 10px;

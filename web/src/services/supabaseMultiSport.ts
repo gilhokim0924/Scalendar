@@ -164,6 +164,20 @@ export async function fetchEventsByCompetition(competitionId: string, season: st
   return (data ?? []) as EventRowV2[];
 }
 
+export async function fetchLatestEventSeasonByCompetition(competitionId: string) {
+  const { data, error } = await supabase
+    .from('events')
+    .select('season')
+    .eq('competition_id', competitionId)
+    .order('season', { ascending: false })
+    .order('starts_at_utc', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.season ?? null;
+}
+
 export async function fetchEventParticipants(eventIds: string[]) {
   if (eventIds.length === 0) return [];
 
@@ -186,4 +200,18 @@ export async function fetchStandingsByCompetition(competitionId: string, season:
 
   if (error) throw error;
   return (data ?? []) as StandingRowV2[];
+}
+
+export async function fetchLatestStandingSeasonByCompetition(competitionId: string) {
+  const { data, error } = await supabase
+    .from('standings')
+    .select('season')
+    .eq('competition_id', competitionId)
+    .order('season', { ascending: false })
+    .order('rank', { ascending: true })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.season ?? null;
 }

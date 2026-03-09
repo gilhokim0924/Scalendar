@@ -1,5 +1,45 @@
 import { supabase } from '../lib/supabase';
 
+export const SELECTED_TEAMS_EVENT = 'scalendar:selected-teams-updated';
+const F1_SELECTION_ID = 'f1';
+const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
+
+export function normalizeSelectedTeamIds(teamIds: string[]): string[] {
+  return Array.from(new Set(teamIds.map((id) => (
+    LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
+  ))));
+}
+
+export function readStoredSelectedTeams(): string[] {
+  if (typeof window === 'undefined') return [];
+  const saved = window.localStorage.getItem('selectedTeams');
+  if (!saved) return [];
+
+  try {
+    const parsed = JSON.parse(saved) as string[];
+    const normalized = normalizeSelectedTeamIds(parsed);
+    if (normalized.join(',') !== parsed.join(',')) {
+      window.localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+    }
+    return normalized;
+  } catch {
+    return [];
+  }
+}
+
+export function writeStoredSelectedTeams(teamIds: string[]): void {
+  if (typeof window === 'undefined') return;
+  const normalized = normalizeSelectedTeamIds(teamIds);
+  window.localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+  window.dispatchEvent(new Event(SELECTED_TEAMS_EVENT));
+}
+
+export function clearStoredSelectedTeams(): void {
+  if (typeof window === 'undefined') return;
+  window.localStorage.removeItem('selectedTeams');
+  window.dispatchEvent(new Event(SELECTED_TEAMS_EVENT));
+}
+
 export async function fetchUserSelectedTeams(userId: string): Promise<string[]> {
   const { data, error } = await supabase
     .from('user_selected_teams')
@@ -7,7 +47,7 @@ export async function fetchUserSelectedTeams(userId: string): Promise<string[]> 
     .eq('user_id', userId);
 
   if (error) throw error;
-  return (data ?? []).map((row) => row.team_id as string);
+  return normalizeSelectedTeamIds((data ?? []).map((row) => row.team_id as string));
 }
 
 export async function addUserSelectedTeam(userId: string, teamId: string): Promise<void> {

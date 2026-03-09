@@ -1,6 +1,6 @@
 [package]
 name = "scalendar_desktop"
-version = "0.1.0"
+version = "1.1.2"
 description = "Scalendar desktop app"
 authors = ["Scalendar"]
 edition = "2021"

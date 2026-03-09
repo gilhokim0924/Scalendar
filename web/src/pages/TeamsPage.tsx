@@ -4,7 +4,15 @@ import { getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
 import { useAuth } from '../contexts/AuthContext';
-import { addUserSelectedTeam, clearUserSelectedTeams, fetchUserSelectedTeams, removeUserSelectedTeam } from '../services/userPreferences';
+import {
+  addUserSelectedTeam,
+  clearStoredSelectedTeams,
+  clearUserSelectedTeams,
+  fetchUserSelectedTeams,
+  readStoredSelectedTeams,
+  removeUserSelectedTeam,
+  writeStoredSelectedTeams,
+} from '../services/userPreferences';
 import { useNavigate } from 'react-router-dom';
 import type { Team } from '../types';
 import './TeamsPage.css';
@@ -22,7 +30,6 @@ type LeagueFilter =
   | 'Ligue 1';
 type BaseballLeagueFilter = 'all' | 'MLB' | 'KBO';
 const F1_SELECTION_ID = 'f1';
-const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
 
 function uniqueTeamsById(teams: Team[]): Team[] {
   const byId = new Map<string, Team>();
@@ -229,25 +236,16 @@ export default function TeamsPage() {
       try {
         if (user?.id) {
           const teamIds = await fetchUserSelectedTeams(user.id);
-          const normalized = Array.from(new Set(teamIds.map((id) => (
-            LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
-          ))));
           if (!cancelled) {
-            setSelectedTeams(normalized);
-            localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+            setSelectedTeams(teamIds);
+            writeStoredSelectedTeams(teamIds);
           }
           return;
         }
 
-        const saved = localStorage.getItem('selectedTeams');
-        if (!saved) return;
-        const parsed: string[] = JSON.parse(saved);
-        const normalized = Array.from(new Set(parsed.map((id) => (
-          LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
-        ))));
+        const storedTeams = readStoredSelectedTeams();
         if (!cancelled) {
-          setSelectedTeams(normalized);
-          localStorage.setItem('selectedTeams', JSON.stringify(normalized));
+          setSelectedTeams(storedTeams);
         }
       } catch (error) {
         console.error('Failed to load selected teams', error);
@@ -274,7 +272,7 @@ export default function TeamsPage() {
       : [...selectedTeams, teamId];
 
     setSelectedTeams(newSelection);
-    localStorage.setItem('selectedTeams', JSON.stringify(newSelection));
+    writeStoredSelectedTeams(newSelection);
 
     if (user?.id) {
       const op = isSelected
@@ -292,7 +290,7 @@ export default function TeamsPage() {
 
   const clearAllTeams = () => {
     setSelectedTeams([]);
-    localStorage.removeItem('selectedTeams');
+    clearStoredSelectedTeams();
     if (user?.id) {
       void clearUserSelectedTeams(user.id).catch((error) => {
         console.error('Failed to clear selected teams', error);

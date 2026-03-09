@@ -89,6 +89,22 @@ function buildF1Sessions(race) {
   return sessionRows;
 }
 
+function getDriverFullName(driver) {
+  const given = driver?.givenName ?? '';
+  const family = driver?.familyName ?? '';
+  return `${given} ${family}`.trim() || driver?.driverId || 'Unknown Driver';
+}
+
+function buildPodiumSummary(results) {
+  const podium = results
+    .filter((result) => Number.parseInt(result?.position ?? '0', 10) > 0)
+    .sort((a, b) => (Number.parseInt(a?.position ?? '0', 10) || 0) - (Number.parseInt(b?.position ?? '0', 10) || 0))
+    .slice(0, 3)
+    .map((result) => `${result.position}. ${getDriverFullName(result.Driver)}`);
+
+  return podium.length > 0 ? podium.join('  ') : null;
+}
+
 async function main() {
   const env = loadEnvFromWebDir();
   const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
@@ -99,18 +115,29 @@ async function main() {
     throw new Error('Missing SUPABASE_URL (or VITE_SUPABASE_URL) and/or SUPABASE_SERVICE_ROLE_KEY in web/.env');
   }
 
-  const [driversPayload, racesPayload, standingsPayload, constructorsPayload] = await Promise.all([
+  const [driversPayload, racesPayload, driverStandingsPayload, constructorStandingsPayload, constructorsPayload] = await Promise.all([
     fetchJolpica(`/${season}/drivers.json`),
     fetchJolpica(`/${season}/races.json`),
     fetchJolpica(`/${season}/driverStandings.json`),
+    fetchJolpica(`/${season}/constructorStandings.json`),
     fetchJolpica(`/${season}/constructors.json`),
   ]);
 
   const drivers = driversPayload?.MRData?.DriverTable?.Drivers ?? [];
   const races = racesPayload?.MRData?.RaceTable?.Races ?? [];
-  const standingsList = standingsPayload?.MRData?.StandingsTable?.StandingsLists?.[0];
-  const driverStandings = standingsList?.DriverStandings ?? [];
+  const driverStandingsList = driverStandingsPayload?.MRData?.StandingsTable?.StandingsLists?.[0];
+  const constructorStandingsList = constructorStandingsPayload?.MRData?.StandingsTable?.StandingsLists?.[0];
+  const driverStandings = driverStandingsList?.DriverStandings ?? [];
+  const constructorStandings = constructorStandingsList?.ConstructorStandings ?? [];
   const constructors = constructorsPayload?.MRData?.ConstructorTable?.Constructors ?? [];
+  const raceResultsPayloads = await Promise.all(
+    races.map(async (race) => {
+      const payload = await fetchJolpica(`/${season}/${race.round}/results.json`);
+      const raceWithResults = payload?.MRData?.RaceTable?.Races?.[0];
+      return [String(race.round ?? ''), raceWithResults?.Results ?? []];
+    }),
+  );
+  const raceResultsByRound = new Map(raceResultsPayloads);
 
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
@@ -191,11 +218,12 @@ async function main() {
   }
 
   const participantExternalIds = participants.map((driver) => driver.external_id).filter(Boolean);
+  const constructorExternalIds = constructorParticipants.map((constructor) => constructor.external_id).filter(Boolean);
   const { data: participantRows, error: participantReadError } = await supabase
     .from('participants')
     .select('id, external_id')
     .eq('sport_id', sportId)
-    .in('external_id', participantExternalIds);
+    .in('external_id', [...new Set([...participantExternalIds, ...constructorExternalIds])]);
   if (participantReadError) throw participantReadError;
 
   const participantIdByExternal = new Map(
@@ -204,25 +232,47 @@ async function main() {
 
   const now = Date.now();
   const events = races.flatMap((race) => {
+    const round = String(race.round ?? '');
+    const raceResults = raceResultsByRound.get(round) ?? [];
+    const podiumSummary = buildPodiumSummary(raceResults);
     const sessions = buildF1Sessions(race);
     return sessions.map((session) => ({
       sport_id: sportId,
       competition_id: competitionId,
       external_id: `${season}-round-${race.round}-${session.sessionType.toLowerCase()}`,
       season,
-      round: String(race.round ?? ''),
+      round,
       stage: session.stage,
       starts_at_utc: session.startsAtUtc,
       venue: race?.Circuit?.circuitName ?? race?.Circuit?.Location?.locality ?? null,
-      status: new Date(session.startsAtUtc).getTime() < now ? 'finished' : 'scheduled',
+      status: session.sessionType === 'Race'
+        ? (raceResults.length > 0 ? 'finished' : (new Date(session.startsAtUtc).getTime() < now ? 'finished' : 'scheduled'))
+        : (new Date(session.startsAtUtc).getTime() < now ? 'finished' : 'scheduled'),
       metadata: {
         title: session.title,
         session_type: session.sessionType,
         country: race?.Circuit?.Location?.country ?? null,
         locality: race?.Circuit?.Location?.locality ?? null,
+        result: session.sessionType === 'Race' ? podiumSummary : null,
       },
     }));
   });
+
+  const { data: existingEvents, error: existingEventsError } = await supabase
+    .from('events')
+    .select('id')
+    .eq('competition_id', competitionId)
+    .eq('season', season);
+  if (existingEventsError) throw existingEventsError;
+
+  const existingEventIds = (existingEvents ?? []).map((event) => event.id);
+  if (existingEventIds.length > 0) {
+    const { error: deleteEventParticipantsError } = await supabase
+      .from('event_participants')
+      .delete()
+      .in('event_id', existingEventIds);
+    if (deleteEventParticipantsError) throw deleteEventParticipantsError;
+  }
 
   const { error: deleteEventsError } = await supabase
     .from('events')
@@ -238,6 +288,54 @@ async function main() {
     if (eventsError) throw eventsError;
   }
 
+  const { data: storedEvents, error: storedEventsError } = await supabase
+    .from('events')
+    .select('id, external_id')
+    .eq('competition_id', competitionId)
+    .eq('season', season);
+  if (storedEventsError) throw storedEventsError;
+
+  const eventIdByExternalId = new Map(
+    (storedEvents ?? []).map((event) => [event.external_id, event.id]),
+  );
+
+  const eventParticipants = races.flatMap((race) => {
+    const round = String(race.round ?? '');
+    const results = raceResultsByRound.get(round) ?? [];
+    const eventId = eventIdByExternalId.get(`${season}-round-${round}-race`);
+    if (!eventId || results.length === 0) return [];
+
+    return results
+      .map((result) => {
+        const driverId = result?.Driver?.driverId;
+        const participantId = participantIdByExternal.get(driverId);
+        if (!participantId) return null;
+
+        return {
+          event_id: eventId,
+          participant_id: participantId,
+          role: 'driver',
+          score: Number.parseFloat(result?.points ?? '0') || 0,
+          result_position: Number.parseInt(result?.position ?? '0', 10) || null,
+          outcome: result?.status ?? null,
+          metadata: {
+            team: result?.Constructor?.name ?? null,
+            laps: Number.parseInt(result?.laps ?? '0', 10) || null,
+            grid: Number.parseInt(result?.grid ?? '0', 10) || null,
+            time: result?.Time?.time ?? null,
+          },
+        };
+      })
+      .filter(Boolean);
+  });
+
+  if (eventParticipants.length > 0) {
+    const { error: eventParticipantsError } = await supabase
+      .from('event_participants')
+      .upsert(eventParticipants, { onConflict: 'event_id,participant_id,role' });
+    if (eventParticipantsError) throw eventParticipantsError;
+  }
+
   const standings = driverStandings
     .map((standing) => {
       const driverId = standing?.Driver?.driverId;
@@ -251,7 +349,7 @@ async function main() {
         participant_id: participantId,
         rank: Number.parseInt(standing.position ?? '0', 10) || 0,
         points: Number.parseFloat(standing.points ?? '0') || 0,
-        played: Number.parseInt(standingsList?.round ?? '0', 10) || null,
+        played: Number.parseInt(driverStandingsList?.round ?? '0', 10) || null,
         wins: Number.parseInt(standing.wins ?? '0', 10) || 0,
         draws: null,
         losses: null,
@@ -259,11 +357,39 @@ async function main() {
         conceded: null,
         diff: null,
         metadata: {
+          participant_type: 'driver',
           team: standing?.Constructors?.[0]?.name ?? null,
         },
       };
     })
-    .filter(Boolean);
+    .filter(Boolean)
+    .concat(constructorStandings
+      .map((standing) => {
+        const constructorId = standing?.Constructor?.constructorId;
+        if (!constructorId) return null;
+        const participantId = participantIdByExternal.get(constructorId);
+        if (!participantId) return null;
+
+        return {
+          competition_id: competitionId,
+          season,
+          participant_id: participantId,
+          rank: Number.parseInt(standing.position ?? '0', 10) || 0,
+          points: Number.parseFloat(standing.points ?? '0') || 0,
+          played: Number.parseInt(constructorStandingsList?.round ?? '0', 10) || null,
+          wins: Number.parseInt(standing.wins ?? '0', 10) || 0,
+          draws: null,
+          losses: null,
+          scored: null,
+          conceded: null,
+          diff: null,
+          metadata: {
+            participant_type: 'constructor',
+            team: standing?.Constructor?.name ?? null,
+          },
+        };
+      })
+      .filter(Boolean));
 
   const { error: deleteStandingsError } = await supabase
     .from('standings')
@@ -279,7 +405,7 @@ async function main() {
     if (standingsError) throw standingsError;
   }
 
-  console.log(`F1 sync complete (${season}): ${participants.length} drivers, ${constructorParticipants.length} constructors, ${events.length} races, ${standings.length} standings rows`);
+  console.log(`F1 sync complete (${season}): ${participants.length} drivers, ${constructorParticipants.length} constructors, ${events.length} sessions, ${eventParticipants.length} race results, ${standings.length} standings rows`);
 }
 
 main().catch((error) => {

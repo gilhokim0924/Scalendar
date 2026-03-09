@@ -56,6 +56,10 @@ Scalendar is a multi-sport app that helps you track schedules and standings in o
 
 ## Updates
 
+### v1.1.2
+
+- Minor bug fixes across F1, UEFA competition data, login team loading, and mobile UI overflow handling
+
 ### v1.1.0
 
 - Mobile environment support across all pages

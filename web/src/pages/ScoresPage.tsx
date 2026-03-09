@@ -3,21 +3,25 @@ import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { getTeamInitials } from '../utils/mockData';
 import {
+  useConferenceStandings,
   FOOTBALL_LEAGUES,
   useBundesligaStandings,
+  useEuropaStandings,
   useLaLigaStandings,
   useLigue1Standings,
   usePLStandings,
   useSerieAStandings,
+  useLeagueEvents,
   useUCLEvents,
   useUCLStandings,
 } from '../hooks/useFootballData';
 import { BASEBALL_LEAGUES, useBaseballLeagueTeams, useKBOStandings, useMLBStandings } from '../hooks/useBaseballData';
-import { AMERICAN_FOOTBALL_LEAGUES, useAmericanFootballLeagueTeams, useNFLStandings } from '../hooks/useAmericanFootballData';
-import { BASKETBALL_LEAGUES, useBasketballLeagueTeams, useNBAStandings } from '../hooks/useBasketballData';
-import { useF1Constructors, useF1DriverStandings, useF1Drivers } from '../hooks/useF1Data';
+import { AMERICAN_FOOTBALL_LEAGUES } from '../hooks/useAmericanFootballData';
+import { BASKETBALL_LEAGUES } from '../hooks/useBasketballData';
+import { useF1ConstructorStandings, useF1DriverStandings } from '../hooks/useF1Data';
 import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
 import type { FootballStanding } from '../hooks/useFootballData';
+import type { SportsEvent } from '../types';
 import './ScoresPage.css';
 
 type SportFilter = 'all' | 'football' | 'motorsport' | 'baseball' | 'basketball' | 'americanFootball';
@@ -42,12 +46,14 @@ type F1Mode = 'driver' | 'constructor';
 type MlbLeagueMode = 'AL' | 'NL';
 
 interface F1StandingRow {
+  rank: number;
   driver: string;
   team: string;
   pts: number;
 }
 
 interface F1ConstructorStandingRow {
+  rank: number;
   team: string;
   pts: number;
 }
@@ -103,80 +109,6 @@ const MLB_TEAM_ALIASES: Record<string, string> = {
   'St Louis Cardinals': 'St. Louis Cardinals',
 };
 
-const NBA_EAST_TEAMS = new Set([
-  'Atlanta Hawks',
-  'Boston Celtics',
-  'Brooklyn Nets',
-  'Charlotte Hornets',
-  'Chicago Bulls',
-  'Cleveland Cavaliers',
-  'Detroit Pistons',
-  'Indiana Pacers',
-  'Miami Heat',
-  'Milwaukee Bucks',
-  'New York Knicks',
-  'Orlando Magic',
-  'Philadelphia 76ers',
-  'Toronto Raptors',
-  'Washington Wizards',
-]);
-
-const NBA_WEST_TEAMS = new Set([
-  'Dallas Mavericks',
-  'Denver Nuggets',
-  'Golden State Warriors',
-  'Houston Rockets',
-  'LA Clippers',
-  'Los Angeles Lakers',
-  'Memphis Grizzlies',
-  'Minnesota Timberwolves',
-  'New Orleans Pelicans',
-  'Oklahoma City Thunder',
-  'Phoenix Suns',
-  'Portland Trail Blazers',
-  'Sacramento Kings',
-  'San Antonio Spurs',
-  'Utah Jazz',
-]);
-
-const NFL_AFC_TEAMS = new Set([
-  'Baltimore Ravens',
-  'Buffalo Bills',
-  'Cincinnati Bengals',
-  'Cleveland Browns',
-  'Denver Broncos',
-  'Houston Texans',
-  'Indianapolis Colts',
-  'Jacksonville Jaguars',
-  'Kansas City Chiefs',
-  'Las Vegas Raiders',
-  'Los Angeles Chargers',
-  'Miami Dolphins',
-  'New England Patriots',
-  'New York Jets',
-  'Pittsburgh Steelers',
-  'Tennessee Titans',
-]);
-
-const NFL_NFC_TEAMS = new Set([
-  'Arizona Cardinals',
-  'Atlanta Falcons',
-  'Carolina Panthers',
-  'Chicago Bears',
-  'Dallas Cowboys',
-  'Detroit Lions',
-  'Green Bay Packers',
-  'Los Angeles Rams',
-  'Minnesota Vikings',
-  'New Orleans Saints',
-  'New York Giants',
-  'Philadelphia Eagles',
-  'San Francisco 49ers',
-  'Seattle Seahawks',
-  'Tampa Bay Buccaneers',
-  'Washington Commanders',
-]);
-
 function zeroStandingsFromTeams(teamRows: Array<{ id: string; name: string }>): FootballStanding[] {
   return teamRows
     .map((team) => ({
@@ -203,22 +135,13 @@ function getMlbLeagueForTeam(teamName: string): 'AL' | 'NL' | null {
   return null;
 }
 
-function normalizeNbaTeamName(teamName: string): string {
-  if (teamName === 'LA Clippers') return 'LA Clippers';
-  return teamName;
-}
+function isCupTournamentPhase(event: SportsEvent): boolean {
+  if (event.stage) {
+    return event.stage !== 'league-phase';
+  }
 
-function getNbaConferenceForTeam(teamName: string): 'East' | 'West' | null {
-  const canonical = normalizeNbaTeamName(teamName);
-  if (NBA_EAST_TEAMS.has(canonical)) return 'East';
-  if (NBA_WEST_TEAMS.has(canonical)) return 'West';
-  return null;
-}
-
-function getNflConferenceForTeam(teamName: string): 'AFC' | 'NFC' | null {
-  if (NFL_AFC_TEAMS.has(teamName)) return 'AFC';
-  if (NFL_NFC_TEAMS.has(teamName)) return 'NFC';
-  return null;
+  const round = event.round ?? 0;
+  return round === 32 || round === 16 || round === 8 || round === 4 || round === 2 || round === 1;
 }
 
 function StandingsTable({ data, isLoading, error, refetch, accentClass, title, defaultVisibleRows, expandAll, onToggleExpand }: {
@@ -315,9 +238,15 @@ export default function ScoresPage() {
   const [ligue1Expanded, setLigue1Expanded] = useState(false);
   const [uclLeagueExpanded, setUclLeagueExpanded] = useState(false);
   const [uclTournamentExpanded, setUclTournamentExpanded] = useState(false);
+  const [europaLeagueExpanded, setEuropaLeagueExpanded] = useState(false);
+  const [europaTournamentExpanded, setEuropaTournamentExpanded] = useState(false);
+  const [conferenceLeagueExpanded, setConferenceLeagueExpanded] = useState(false);
+  const [conferenceTournamentExpanded, setConferenceTournamentExpanded] = useState(false);
   const [f1Expanded, setF1Expanded] = useState(false);
   const [f1Mode, setF1Mode] = useState<F1Mode>('driver');
   const [uclPhase, setUclPhase] = useState<CompetitionPhase>('league');
+  const [europaPhase, setEuropaPhase] = useState<CompetitionPhase>('league');
+  const [conferencePhase, setConferencePhase] = useState<CompetitionPhase>('league');
   const [motorsportSubFilter, setMotorsportSubFilter] = useState<MotorsportSubFilter>('all');
   const [baseballSubFilter, setBaseballSubFilter] = useState<BaseballSubFilter>('all');
   const [basketballSubFilter, setBasketballSubFilter] = useState<BasketballSubFilter>('all');
@@ -336,44 +265,22 @@ export default function ScoresPage() {
   const ligue1Standings = useLigue1Standings();
   const uclStandings = useUCLStandings();
   const uclEvents = useUCLEvents();
+  const europaStandings = useEuropaStandings();
+  const conferenceStandings = useConferenceStandings();
+  const europaEvents = useLeagueEvents(FOOTBALL_LEAGUES.europaLeague.id);
+  const conferenceEvents = useLeagueEvents(FOOTBALL_LEAGUES.conferenceLeague.id);
   const mlbStandings = useMLBStandings();
   const kboStandings = useKBOStandings();
-  const nbaStandings = useNBAStandings();
-  const nflStandings = useNFLStandings();
   const mlbTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.mlb.id);
   const kboTeams = useBaseballLeagueTeams(BASEBALL_LEAGUES.kbo.id);
-  const nbaTeams = useBasketballLeagueTeams(BASKETBALL_LEAGUES.nba.id);
-  const nflTeams = useAmericanFootballLeagueTeams(AMERICAN_FOOTBALL_LEAGUES.nfl.id);
   const f1StandingsQuery = useF1DriverStandings();
-  const f1Drivers = useF1Drivers();
-  const f1Constructors = useF1Constructors();
+  const f1ConstructorStandingsQuery = useF1ConstructorStandings();
   const f1Standings = useMemo<F1StandingRow[]>(() => {
-    if (f1StandingsQuery.data && f1StandingsQuery.data.length > 0) {
-      return f1StandingsQuery.data;
-    }
-    return (f1Drivers.data ?? []).slice(0, 22).map((driver) => ({
-      driver: driver.name,
-      team: '-',
-      pts: 0,
-    }));
-  }, [f1StandingsQuery.data, f1Drivers.data]);
+    return f1StandingsQuery.data ?? [];
+  }, [f1StandingsQuery.data]);
   const f1ConstructorStandings = useMemo<F1ConstructorStandingRow[]>(() => {
-    if (f1StandingsQuery.data && f1StandingsQuery.data.length > 0) {
-      const pointsByTeam = new Map<string, number>();
-      f1Standings.forEach((row) => {
-        pointsByTeam.set(row.team, (pointsByTeam.get(row.team) ?? 0) + row.pts);
-      });
-
-      return Array.from(pointsByTeam.entries())
-        .map(([team, pts]) => ({ team, pts }))
-        .sort((a, b) => b.pts - a.pts);
-    }
-
-    return (f1Constructors.data ?? []).map((constructor) => ({
-      team: constructor.name,
-      pts: 0,
-    }));
-  }, [f1StandingsQuery.data, f1Standings, f1Constructors.data]);
+    return f1ConstructorStandingsQuery.data ?? [];
+  }, [f1ConstructorStandingsQuery.data]);
   const mlbRows = useMemo(
     () => (mlbStandings.data && mlbStandings.data.length > 0)
       ? mlbStandings.data
@@ -394,46 +301,6 @@ export default function ScoresPage() {
       : zeroStandingsFromTeams((kboTeams.data ?? []).map((team) => ({ id: team.id, name: team.name }))),
     [kboStandings.data, kboTeams.data],
   );
-  const nbaRows = useMemo(() => {
-    const fallback = zeroStandingsFromTeams((nbaTeams.data ?? []).map((team) => ({ id: team.id, name: team.name })));
-    const live = nbaStandings.data ?? [];
-    if (live.length === 0) return fallback;
-
-    const existingIds = new Set(live.map((row) => row.teamId));
-    const missing = fallback
-      .filter((row) => !existingIds.has(row.teamId))
-      .map((row, idx) => ({ ...row, rank: live.length + idx + 1 }));
-    return [...live, ...missing];
-  }, [nbaStandings.data, nbaTeams.data]);
-
-  const nflRows = useMemo(() => {
-    const fallback = zeroStandingsFromTeams((nflTeams.data ?? []).map((team) => ({ id: team.id, name: team.name })));
-    const live = nflStandings.data ?? [];
-    if (live.length === 0) return fallback;
-
-    const existingIds = new Set(live.map((row) => row.teamId));
-    const missing = fallback
-      .filter((row) => !existingIds.has(row.teamId))
-      .map((row, idx) => ({ ...row, rank: live.length + idx + 1 }));
-    return [...live, ...missing];
-  }, [nflStandings.data, nflTeams.data]);
-  const nbaEastRows = useMemo(
-    () => nbaRows.filter((row) => getNbaConferenceForTeam(row.team) === 'East'),
-    [nbaRows],
-  );
-  const nbaWestRows = useMemo(
-    () => nbaRows.filter((row) => getNbaConferenceForTeam(row.team) === 'West'),
-    [nbaRows],
-  );
-  const nflAfcRows = useMemo(
-    () => nflRows.filter((row) => getNflConferenceForTeam(row.team) === 'AFC'),
-    [nflRows],
-  );
-  const nflNfcRows = useMemo(
-    () => nflRows.filter((row) => getNflConferenceForTeam(row.team) === 'NFC'),
-    [nflRows],
-  );
-
   const handleSportFilter = (filter: SportFilter) => {
     setSportFilter(filter);
     setLeagueFilter('all');
@@ -462,7 +329,13 @@ export default function ScoresPage() {
   const showEuropaLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Europa League');
   const showConferenceLeague = showFootball && (leagueFilter === 'all' || leagueFilter === 'Europa Conference League');
   const uclTournamentFixtures = (uclEvents.data ?? [])
-    .filter((event) => (event.round ?? 0) >= 32)
+    .filter((event) => isCupTournamentPhase(event))
+    .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
+  const europaTournamentFixtures = (europaEvents.data ?? [])
+    .filter((event) => isCupTournamentPhase(event))
+    .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
+  const conferenceTournamentFixtures = (conferenceEvents.data ?? [])
+    .filter((event) => isCupTournamentPhase(event))
     .sort((a, b) => parseISO(a.datetime_utc).getTime() - parseISO(b.datetime_utc).getTime());
 
   return (
@@ -810,23 +683,139 @@ export default function ScoresPage() {
 
         {showEuropaLeague && (
           <div className="standings-section standings-europa">
-            <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
-            <div className="standings-loading">
-              {t('scores.workInProgressWithCount', {
-                count: nbaConferenceMode === 'East' ? nbaEastRows.length : nbaWestRows.length,
-              })}
+            <div className="ucl-phase-header">
+              <h2 className="standings-league-name">{t('filters.europaLeague')}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${europaPhase === 'league' ? 'active' : ''}`}
+                  onClick={() => setEuropaPhase('league')}
+                >
+                  {t('scores.leaguePhase')}
+                </button>
+                <button
+                  className={`ucl-phase-btn ${europaPhase === 'tournament' ? 'active' : ''}`}
+                  onClick={() => setEuropaPhase('tournament')}
+                >
+                  {t('scores.tournamentPhase')}
+                </button>
+              </div>
             </div>
+
+            {europaPhase === 'league' ? (
+              <StandingsTable
+                data={europaStandings.data}
+                isLoading={europaStandings.isLoading}
+                error={europaStandings.error}
+                refetch={() => europaStandings.refetch()}
+                accentClass="standings-europa"
+                title=""
+                defaultVisibleRows={5}
+                expandAll={europaLeagueExpanded}
+                onToggleExpand={() => setEuropaLeagueExpanded((v) => !v)}
+              />
+            ) : (
+              <div className="ucl-tournament-list">
+                {europaEvents.isLoading ? (
+                  <div className="standings-loading">
+                    <span className="loading-with-spinner">
+                      <span className="loading-spinner" aria-hidden="true" />
+                      <span>{t('common.loading')}</span>
+                    </span>
+                  </div>
+                ) : europaTournamentFixtures.length === 0 ? (
+                  <div className="standings-loading">{t('scores.noTournamentFixtures')}</div>
+                ) : (
+                  <>
+                    {(europaTournamentExpanded ? europaTournamentFixtures : europaTournamentFixtures.slice(0, 5)).map((event) => (
+                      <div key={event.id} className="ucl-tournament-card">
+                        <div className="ucl-tournament-round">{t('scores.knockoutRound')}</div>
+                        <div className="ucl-tournament-title">{event.title}</div>
+                        <div className="ucl-tournament-meta">
+                          <span>{`${format(parseISO(event.datetime_utc), 'MMM d')}, ${formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}`}</span>
+                          <span>{event.venue}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {europaTournamentFixtures.length > 5 && (
+                      <div className="scores-view-more-row">
+                        <button className="scores-expand-btn" onClick={() => setEuropaTournamentExpanded(v => !v)}>
+                          {europaTournamentExpanded ? t('scores.viewLess') : t('scores.viewMore')}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 
         {showConferenceLeague && (
           <div className="standings-section standings-conference">
-            <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
-            <div className="standings-loading">
-              {t('scores.workInProgressWithCount', {
-                count: nflConferenceMode === 'AFC' ? nflAfcRows.length : nflNfcRows.length,
-              })}
+            <div className="ucl-phase-header">
+              <h2 className="standings-league-name">{t('filters.europaConferenceLeague')}</h2>
+              <div className="ucl-phase-toggle">
+                <button
+                  className={`ucl-phase-btn ${conferencePhase === 'league' ? 'active' : ''}`}
+                  onClick={() => setConferencePhase('league')}
+                >
+                  {t('scores.leaguePhase')}
+                </button>
+                <button
+                  className={`ucl-phase-btn ${conferencePhase === 'tournament' ? 'active' : ''}`}
+                  onClick={() => setConferencePhase('tournament')}
+                >
+                  {t('scores.tournamentPhase')}
+                </button>
+              </div>
             </div>
+
+            {conferencePhase === 'league' ? (
+              <StandingsTable
+                data={conferenceStandings.data}
+                isLoading={conferenceStandings.isLoading}
+                error={conferenceStandings.error}
+                refetch={() => conferenceStandings.refetch()}
+                accentClass="standings-conference"
+                title=""
+                defaultVisibleRows={5}
+                expandAll={conferenceLeagueExpanded}
+                onToggleExpand={() => setConferenceLeagueExpanded((v) => !v)}
+              />
+            ) : (
+              <div className="ucl-tournament-list">
+                {conferenceEvents.isLoading ? (
+                  <div className="standings-loading">
+                    <span className="loading-with-spinner">
+                      <span className="loading-spinner" aria-hidden="true" />
+                      <span>{t('common.loading')}</span>
+                    </span>
+                  </div>
+                ) : conferenceTournamentFixtures.length === 0 ? (
+                  <div className="standings-loading">{t('scores.noTournamentFixtures')}</div>
+                ) : (
+                  <>
+                    {(conferenceTournamentExpanded ? conferenceTournamentFixtures : conferenceTournamentFixtures.slice(0, 5)).map((event) => (
+                      <div key={event.id} className="ucl-tournament-card">
+                        <div className="ucl-tournament-round">{t('scores.knockoutRound')}</div>
+                        <div className="ucl-tournament-title">{event.title}</div>
+                        <div className="ucl-tournament-meta">
+                          <span>{`${format(parseISO(event.datetime_utc), 'MMM d')}, ${formatPreferenceTime(parseISO(event.datetime_utc), use24HourTime)}`}</span>
+                          <span>{event.venue}</span>
+                        </div>
+                      </div>
+                    ))}
+                    {conferenceTournamentFixtures.length > 5 && (
+                      <div className="scores-view-more-row">
+                        <button className="scores-expand-btn" onClick={() => setConferenceTournamentExpanded(v => !v)}>
+                          {conferenceTournamentExpanded ? t('scores.viewLess') : t('scores.viewMore')}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -850,50 +839,76 @@ export default function ScoresPage() {
               </div>
             </div>
 
-            <div className="standings-table-scroll">
-              <table className="standings-table">
-                <thead>
-                  {f1Mode === 'driver' ? (
-                    <tr>
-                      <th className="standings-col-pos">#</th>
-                      <th className="standings-col-team">{t('scores.driver')}</th>
-                      <th className="standings-col-f1-team">{t('scores.team')}</th>
-                      <th className="standings-col-pts">{t('scores.pts')}</th>
-                    </tr>
-                  ) : (
-                    <tr>
-                      <th className="standings-col-pos">#</th>
-                      <th className="standings-col-team">{t('scores.team')}</th>
-                      <th className="standings-col-pts">{t('scores.pts')}</th>
-                    </tr>
-                  )}
-                </thead>
-                <tbody>
-                  {(f1Mode === 'driver'
-                    ? (f1Expanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
-                      <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                        <td className="standings-col-pos">{i + 1}</td>
-                        <td className="standings-col-team">{row.driver}</td>
-                        <td className="standings-col-f1-team">{row.team}</td>
-                        <td className="standings-col-pts">{row.pts}</td>
-                      </tr>
-                    ))
-                    : (f1Expanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
-                      <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
-                        <td className="standings-col-pos">{i + 1}</td>
-                        <td className="standings-col-team">{row.team}</td>
-                        <td className="standings-col-pts">{row.pts}</td>
-                      </tr>
-                    )))}
-                </tbody>
-              </table>
-            </div>
-            {((f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) > 5) && (
-              <div className="scores-view-more-row">
-                <button className="scores-expand-btn" onClick={() => setF1Expanded((v) => !v)}>
-                  {f1Expanded ? t('scores.viewLess') : t('scores.viewMore')}
+            {(f1StandingsQuery.isLoading || f1ConstructorStandingsQuery.isLoading) ? (
+              <div className="standings-loading">
+                <span className="loading-with-spinner">
+                  <span className="loading-spinner" aria-hidden="true" />
+                  <span>{t('common.loading')}</span>
+                </span>
+              </div>
+            ) : (f1Mode === 'driver' ? f1StandingsQuery.error : f1ConstructorStandingsQuery.error) ? (
+              <div className="standings-error">
+                <p>{t('scores.loadError')}</p>
+                <button
+                  onClick={() => {
+                    f1StandingsQuery.refetch();
+                    f1ConstructorStandingsQuery.refetch();
+                  }}
+                  className="retry-btn"
+                >
+                  {t('common.retry')}
                 </button>
               </div>
+            ) : (f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) === 0 ? (
+              <div className="standings-loading">{t('scores.noStandings')}</div>
+            ) : (
+              <>
+                <div className="standings-table-scroll">
+                  <table className="standings-table">
+                    <thead>
+                      {f1Mode === 'driver' ? (
+                        <tr>
+                          <th className="standings-col-pos">#</th>
+                          <th className="standings-col-team">{t('scores.driver')}</th>
+                          <th className="standings-col-f1-team">{t('scores.team')}</th>
+                          <th className="standings-col-pts">{t('scores.pts')}</th>
+                        </tr>
+                      ) : (
+                        <tr>
+                          <th className="standings-col-pos">#</th>
+                          <th className="standings-col-team">{t('scores.team')}</th>
+                          <th className="standings-col-pts">{t('scores.pts')}</th>
+                        </tr>
+                      )}
+                    </thead>
+                    <tbody>
+                      {(f1Mode === 'driver'
+                        ? (f1Expanded ? f1Standings : f1Standings.slice(0, 5)).map((row, i) => (
+                          <tr key={row.driver} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                            <td className="standings-col-pos">{i + 1}</td>
+                            <td className="standings-col-team">{row.driver}</td>
+                            <td className="standings-col-f1-team">{row.team}</td>
+                            <td className="standings-col-pts">{row.pts}</td>
+                          </tr>
+                        ))
+                        : (f1Expanded ? f1ConstructorStandings : f1ConstructorStandings.slice(0, 5)).map((row, i) => (
+                          <tr key={row.team} className={i % 2 === 1 ? 'standings-row-alt' : ''}>
+                            <td className="standings-col-pos">{i + 1}</td>
+                            <td className="standings-col-team">{row.team}</td>
+                            <td className="standings-col-pts">{row.pts}</td>
+                          </tr>
+                        )))}
+                    </tbody>
+                  </table>
+                </div>
+                {((f1Mode === 'driver' ? f1Standings.length : f1ConstructorStandings.length) > 5) && (
+                  <div className="scores-view-more-row">
+                    <button className="scores-expand-btn" onClick={() => setF1Expanded((v) => !v)}>
+                      {f1Expanded ? t('scores.viewLess') : t('scores.viewMore')}
+                    </button>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}

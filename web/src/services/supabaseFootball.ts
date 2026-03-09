@@ -22,6 +22,7 @@ interface EventRow {
   id: string;
   league_id: string;
   round: number;
+  stage: string | null;
   season: string;
   date_event: string;
   time_event: string | null;
@@ -99,7 +100,7 @@ export async function fetchEvents(leagueId: string, rounds?: number[]) {
 
   let query = supabase
     .from('events')
-    .select('id, external_id, season, round, starts_at_utc, venue, competition_id, metadata')
+    .select('id, external_id, season, round, stage, starts_at_utc, venue, competition_id, metadata')
     .eq('competition_id', competition.id)
     .eq('season', CURRENT_SEASON)
     .order('starts_at_utc', { ascending: true });
@@ -159,6 +160,7 @@ export async function fetchEvents(leagueId: string, rounds?: number[]) {
       id: event.external_id ?? event.id,
       league_id: leagueId,
       round: Number.parseInt(event.round ?? '0', 10) || 0,
+      stage: event.stage,
       season: event.season,
       date_event: date,
       time_event: time,

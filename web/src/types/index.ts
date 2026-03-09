@@ -18,6 +18,7 @@ export interface SportsEvent {
   id: string;
   sport_id: string;
   round?: number;
+  stage?: string;
   home_team_id?: string;
   away_team_id?: string;
   title: string;

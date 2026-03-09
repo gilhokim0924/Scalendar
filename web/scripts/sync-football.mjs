@@ -30,7 +30,7 @@ const LEAGUES = [
     searchName: 'UEFA Champions League',
     displayName: 'Champions League',
     format: 'cup',
-    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 16, 32],
     standingRounds: Array.from({ length: 8 }, (_, i) => i + 1),
   },
   {
@@ -38,7 +38,7 @@ const LEAGUES = [
     searchName: 'UEFA Europa League',
     displayName: 'Europa League',
     format: 'cup',
-    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 16, 32],
     standingRounds: Array.from({ length: 8 }, (_, i) => i + 1),
   },
   {
@@ -46,7 +46,7 @@ const LEAGUES = [
     searchName: 'UEFA Europa Conference League',
     displayName: 'Europa Conference League',
     format: 'cup',
-    rounds: [...Array.from({ length: 8 }, (_, i) => i + 1), 32],
+    rounds: [...Array.from({ length: 6 }, (_, i) => i + 1), 16, 32],
     standingRounds: Array.from({ length: 6 }, (_, i) => i + 1),
   },
   {
@@ -141,6 +141,17 @@ function toUtcIsoString(dateEvent, timeEvent) {
   const asDate = new Date(`${date}T${hhmmss}Z`);
   if (Number.isNaN(asDate.getTime())) return null;
   return asDate.toISOString();
+}
+
+function getEventStage(league, round) {
+  if (league.format !== 'cup') return null;
+  if (league.standingRounds.includes(round)) return 'league-phase';
+  if (round === 32) return 'knockout-playoff';
+  if (round === 16) return 'round-of-16';
+  if (round === 8) return 'quarter-final';
+  if (round === 4) return 'semi-final';
+  if (round === 2 || round === 1) return 'final';
+  return 'knockout';
 }
 
 function computeStandings(events, competitionByLeague, participantByExternalId, standingRoundsByLeague) {
@@ -253,6 +264,32 @@ function computeStandings(events, competitionByLeague, participantByExternalId, 
   return rows;
 }
 
+function buildEventDerivedTeams(events) {
+  const byLeagueAndTeamId = new Map();
+
+  for (const event of events) {
+    if (event.home_team_id && event.home_team) {
+      byLeagueAndTeamId.set(`${event.league_id}:${event.home_team_id}`, {
+        id: event.home_team_id,
+        league_id: event.league_id,
+        name: event.home_team,
+        league_name: event.league_name,
+      });
+    }
+
+    if (event.away_team_id && event.away_team) {
+      byLeagueAndTeamId.set(`${event.league_id}:${event.away_team_id}`, {
+        id: event.away_team_id,
+        league_id: event.league_id,
+        name: event.away_team,
+        league_name: event.league_name,
+      });
+    }
+  }
+
+  return Array.from(byLeagueAndTeamId.values());
+}
+
 async function syncLeagueTeams(league) {
   const payload = await fetchSportsDbJson(`/search_all_teams.php?l=${encodeURIComponent(league.searchName)}`);
   const rows = (payload.teams ?? [])
@@ -360,16 +397,23 @@ async function main() {
     allEvents.push(...events);
   }
 
-  if (allTeams.length > 0) {
+  const eventDerivedTeams = buildEventDerivedTeams(allEvents);
+  const mergedTeams = Array.from(
+    new Map(
+      [...allTeams, ...eventDerivedTeams].map((team) => [`${team.league_id}:${team.id}`, team]),
+    ).values(),
+  );
+
+  if (mergedTeams.length > 0) {
     const { error: teamsError } = await supabase
       .from('teams')
-      .upsert(allTeams, { onConflict: 'id,league_id' });
+      .upsert(mergedTeams, { onConflict: 'id,league_id' });
     if (teamsError) throw teamsError;
   }
 
   const participants = Array.from(
     new Map(
-      allTeams.map((team) => [
+      mergedTeams.map((team) => [
         team.id,
         {
           sport_id: sportId,
@@ -403,6 +447,7 @@ async function main() {
     .map((event) => {
       const competitionId = competitionByLeague.get(event.league_id);
       const startsAtUtc = toUtcIsoString(event.date_event, event.time_event);
+      const league = LEAGUES.find((entry) => entry.id === event.league_id);
       if (!competitionId || !startsAtUtc) return null;
 
       return {
@@ -411,7 +456,7 @@ async function main() {
         external_id: event.id,
         season: event.season,
         round: String(event.round),
-        stage: null,
+        stage: league ? getEventStage(league, event.round) : null,
         starts_at_utc: startsAtUtc,
         venue: event.venue || null,
         status: event.home_score != null && event.away_score != null ? 'finished' : 'scheduled',
@@ -503,6 +548,15 @@ async function main() {
   }
 
   const standings = computeStandings(allEvents, competitionByLeague, participantByExternalId, standingRoundsByLeague);
+  if (competitionIds.length > 0) {
+    const { error: deleteStandingsError } = await supabase
+      .from('standings')
+      .delete()
+      .eq('season', SEASON)
+      .in('competition_id', competitionIds);
+    if (deleteStandingsError) throw deleteStandingsError;
+  }
+
   if (standings.length > 0) {
     const { error: standingsError } = await supabase
       .from('standings')
@@ -510,7 +564,7 @@ async function main() {
     if (standingsError) throw standingsError;
   }
 
-  console.log(`Sync complete: ${allTeams.length} teams, ${allEvents.length} events, ${standings.length} standings rows`);
+  console.log(`Sync complete: ${mergedTeams.length} teams, ${allEvents.length} events, ${standings.length} standings rows`);
 }
 
 main().catch((error) => {

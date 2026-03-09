@@ -59,7 +59,8 @@
   bottom: 4px;
   left: 50%;
   transform: translateX(-50%);
-  width: 76px;
+  width: calc(100% - 8px);
+  max-width: 76px;
   background: var(--glass-active-bg);
   border: 1px solid var(--glass-active-border);
   border-radius: 18px;

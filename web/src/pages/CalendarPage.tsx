@@ -1,17 +1,18 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { format, parseISO } from 'date-fns';
 import { useTranslation } from 'react-i18next';
-import { mockEvents, getTeamInitials } from '../utils/mockData';
+import { getTeamInitials } from '../utils/mockData';
 import { FOOTBALL_LEAGUES, useLeagueEvents, useLeagueTeams, usePLEvents, useUCLEvents } from '../hooks/useFootballData';
 import { useF1Events } from '../hooks/useF1Data';
 import { BASEBALL_LEAGUES, useBaseballLeagueEvents, useBaseballLeagueTeams } from '../hooks/useBaseballData';
 import { formatPreferenceTime, useUserPreferences } from '../hooks/useUserPreferences';
+import { useAuth } from '../contexts/AuthContext';
+import { fetchUserSelectedTeams, readStoredSelectedTeams, SELECTED_TEAMS_EVENT, writeStoredSelectedTeams } from '../services/userPreferences';
 import type { SportsEvent, Team } from '../types';
 import { Link, useLocation } from 'react-router-dom';
 import './CalendarPage.css';
 
 const F1_SELECTION_ID = 'f1';
-const LEGACY_F1_SELECTION_IDS = new Set(['11', '12', '13', '14', '15']);
 
 function uniqueTeamsById(teams: Team[]): Team[] {
   const byId = new Map<string, Team>();
@@ -63,20 +64,55 @@ function getTeamThemeClass(team: Team): string {
 export default function CalendarPage() {
   const { t } = useTranslation();
   const location = useLocation();
+  const { user, isLoading: isAuthLoading } = useAuth();
   const { use24HourTime, hideScores } = useUserPreferences();
   const [selectedEvent, setSelectedEvent] = useState<SportsEvent | null>(null);
-  const [selectedTeams] = useState<string[]>(() => {
-    const saved = localStorage.getItem('selectedTeams');
-    if (!saved) return [];
-    const parsed: string[] = JSON.parse(saved);
-    const normalized = Array.from(new Set(parsed.map((id) => (
-      LEGACY_F1_SELECTION_IDS.has(id) ? F1_SELECTION_ID : id
-    ))));
-    if (normalized.join(',') !== parsed.join(',')) {
-      localStorage.setItem('selectedTeams', JSON.stringify(normalized));
-    }
-    return normalized;
-  });
+  const [selectedTeams, setSelectedTeams] = useState<string[]>(() => readStoredSelectedTeams());
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadSelectedTeams = async () => {
+      if (isAuthLoading) return;
+
+      try {
+        if (user?.id) {
+          const teamIds = await fetchUserSelectedTeams(user.id);
+          if (cancelled) return;
+          setSelectedTeams(teamIds);
+          writeStoredSelectedTeams(teamIds);
+          return;
+        }
+
+        if (cancelled) return;
+        setSelectedTeams(readStoredSelectedTeams());
+      } catch (error) {
+        console.error('Failed to load calendar selected teams', error);
+        if (!cancelled) {
+          setSelectedTeams(readStoredSelectedTeams());
+        }
+      }
+    };
+
+    void loadSelectedTeams();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, isAuthLoading]);
+
+  useEffect(() => {
+    const refreshSelectedTeams = () => {
+      setSelectedTeams(readStoredSelectedTeams());
+    };
+
+    window.addEventListener('storage', refreshSelectedTeams);
+    window.addEventListener(SELECTED_TEAMS_EVENT, refreshSelectedTeams);
+    return () => {
+      window.removeEventListener('storage', refreshSelectedTeams);
+      window.removeEventListener(SELECTED_TEAMS_EVENT, refreshSelectedTeams);
+    };
+  }, []);
 
   // Fetch live football events
   const plEvents = usePLEvents();
@@ -104,12 +140,9 @@ export default function CalendarPage() {
   const isLoading = plEvents.isLoading || uclEvents.isLoading || europaEvents.isLoading || conferenceEvents.isLoading || laLigaEvents.isLoading || bundesligaEvents.isLoading || serieAEvents.isLoading || ligue1Events.isLoading || mlbEvents.isLoading || kboEvents.isLoading || f1EventsQuery.isLoading;
   const hasError = plEvents.error && uclEvents.error && europaEvents.error && conferenceEvents.error && laLigaEvents.error && bundesligaEvents.error && serieAEvents.error && ligue1Events.error && mlbEvents.error && kboEvents.error;
 
-  const fallbackF1Events = useMemo(() => mockEvents.filter(e => e.sport_id === '2'), []);
-  const f1Events = (f1EventsQuery.data && f1EventsQuery.data.length > 0)
-    ? f1EventsQuery.data
-    : fallbackF1Events;
+  const f1Events = f1EventsQuery.data ?? [];
 
-  // Merge API football events with F1 mock events
+  // Merge live events across sports.
   const allEvents = useMemo(() => {
     const footballEvents = [
       ...(plEvents.data ?? []),
