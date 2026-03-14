@@ -6,6 +6,9 @@ const SPORT_KEY = 'f1';
 const COMPETITION_EXTERNAL_ID = 'f1-wdc';
 const COMPETITION_NAME = 'Formula 1 World Championship';
 const JOLPICA_BASE_URL = 'https://api.jolpi.ca/ergast/f1';
+const JOLPICA_RESULTS_CONCURRENCY = 4;
+const JOLPICA_RETRY_LIMIT = 3;
+const JOLPICA_RETRY_BASE_DELAY_MS = 1500;
 
 function parseEnvFile(content) {
   const env = {};
@@ -35,12 +38,49 @@ function getCurrentF1Season(now = new Date()) {
   return String(now.getUTCFullYear());
 }
 
-async function fetchJolpica(pathWithQuery) {
-  const response = await fetch(`${JOLPICA_BASE_URL}${pathWithQuery}`);
-  if (!response.ok) {
-    throw new Error(`Jolpica request failed (${response.status}): ${pathWithQuery}`);
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function getRetryDelayMs(response, attempt) {
+  const retryAfter = response?.headers?.get?.('retry-after');
+  const retryAfterSeconds = Number.parseInt(retryAfter ?? '', 10);
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return retryAfterSeconds * 1000;
   }
-  return response.json();
+  return JOLPICA_RETRY_BASE_DELAY_MS * attempt;
+}
+
+async function fetchJolpica(pathWithQuery) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= JOLPICA_RETRY_LIMIT; attempt += 1) {
+    let response;
+
+    try {
+      response = await fetch(`${JOLPICA_BASE_URL}${pathWithQuery}`);
+    } catch (error) {
+      lastError = error;
+      if (attempt < JOLPICA_RETRY_LIMIT) {
+        await sleep(JOLPICA_RETRY_BASE_DELAY_MS * attempt);
+        continue;
+      }
+      break;
+    }
+
+    if (response.ok) {
+      return response.json();
+    }
+
+    const isRetryable = response.status === 429 || response.status >= 500;
+    if (!isRetryable || attempt === JOLPICA_RETRY_LIMIT) {
+      throw new Error(`Jolpica request failed (${response.status}): ${pathWithQuery}`);
+    }
+
+    await sleep(getRetryDelayMs(response, attempt));
+  }
+
+  throw new Error(`Jolpica request failed: ${pathWithQuery}${lastError ? ` (${lastError.message})` : ''}`);
 }
 
 function raceToIsoDateTime(race) {
@@ -105,6 +145,29 @@ function buildPodiumSummary(results) {
   return podium.length > 0 ? podium.join('  ') : null;
 }
 
+async function mapWithConcurrency(items, concurrency, mapper) {
+  if (items.length === 0) return [];
+
+  const results = new Array(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await mapper(items[currentIndex], currentIndex);
+    }
+  }
+
+  const workers = Array.from(
+    { length: Math.min(concurrency, items.length) },
+    () => worker(),
+  );
+
+  await Promise.all(workers);
+  return results;
+}
+
 async function main() {
   const env = loadEnvFromWebDir();
   const supabaseUrl = env.SUPABASE_URL || env.VITE_SUPABASE_URL;
@@ -130,12 +193,21 @@ async function main() {
   const driverStandings = driverStandingsList?.DriverStandings ?? [];
   const constructorStandings = constructorStandingsList?.ConstructorStandings ?? [];
   const constructors = constructorsPayload?.MRData?.ConstructorTable?.Constructors ?? [];
-  const raceResultsPayloads = await Promise.all(
-    races.map(async (race) => {
+  const raceResultsPayloads = await mapWithConcurrency(
+    races,
+    JOLPICA_RESULTS_CONCURRENCY,
+    async (race) => {
+      const round = String(race.round ?? '');
+
+      try {
       const payload = await fetchJolpica(`/${season}/${race.round}/results.json`);
       const raceWithResults = payload?.MRData?.RaceTable?.Races?.[0];
-      return [String(race.round ?? ''), raceWithResults?.Results ?? []];
-    }),
+        return [round, raceWithResults?.Results ?? []];
+      } catch (error) {
+        console.warn(`Skipping F1 results for round ${round}: ${error.message}`);
+        return [round, []];
+      }
+    },
   );
   const raceResultsByRound = new Map(raceResultsPayloads);
 
